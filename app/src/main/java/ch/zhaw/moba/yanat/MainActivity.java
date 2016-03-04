@@ -1,9 +1,13 @@
 package ch.zhaw.moba.yanat;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,9 +17,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+import com.google.gson.Gson;
+
+import java.util.Date;
+import java.util.Iterator;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static final String PREFS_NAME = "MyPrefsFile";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,14 +35,16 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
+        // print all projects
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        String jsonStr = settings.getString("projects", "[]");
+
+        Gson gson = new Gson();
+        Project[] projects = gson.fromJson(jsonStr, Project[].class);
+        for (Project project : projects) {
+            Log.v("project data: ", project.getTitle());
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -41,10 +54,72 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, DetailActivity.class));
+                // startActivity(new Intent(MainActivity.this, DetailActivity.class));
+
+                // prefill
+                /*
+                EditText mProjectName = (EditText)findViewById(R.id.input_project_name);
+                mProjectName.setText(projectTitle);
+                */
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+
+                builder.setView(inflater.inflate(R.layout.dialog_create_project, null))
+                    .setTitle("Projektdetails")
+                    // Add action buttons
+                    .setPositiveButton("Erstellen", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+
+                        /*
+                        // todo: set real project name
+                        EditText mProjectName = (EditText)findViewById(R.id.input_project_name);
+                        String projectName = mProjectName.getText().toString();
+                        */
+                            String projectName = "Projekt 1! :D";
+
+                            // build project object
+                            Project project = new Project(projectName);
+
+                            // persist new project data in preferences
+                            // testing gson
+                            Project[] projects = {project};
+                            Gson gson = new Gson();
+                            String projectsJson = gson.toJson(projects);
+                            Log.v("Hall", projectsJson);
+                            // save
+                            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                            SharedPreferences.Editor editor = settings.edit();
+                            editor.putString("projects", projectsJson);
+
+                            editor.commit();
+
+                            // open project
+                            // startActivity(new Intent(MainActivity.this, DetailActivity.class));
+                        }
+                    })
+                    .setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // MainActivity.this.getDialog().cancel();
+                            // LoginDialogFragment.this.getDialog().cancel();
+                        }
+                    })
+                ;
+
+                /*
+                builder.setMessage("hallo liebe welt")
+                        .setTitle("hallo")
+                */
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
             }
         });
     }
