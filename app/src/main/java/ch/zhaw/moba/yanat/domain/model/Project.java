@@ -1,4 +1,4 @@
-package ch.zhaw.moba.yanat;
+package ch.zhaw.moba.yanat.domain.model;
 
 import java.util.Date;
 
@@ -7,18 +7,26 @@ import java.util.Date;
  */
 public class Project {
 
+    protected String id = "";
+
     protected String title = "";
 
     protected Long crdate = null;
     protected Long tstamp = null;
 
-    public Project(String title) {
-        this.title = title;
-
+    public Project() {
         // crdate equals tstamp
         Long tstamp = new Date().getTime();
         this.crdate = tstamp;
         this.tstamp = tstamp;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTitle() {
