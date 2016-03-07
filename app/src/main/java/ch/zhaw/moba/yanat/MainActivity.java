@@ -4,6 +4,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,13 +17,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
+import ch.zhaw.moba.yanat.view.ProjectAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -38,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -48,34 +55,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
-                // prefill
-                // todo: make it working!!
-                // setContentView(R.layout.activity_main);
-                EditText mProjectTitle = (EditText)findViewById(R.id.input_project_title);
-                mProjectTitle.setText("Neues Projekt");
-                */
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 LayoutInflater inflater = MainActivity.this.getLayoutInflater();
 
-                builder.setView(inflater.inflate(R.layout.dialog_create_project, null))
-                    .setTitle("Projektdetails")
-                    // Add action buttons
-                    .setPositiveButton("Erstellen", new DialogInterface.OnClickListener() {
+                final View view = inflater.inflate(R.layout.dialog_create_project, null);
+
+                // view.findViewById()
+                EditText mProjectTitle = (EditText)view.findViewById(R.id.input_project_title);
+                mProjectTitle.setText("Neues Projekt");
+
+                builder.setView(view);
+                // builder.setView(inflater.inflate(R.layout.dialog_create_project, null));
+                builder.setTitle("Projektdetails");
+                // Add action buttons
+                builder.setPositiveButton("Erstellen", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
 
-                            /*
                             // todo: set real project name
-                            EditText mProjectName = (EditText)findViewById(R.id.input_project_name);
-                            String projectName = mProjectName.getText().toString();
-                            */
-                            String projectName = "Projekt 1! :D";
+                            EditText mProjectName = (EditText)view.findViewById(R.id.input_project_title);
+                            String projectTitle = mProjectName.getText().toString();
+
+                            // String projectTitle = "Projekt 1! :D";
 
                             // build project object
                             Project project = new Project();
-                            project.setTitle(projectName);
+                            project.setTitle(projectTitle);
 
                             projectRepository.add(project);
 
@@ -100,18 +105,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         this.listProjects();
+
     }
 
     public void listProjects() {
         // print all current projects
         String projectList = "";
-        ArrayList<Project> projects = projectRepository.findAll();
+        List<Project> projects = projectRepository.findAll();
+
+        RecyclerView rv = (RecyclerView) findViewById(R.id.project_list);
+
+        LinearLayoutManager llm = new LinearLayoutManager(MainActivity.this);
+        rv.setLayoutManager(llm);
+
+        ProjectAdapter adapter = new ProjectAdapter(projects);
+        rv.setAdapter(adapter);
+
+        // ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.project_list_item, "myStringArray");
+        // ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.project_list_item, "myStringArray");
+
+        /*
         for(Project project : projects){
             projectList += project.getTitle() + " (" + project.getId() + ")\n";
         }
-        TextView content = (TextView) findViewById(R.id.contentList);
-        content.setText(projectList);
+        // content.setText(projectList);
+        */
+
+
+        // listView.setAdapter(adapter);
+
     }
+
 
     @Override
     public void onBackPressed() {

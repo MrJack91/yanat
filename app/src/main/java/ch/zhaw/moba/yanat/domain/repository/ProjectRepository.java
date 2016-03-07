@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ch.zhaw.moba.yanat.db.ProjectContract;
 import ch.zhaw.moba.yanat.db.ProjectDbHelper;
@@ -25,10 +26,11 @@ public class ProjectRepository extends Repository {
         this.mDbHelper = new ProjectDbHelper(this.context);
     }
 
-    public ArrayList<Project> findAll() {
+    public List<Project> findAll() {
         // read db
         SQLiteDatabase dbRead = this.mDbHelper.getReadableDatabase();
-        ArrayList<Project> projects = new ArrayList();
+        // ArrayList<Project> projects = new ArrayList();
+        List<Project> projects = new ArrayList();
 
         String sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TITLE + " DESC";
         Cursor cursor = dbRead.query(

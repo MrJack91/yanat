@@ -1,6 +1,11 @@
 package ch.zhaw.moba.yanat.domain.model;
 
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by michael on 04.03.16.
@@ -38,12 +43,21 @@ public class Project {
         return createDate;
     }
 
+    public String getCreateDateString() {
+        return this.formatDate(createDate);
+    }
+
+
     public void setCreateDate(Long createDate) {
         this.createDate = createDate;
     }
 
     public Long getTstamp() {
         return tstamp;
+    }
+
+    public String getTstampString() {
+        return this.formatDate(tstamp);
     }
 
     public void setTstamp(Long tstamp) {
@@ -80,5 +94,15 @@ public class Project {
 
     public void setPdfHeight(int pdfHeight) {
         this.pdfHeight = pdfHeight;
+    }
+
+
+    protected String formatDate(long timestamp) {
+        Calendar calendar = Calendar.getInstance();
+        TimeZone tz = TimeZone.getDefault();
+        calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        java.util.Date currenTimeZone = new java.util.Date(timestamp*1000);
+        return sdf.format(currenTimeZone);
     }
 }
