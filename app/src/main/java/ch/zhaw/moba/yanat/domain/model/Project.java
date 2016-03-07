@@ -7,42 +7,39 @@ import java.util.Date;
  */
 public class Project {
 
-    protected String id = "";
+    protected int id = 0;
+
+    protected Long createDate = null;
+    protected Long tstamp = null;
 
     protected String title = "";
+    protected String pdf = null;
+    protected int pdfWidth = 0;
+    protected int pdfHeight = 0;
 
-    protected Long crdate = null;
-    protected Long tstamp = null;
+
 
     public Project() {
         // crdate equals tstamp
         Long tstamp = new Date().getTime();
-        this.crdate = tstamp;
+        this.createDate = tstamp;
         this.tstamp = tstamp;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public Long getCreateDate() {
+        return createDate;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public Long getCrdate() {
-        return crdate;
-    }
-
-    public void setCrdate(Long crdate) {
-        this.crdate = crdate;
+    public void setCreateDate(Long createDate) {
+        this.createDate = createDate;
     }
 
     public Long getTstamp() {
@@ -53,4 +50,35 @@ public class Project {
         this.tstamp = tstamp;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getPdf() {
+        return pdf;
+    }
+
+    public void setPdf(String pdf) {
+        this.pdf = pdf;
+    }
+
+    public int getPdfWidth() {
+        return pdfWidth;
+    }
+
+    public void setPdfWidth(int pdfWidth) {
+        this.pdfWidth = pdfWidth;
+    }
+
+    public int getPdfHeight() {
+        return pdfHeight;
+    }
+
+    public void setPdfHeight(int pdfHeight) {
+        this.pdfHeight = pdfHeight;
+    }
 }

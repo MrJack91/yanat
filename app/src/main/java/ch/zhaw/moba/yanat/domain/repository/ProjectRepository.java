@@ -43,8 +43,7 @@ public class ProjectRepository extends Repository {
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            // todo: map all properties
-            String id = cursor.getString(cursor.getColumnIndexOrThrow(ProjectContract.ProjectEntry.COLUMN_NAME_ID));
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow(ProjectContract.ProjectEntry.COLUMN_NAME_ID));
             Long createDate = cursor.getLong(cursor.getColumnIndexOrThrow(ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE));
             Long tstamp = cursor.getLong(cursor.getColumnIndexOrThrow(ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP));
             String title = cursor.getString(cursor.getColumnIndexOrThrow(ProjectContract.ProjectEntry.COLUMN_NAME_TITLE));
@@ -54,7 +53,13 @@ public class ProjectRepository extends Repository {
 
             Project project = new Project();
             project.setId(id);
+            project.setCreateDate(createDate);
+            project.setTstamp(tstamp);
+
             project.setTitle(title);
+            project.setPdf(pdf);
+            project.setPdfWidth(pdfWidth);
+            project.setPdfHeight(pdfHeight);
 
             // add project to collection
             projects.add(project);
@@ -73,8 +78,13 @@ public class ProjectRepository extends Repository {
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        // values.put(ProjectContract.ProjectEntry.COLUMN_NAME_ID, "3");
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TITLE, "Test Project");
+        // values.put(ProjectContract.ProjectEntry.COLUMN_NAME_ID, project.getId());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE, project.getCreateDate());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP, project.getTstamp());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TITLE, project.getTitle());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF, project.getPdf());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_WIDTH, project.getPdfWidth());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_HEIGHT, project.getPdfHeight());
 
         // Insert the new row, returning the primary key value of the new row
         long newRowId;
@@ -84,6 +94,12 @@ public class ProjectRepository extends Repository {
                 values);
 
         return newRowId;
+    }
+
+    public boolean update(Project project) {
+        // todo: implement
+
+        return true;
     }
 
 

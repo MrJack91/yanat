@@ -1,9 +1,6 @@
 package ch.zhaw.moba.yanat;
 
-import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -18,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -37,17 +35,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // print all current projects
-        String projectList = "";
-        ArrayList<Project> projects = projectRepository.findAll();
-        for(Project project : projects){
-            projectList += project.getTitle() + " (" + project.getId() + ")\n";
-        }
-
-        TextView content = (TextView) findViewById(R.id.contentList);
-        content.setText(projectList);
-
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -61,12 +48,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // startActivity(new Intent(MainActivity.this, DetailActivity.class));
-
-                // prefill
                 /*
-                EditText mProjectName = (EditText)findViewById(R.id.input_project_name);
-                mProjectName.setText(projectTitle);
+                // prefill
+                // todo: make it working!!
+                // setContentView(R.layout.activity_main);
+                EditText mProjectTitle = (EditText)findViewById(R.id.input_project_title);
+                mProjectTitle.setText("Neues Projekt");
                 */
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -79,15 +66,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
 
-                        /*
-                        // todo: set real project name
-                        EditText mProjectName = (EditText)findViewById(R.id.input_project_name);
-                        String projectName = mProjectName.getText().toString();
-                        */
+                            /*
+                            // todo: set real project name
+                            EditText mProjectName = (EditText)findViewById(R.id.input_project_name);
+                            String projectName = mProjectName.getText().toString();
+                            */
                             String projectName = "Projekt 1! :D";
 
                             // build project object
-                            // Project project = new Project(projectName);
+                            Project project = new Project();
+                            project.setTitle(projectName);
+
+                            projectRepository.add(project);
+
+                            // reload project list
+                            listProjects();
 
                             // open project
                             // startActivity(new Intent(MainActivity.this, DetailActivity.class));
@@ -101,16 +94,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     })
                 ;
 
-                /*
-                builder.setMessage("hallo liebe welt")
-                        .setTitle("hallo")
-                */
-
                 AlertDialog dialog = builder.create();
                 dialog.show();
-
             }
         });
+
+        this.listProjects();
+    }
+
+    public void listProjects() {
+        // print all current projects
+        String projectList = "";
+        ArrayList<Project> projects = projectRepository.findAll();
+        for(Project project : projects){
+            projectList += project.getTitle() + " (" + project.getId() + ")\n";
+        }
+        TextView content = (TextView) findViewById(R.id.contentList);
+        content.setText(projectList);
     }
 
     @Override
@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        /*
         if (id == R.id.nav_camera) {
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
@@ -149,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_send) {
 
         }
+        */
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
