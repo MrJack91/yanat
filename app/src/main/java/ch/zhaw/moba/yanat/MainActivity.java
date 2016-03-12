@@ -6,7 +6,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -17,13 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ch.zhaw.moba.yanat.domain.model.Project;
@@ -32,7 +26,6 @@ import ch.zhaw.moba.yanat.view.ProjectAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    // ProjectDbHelper mDbHelper = new ProjectDbHelper(MainActivity.this);
     ProjectRepository projectRepository = new ProjectRepository(MainActivity.this);
 
     @Override
@@ -55,46 +48,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 LayoutInflater inflater = MainActivity.this.getLayoutInflater();
-
                 final View view = inflater.inflate(R.layout.dialog_create_project, null);
 
                 // view.findViewById()
                 EditText mProjectTitle = (EditText)view.findViewById(R.id.input_project_title);
+                // todo: set name from pdf
                 mProjectTitle.setText("Neues Projekt");
 
                 builder.setView(view);
-                // builder.setView(inflater.inflate(R.layout.dialog_create_project, null));
                 builder.setTitle("Projektdetails");
                 // Add action buttons
                 builder.setPositiveButton("Erstellen", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-
-                            // todo: set real project name
-                            EditText mProjectName = (EditText)view.findViewById(R.id.input_project_title);
+                            EditText mProjectName = (EditText) view.findViewById(R.id.input_project_title);
                             String projectTitle = mProjectName.getText().toString();
-
-                            // String projectTitle = "Projekt 1! :D";
 
                             // build project object
                             Project project = new Project();
                             project.setTitle(projectTitle);
-
                             projectRepository.add(project);
 
                             // reload project list
                             listProjects();
-
-                            // open project
-                            // startActivity(new Intent(MainActivity.this, DetailActivity.class));
                         }
                     })
                     .setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // MainActivity.this.getDialog().cancel();
-                            // LoginDialogFragment.this.getDialog().cancel();
                         }
                     })
                 ;
@@ -110,30 +92,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void listProjects() {
         // print all current projects
-        String projectList = "";
         List<Project> projects = projectRepository.findAll();
 
-        RecyclerView rv = (RecyclerView) findViewById(R.id.project_list);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.project_list);
+        mRecyclerView.setHasFixedSize(true);
 
-        LinearLayoutManager llm = new LinearLayoutManager(MainActivity.this);
-        rv.setLayoutManager(llm);
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(llm);
 
         ProjectAdapter adapter = new ProjectAdapter(projects);
-        rv.setAdapter(adapter);
-
-        // ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.project_list_item, "myStringArray");
-        // ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.project_list_item, "myStringArray");
-
-        /*
-        for(Project project : projects){
-            projectList += project.getTitle() + " (" + project.getId() + ")\n";
-        }
-        // content.setText(projectList);
-        */
-
-
-        // listView.setAdapter(adapter);
-
+        mRecyclerView.setAdapter(adapter);
     }
 
 

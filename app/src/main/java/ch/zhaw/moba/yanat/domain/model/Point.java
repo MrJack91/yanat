@@ -3,12 +3,7 @@ package ch.zhaw.moba.yanat.domain.model;
 /**
  * Created by michael on 04.03.16.
  */
-public class Point {
-
-    protected int id = 0;
-
-    protected Long createDate = null;
-    protected Long tstamp = null;
+public class Point extends Model {
 
     protected int referenceId = 0;
     protected int groupId = 0;
@@ -18,28 +13,8 @@ public class Point {
     protected double posY = 0;
     protected int height = 0;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Long getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Long createDate) {
-        this.createDate = createDate;
-    }
-
-    public Long getTstamp() {
-        return tstamp;
-    }
-
-    public void setTstamp(Long tstamp) {
-        this.tstamp = tstamp;
+    public Point() {
+        super();
     }
 
     public int getReferenceId() {

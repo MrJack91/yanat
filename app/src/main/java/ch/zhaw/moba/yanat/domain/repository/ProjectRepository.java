@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,18 +20,77 @@ public class ProjectRepository extends Repository {
     protected Context context = null;
     protected ProjectDbHelper mDbHelper = null;
 
+    protected SQLiteDatabase dbWrite = null;
+
+
     public ProjectRepository(Context context) {
         this.context = context;
         this.mDbHelper = new ProjectDbHelper(this.context);
     }
 
+    protected ContentValues buildContentValues(Project project) {
+        // refresh tstamp
+        project.setCurrentTstamp();
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        // values.put(ProjectContract.ProjectEntry.COLUMN_NAME_ID, project.getId());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE, project.getCreateDate());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP, project.getTstamp());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TITLE, project.getTitle());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF, project.getPdf());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_WIDTH, project.getPdfWidth());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_HEIGHT, project.getPdfHeight());
+        return values;
+    }
+
+    public long add(Project project) {
+        this.dbWrite = this.mDbHelper.getWritableDatabase();
+        ContentValues values = this.buildContentValues(project);
+
+        // Insert the new row, returning the primary key value of the new row
+        long newRowId;
+        newRowId = dbWrite.insert(
+                ProjectContract.ProjectEntry.TABLE_NAME,
+                null,
+                values);
+
+        return newRowId;
+    }
+
+    public boolean update(Project project) {
+        this.dbWrite = this.mDbHelper.getWritableDatabase();
+        ContentValues values = this.buildContentValues(project);
+
+        this.dbWrite.update(
+                ProjectContract.ProjectEntry.TABLE_NAME,
+                values,
+                ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
+                new String[]{String.valueOf(project.getId())}
+        );
+        return true;
+    }
+
+    public boolean delete(Project project) {
+        this.dbWrite = this.mDbHelper.getWritableDatabase();
+        this.dbWrite.delete(
+                ProjectContract.ProjectEntry.TABLE_NAME,
+                ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
+                new String[]{String.valueOf(project.getId())}
+        );
+        return true;
+    }
+
+    /**
+     * Gets all projects
+     * @return
+     */
     public List<Project> findAll() {
         // read db
         SQLiteDatabase dbRead = this.mDbHelper.getReadableDatabase();
-        // ArrayList<Project> projects = new ArrayList();
         List<Project> projects = new ArrayList();
 
-        String sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TITLE + " DESC";
+        String sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP + " DESC";
         Cursor cursor = dbRead.query(
                 ProjectContract.ProjectEntry.TABLE_NAME,  // The table to query
                 null,                                     // The columns to return
@@ -71,40 +129,5 @@ public class ProjectRepository extends Repository {
 
         return projects;
     }
-
-
-    public long add(Project project) {
-        // todo: add following code
-        // write db
-        SQLiteDatabase dbWrite = this.mDbHelper.getWritableDatabase();
-
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        // values.put(ProjectContract.ProjectEntry.COLUMN_NAME_ID, project.getId());
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE, project.getCreateDate());
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP, project.getTstamp());
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TITLE, project.getTitle());
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF, project.getPdf());
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_WIDTH, project.getPdfWidth());
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_HEIGHT, project.getPdfHeight());
-
-        // Insert the new row, returning the primary key value of the new row
-        long newRowId;
-        newRowId = dbWrite.insert(
-                ProjectContract.ProjectEntry.TABLE_NAME,
-                null,
-                values);
-
-        return newRowId;
-    }
-
-    public boolean update(Project project) {
-        // todo: implement
-
-        return true;
-    }
-
-
-
 
 }

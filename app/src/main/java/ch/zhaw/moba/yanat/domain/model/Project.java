@@ -10,58 +10,15 @@ import java.util.TimeZone;
 /**
  * Created by michael on 04.03.16.
  */
-public class Project {
-
-    protected int id = 0;
-
-    protected Long createDate = null;
-    protected Long tstamp = null;
+public class Project extends Model {
 
     protected String title = "";
     protected String pdf = null;
     protected int pdfWidth = 0;
     protected int pdfHeight = 0;
 
-
-
     public Project() {
-        // crdate equals tstamp
-        Long tstamp = new Date().getTime();
-        this.createDate = tstamp;
-        this.tstamp = tstamp;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Long getCreateDate() {
-        return createDate;
-    }
-
-    public String getCreateDateString() {
-        return this.formatDate(createDate);
-    }
-
-
-    public void setCreateDate(Long createDate) {
-        this.createDate = createDate;
-    }
-
-    public Long getTstamp() {
-        return tstamp;
-    }
-
-    public String getTstampString() {
-        return this.formatDate(tstamp);
-    }
-
-    public void setTstamp(Long tstamp) {
-        this.tstamp = tstamp;
+        super();
     }
 
     public String getTitle() {
@@ -94,15 +51,5 @@ public class Project {
 
     public void setPdfHeight(int pdfHeight) {
         this.pdfHeight = pdfHeight;
-    }
-
-
-    protected String formatDate(long timestamp) {
-        Calendar calendar = Calendar.getInstance();
-        TimeZone tz = TimeZone.getDefault();
-        calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        java.util.Date currenTimeZone = new java.util.Date(timestamp*1000);
-        return sdf.format(currenTimeZone);
     }
 }
