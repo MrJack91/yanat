@@ -88,7 +88,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
                         .setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {}
                         })
-                        .setNeutralButton("Löschen", new DialogInterface.OnClickListener() {
+                        .setNeutralButton("Projekt Löschen", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 projectRepository.delete(currentProject);
                                 getMainActivity().listProjects();
@@ -99,7 +99,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
                     AlertDialog dialog = builder.create();
                     dialog.show();
 
-                    return false;
+                    return true;
                 }
             });
             title = (TextView)itemView.findViewById(R.id.project_list_item_title);
@@ -127,8 +127,8 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         personViewHolder.currentProject = projects.get(i);
 
         personViewHolder.title.setText(projects.get(i).getTitle());
-        personViewHolder.create_date.setText("Created: " + projects.get(i).getCreateDateString());
-        personViewHolder.tstamp.setText("Edited: " + projects.get(i).getTstampString());
+        personViewHolder.create_date.setText("Erstellt: " + projects.get(i).getCreateDateString());
+        personViewHolder.tstamp.setText("Bearbeitet: " + projects.get(i).getTstampString());
     }
 
     @Override

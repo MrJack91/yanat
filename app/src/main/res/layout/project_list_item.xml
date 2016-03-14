@@ -24,7 +24,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="16dp"
-                android:textSize="30sp"
+                android:textSize="27sp"
                 android:textColor="@android:color/primary_text_light"
                 android:text="Hallo Hallo Hallo Hallo Hallo " />
 
@@ -34,7 +34,7 @@
                 android:id="@+id/project_list_item_create_date"
                 android:layout_alignParentTop="false"
                 android:textColor="@android:color/primary_text_light"
-                android:text="Created: 27.03.2016"
+                android:text="Erstellt: 27.03.2016"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/project_list_item_title" />
 
@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/project_list_item_tstamp"
                 android:textColor="@android:color/primary_text_light"
-                android:text="Edited: 29.03.2016"
+                android:text="Bearbeitet: 29.03.2016"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/project_list_item_title" />
 
