@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -31,6 +32,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.List;
 
@@ -41,6 +44,7 @@ import ch.zhaw.moba.yanat.view.ProjectAdapter;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private Intent mRequestFileIntent;
+    private AnalyticsTrackers analyticsTrackers = null;
     final int PICKFILE_RESULT_CODE = 1712;
 
     public ProjectRepository projectRepository = new ProjectRepository(MainActivity.this);
@@ -48,6 +52,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // analyticsTrackers.initialize(MainActivity.this);
+        // -> throw error if screen rotated (reinit of analytics)
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -106,66 +114,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Get the file's content URI from the incoming Intent
                 Uri returnUri = data.getData();
 
-                /*
-                 * Get the content resolver instance for this context, and use it
-                 * to get a ParcelFileDescriptor for the file.
-                 */
-                try {
-                    ParcelFileDescriptor mInputPFD = getContentResolver().openFileDescriptor(returnUri, "r");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-                /*
-                 * Get the file's content URI from the incoming Intent,
-                 * then query the server app to get the file's display name
-                 * and size.
-                 */
+                // read meta data
                 Cursor returnCursor = getContentResolver().query(returnUri, null, null, null, null);
-
                 int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 // int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
                 returnCursor.moveToFirst();
                 String filename = returnCursor.getString(nameIndex);
                 // Long filesize = returnCursor.getLong(sizeIndex);
 
-
-
-
-
-                // Uri contentDescriber = data.getData();
+                // handle paths
                 String src = returnUri.getPath();
                 File source = new File(src);
-                Log.d("src is ", source.toString());
 
-                // String filename = returnUri.getLastPathSegment();
+                Log.d("src is ", source.toString());
                 Log.d("FileName is ", filename);
 
                 File destination = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/yanat/temp/" + filename);
+                // check if dictionary exists
+                directoryExist(destination.getParentFile());
+
+                try {
+                    destination.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 Log.d("Destination is ", destination.toString());
                 Log.d("Destination Parent is ", destination.getParent().toString());
 
 
-                // check if dictionary exists
-                directoryExist(destination.getParentFile());
-                // copy file to destination
-                Log.d("YANAT", "call copy()");
                 try {
-                    copy(source, destination);
+                    InputStream inputStream = getContentResolver().openInputStream(returnUri);
+                    FileOutputStream outputStream = new FileOutputStream(destination);
+                    byte[] buffer = new byte[1024];
+                    int read;
+                    while ((read = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, read);
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Log.d("YANAT", "after copy()");
 
-
-
-
-                // Get a regular file descriptor for the file
-                // FileDescriptor fd = mInputPFD.getFileDescriptor();
-                // Log.v("YANAT", fd.toString());
-
-
-                // ...
+                // open create project dialog
 
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 LayoutInflater inflater = MainActivity.this.getLayoutInflater();
@@ -173,8 +164,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 // view.findViewById()
                 EditText mProjectTitle = (EditText) view.findViewById(R.id.input_project_title);
-                // todo: set name from pdf
-                mProjectTitle.setText("Neues Projekt");
+                // cut file extension
+                mProjectTitle.setText(filename.substring(0, filename.length() - 4));
 
                 builder.setView(view);
                 builder.setTitle("Projektdetails");
@@ -207,6 +198,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    private FileDescriptor getMediaFileDescriptor(Uri outputUri) {
+        try {
+            return MainActivity.this.getContentResolver().openFileDescriptor(outputUri, "w").getFileDescriptor();
+        } catch (FileNotFoundException e) {
+            Log.e("YANAT", ".getMediaFileDescriptor() - Error opening media output stream", e);
+        }
+        return null;
+    }
+
+
+    private void copyFile(File sourceFile, File destFile) throws IOException {
+        if (!sourceFile.exists()) {
+            Log.e("YANAT", "Source file not exists");
+            return;
+        }
+
+        FileChannel source = null;
+        FileChannel destination = null;
+        source = new FileInputStream(sourceFile).getChannel();
+        destination = new FileOutputStream(destFile).getChannel();
+        if (destination != null && source != null) {
+            destination.transferFrom(source, 0, source.size());
+        }
+        if (source != null) {
+            source.close();
+        }
+        if (destination != null) {
+            destination.close();
+        }
+
+
+    }
+
+
+
+    private String getRealPathFromURI(Uri contentUri) {
+        String[] proj = { MediaStore.Video.Media.DATA };
+        Cursor cursor = managedQuery(contentUri, proj, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
+    }
+
+    /*
     private void copy(File source, File destination) throws IOException {
 
         Log.d("YANAT", "inside copy()");
@@ -231,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d("YANAT", "at ent copy()");
 
     }
+    */
 
     private void directoryExist(File destination) {
         if (!destination.isDirectory()) {
