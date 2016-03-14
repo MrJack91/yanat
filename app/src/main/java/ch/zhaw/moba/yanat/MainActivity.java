@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Intent mRequestFileIntent;
     private AnalyticsTrackers analyticsTrackers = null;
+    private ProjectAdapter adapter = null;
     final int PICKFILE_RESULT_CODE = 1712;
 
     public ProjectRepository projectRepository = new ProjectRepository(MainActivity.this);
@@ -77,7 +78,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // open file dialog
                 mRequestFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
                 mRequestFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                mRequestFileIntent.setType(Intent.normalizeMimeType("application/pdf")); // application/pdf | */*
+                // mRequestFileIntent.setType(Intent.normalizeMimeType("application/pdf")); // application/pdf | */*
+                mRequestFileIntent.setType(Intent.normalizeMimeType("*/*")); // application/pdf | */*
                 startActivityForResult(mRequestFileIntent, PICKFILE_RESULT_CODE);
             }
         });
@@ -96,8 +98,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LinearLayoutManager llm = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(llm);
 
-        ProjectAdapter adapter = new ProjectAdapter(projects);
-        mRecyclerView.setAdapter(adapter);
+        // ProjectAdapter adapter = new ProjectAdapter(projects);
+        // if (adapter == null) {
+            adapter = new ProjectAdapter(projects);
+            mRecyclerView.setAdapter(adapter);
+        /*
+        } else {
+            // will update, but not resort new by edit
+            adapter.notifyDataSetChanged();
+        }
+        */
     }
 
 
@@ -227,8 +237,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (destination != null) {
             destination.close();
         }
-
-
     }
 
 
