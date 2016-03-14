@@ -11,7 +11,7 @@ import java.util.TimeZone;
 /**
  * Created by michael on 04.03.16.
  */
-abstract class Model {
+abstract class AbstractModel {
 
     protected int id = 0;
 
@@ -20,7 +20,7 @@ abstract class Model {
 
     final String DATE_FORMAT_DAY = "dd.MM.yyyy";
 
-    protected Model() {
+    protected AbstractModel() {
         // crdate equals current tstamp
         // tstamp is in miliseconds convert to seconds
         Long tstamp = this.setCurrentTstamp();

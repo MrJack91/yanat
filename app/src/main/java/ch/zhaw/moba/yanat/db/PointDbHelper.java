@@ -12,7 +12,7 @@ import ch.zhaw.moba.yanat.domain.model.Point;
 
 public class PointDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 6;
     public static final String DATABASE_NAME = "Point.db";
 
     private static final String COMMA_SEP = ",";
@@ -22,22 +22,23 @@ public class PointDbHelper extends SQLiteOpenHelper {
 
 
     private static final String SQL_CREATE_ENTRIES =
-            "CREATE TABLE " + ProjectContract.ProjectEntry.TABLE_NAME + " (" +
+            "CREATE TABLE " + PointContract.PointEntry.TABLE_NAME + " (" +
                     PointContract.PointEntry.COLUMN_NAME_ID + TYPE_INTEGER + " PRIMARY KEY" + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_CREATE_DATE + TYPE_INTEGER + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_TSTAMP + TYPE_INTEGER + COMMA_SEP +
+                    PointContract.PointEntry.COLUMN_NAME_PROJECT_ID + TYPE_INTEGER + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_REFERENCE_ID + TYPE_INTEGER + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_GROUP_ID + TYPE_INTEGER + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_IS_ABSOLUTE + TYPE_INTEGER + COMMA_SEP +
-                    PointContract.PointEntry.COLUMN_NAME_IS_GROUND_FLOOR + TYPE_INTEGER +
-                    PointContract.PointEntry.COLUMN_NAME_POS_X + TYPE_REAL +
-                    PointContract.PointEntry.COLUMN_NAME_POS_Y + TYPE_REAL +
-                    PointContract.PointEntry.COLUMN_NAME_HEIGHT + TYPE_REAL +
+                    PointContract.PointEntry.COLUMN_NAME_IS_GROUND_FLOOR + TYPE_INTEGER + COMMA_SEP +
+                    PointContract.PointEntry.COLUMN_NAME_POS_X + TYPE_INTEGER + COMMA_SEP +
+                    PointContract.PointEntry.COLUMN_NAME_POS_Y + TYPE_INTEGER + COMMA_SEP +
+                    PointContract.PointEntry.COLUMN_NAME_HEIGHT + TYPE_REAL + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_COMMENT + TYPE_TEXT +
             " )";
 
     private static final String SQL_DELETE_ENTRIES =
-            "DROP TABLE IF EXISTS " + ProjectContract.ProjectEntry.TABLE_NAME;
+            "DROP TABLE IF EXISTS " + PointContract.PointEntry.TABLE_NAME;
 
     public PointDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

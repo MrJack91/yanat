@@ -15,7 +15,7 @@ import ch.zhaw.moba.yanat.domain.model.Project;
 /**
  * Created by michael on 05.03.16.
  */
-public class ProjectRepository extends Repository {
+public class ProjectRepository extends AbstractRepository {
 
     protected Context context = null;
     protected ProjectDbHelper mDbHelper = null;

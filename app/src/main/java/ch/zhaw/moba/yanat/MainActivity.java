@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
@@ -33,11 +32,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.List;
 
+import ch.zhaw.moba.yanat.domain.model.Point;
 import ch.zhaw.moba.yanat.domain.model.Project;
+import ch.zhaw.moba.yanat.domain.repository.PointRepository;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.view.ProjectAdapter;
 
@@ -57,6 +57,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // analyticsTrackers.initialize(MainActivity.this);
         // -> throw error if screen rotated (reinit of analytics)
 
+
+        // debug point db functionality
+        List<Project> projects = projectRepository.findAll();
+        PointRepository pointRepository = projects.get(0).getPointRepository(this);
+
+        List<Point> points = pointRepository.findAll();
+        int i;
+        for (i = 0; i < points.size(); i++) {
+            Log.v("YANAT", Float.toString(points.get(i).getHeight()));
+        }
+
+        Point point = new Point();
+        point.setHeight(i);
+        pointRepository.add(point);
+
+
+
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -74,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 // open file dialog
                 mRequestFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
                 mRequestFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
