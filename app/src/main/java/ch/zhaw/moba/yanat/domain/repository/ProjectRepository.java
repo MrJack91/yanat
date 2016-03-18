@@ -81,11 +81,22 @@ public class ProjectRepository extends AbstractRepository {
         return true;
     }
 
+    public List<Project> findAll() {
+        return this.find(null, null);
+    }
+
+    public List<Project> findById(int projectId) {
+        return this.find(
+            ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
+            new String[]{String.valueOf(projectId)}
+        );
+    }
+
     /**
      * Gets all projects
      * @return
      */
-    public List<Project> findAll() {
+    public List<Project> find(String whereFilter, String[] whereValues) {
         // read db
         SQLiteDatabase dbRead = this.mDbHelper.getReadableDatabase();
         List<Project> projects = new ArrayList();
@@ -94,8 +105,8 @@ public class ProjectRepository extends AbstractRepository {
         Cursor cursor = dbRead.query(
                 ProjectContract.ProjectEntry.TABLE_NAME,  // The table to query
                 null,                                     // The columns to return
-                null,                                     // The columns for the WHERE clause
-                null,                                     // The values for the WHERE clause
+                whereFilter,                                     // The columns for the WHERE clause
+                whereValues,                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 sortOrder                                 // The sort order

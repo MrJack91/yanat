@@ -55,7 +55,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
                     Integer element = getAdapterPosition();
                     Log.v("YANAT", "clicked on " + currentProject.getTitle() + "(" + element.toString() + ")");
                     // open project
-                    getMainActivity().startActivity(new Intent(getMainActivity(), DetailActivity.class));
+                    Intent i = new Intent(getMainActivity(), DetailActivity.class);
+                    i.putExtra("projectId", currentProject.getId());
+                    getMainActivity().startActivity(i);
+                    // getMainActivity().startActivity(new Intent(getMainActivity(), DetailActivity.class));
                 }
             });
             itemView.setOnLongClickListener(new View.OnLongClickListener() {

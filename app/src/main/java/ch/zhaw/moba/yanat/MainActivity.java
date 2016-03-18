@@ -2,6 +2,7 @@ package ch.zhaw.moba.yanat;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,9 +47,11 @@ import ch.zhaw.moba.yanat.view.ProjectAdapter;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private Intent mRequestFileIntent;
-    private AnalyticsTrackers analyticsTrackers = null;
+    // private AnalyticsTrackers analyticsTrackers = null;
     private ProjectAdapter adapter = null;
-    final int PICKFILE_RESULT_CODE = 1712;
+
+    private static final int PICK_FILE_RESULT_CODE = 1712;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
     public ProjectRepository projectRepository = new ProjectRepository(MainActivity.this);
 
@@ -57,22 +62,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // analyticsTrackers.initialize(MainActivity.this);
         // -> throw error if screen rotated (reinit of analytics)
 
-
-        // debug point db functionality
-        List<Project> projects = projectRepository.findAll();
-        PointRepository pointRepository = projects.get(0).getPointRepository(this);
-
-        List<Point> points = pointRepository.findAll();
-        int i;
-        for (i = 0; i < points.size(); i++) {
-            Log.v("YANAT", Float.toString(points.get(i).getHeight()));
-        }
-
-        Point point = new Point();
-        point.setHeight(i);
-        pointRepository.add(point);
-
-
+        // request all permissions on start -> for android 6
+        checkPermissions();
 
 
         setContentView(R.layout.activity_main);
@@ -97,13 +88,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mRequestFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
                 // mRequestFileIntent.setType(Intent.normalizeMimeType("application/pdf")); // application/pdf | */*
                 mRequestFileIntent.setType(Intent.normalizeMimeType("*/*")); // application/pdf | */*
-                startActivityForResult(mRequestFileIntent, PICKFILE_RESULT_CODE);
+                startActivityForResult(mRequestFileIntent, PICK_FILE_RESULT_CODE);
             }
         });
 
         this.listProjects();
 
     }
+
 
     public void listProjects() {
         // print all current projects
@@ -137,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Exit without doing anything else
             return;
         } else {
-            if (requestCode == PICKFILE_RESULT_CODE) {
+            if (requestCode == PICK_FILE_RESULT_CODE) {
                 // Get the file's content URI from the incoming Intent
                 Uri returnUri = data.getData();
 
@@ -319,6 +311,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    protected void checkPermissions() {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

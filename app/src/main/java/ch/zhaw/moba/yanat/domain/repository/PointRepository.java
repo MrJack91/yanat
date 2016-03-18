@@ -93,12 +93,26 @@ public class PointRepository extends AbstractRepository {
         return true;
     }
 
+
+    public List<Point> findAll() {
+        return this.find(null, null);
+    }
+
+    public List<Point> findById(int projectId) {
+        return this.find(
+                PointContract.PointEntry.COLUMN_NAME_ID + " LIKE ?",
+                new String[]{String.valueOf(projectId)}
+        );
+    }
+
     /**
      * Gets all points for a project
      * @return
      */
-    public List<Point> findAll() {
+    public List<Point> find(String whereFilter, String[] whereValues) {
         // todo: implement point list for project
+        // todo: implement wherefilter
+
 
         // read db
         SQLiteDatabase dbRead = this.mDbHelper.getReadableDatabase();
