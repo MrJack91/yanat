@@ -32,14 +32,10 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        int projectId = getIntent().getIntExtra("projectId", 0);
-        Log.v("YANAT", String.valueOf(projectId));
 
+        int projectId = getIntent().getIntExtra("projectId", 0);
         // load all points
-        List<Project> projects = projectRepository.find(
-                ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(projectId)}
-        );
+        List<Project> projects = projectRepository.findById(projectId);
         PointRepository pointRepository = projects.get(0).getPointRepository(this);
 
         List<Point> points = pointRepository.findAll();

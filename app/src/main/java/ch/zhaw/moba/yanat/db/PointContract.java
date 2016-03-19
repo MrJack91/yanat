@@ -16,6 +16,7 @@ public class PointContract {
         public static final String COLUMN_NAME_ID = "id";
         public static final String COLUMN_NAME_CREATE_DATE = "create_date";
         public static final String COLUMN_NAME_TSTAMP = "timestamp";
+        public static final String COLUMN_NAME_DELETED = "deleted";
         public static final String COLUMN_NAME_PROJECT_ID = "project_id";
         public static final String COLUMN_NAME_REFERENCE_ID = "reference_id";   // reference to point (default: null)
         public static final String COLUMN_NAME_GROUP_ID = "group_id";           // group num (default: own id)

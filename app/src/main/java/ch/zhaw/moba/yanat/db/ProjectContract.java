@@ -16,6 +16,7 @@ public class ProjectContract {
         public static final String COLUMN_NAME_ID = "id";
         public static final String COLUMN_NAME_CREATE_DATE = "create_date";
         public static final String COLUMN_NAME_TSTAMP = "timestamp";
+        public static final String COLUMN_NAME_DELETED = "deleted";
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_PDF = "pdf";
         public static final String COLUMN_NAME_PDF_WIDTH = "pdf_width";

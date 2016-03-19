@@ -13,6 +13,8 @@ import ch.zhaw.moba.yanat.domain.model.Project;
  */
 abstract public class AbstractRepository {
 
+    // todo: implement methods with generics??
+
     // abstract public List<Project> find(String whereFilter, String[] whereValues);
 
     // abstract public boolean delete(Point element);
@@ -22,6 +24,7 @@ abstract public class AbstractRepository {
         return this.find(null, null);
     }
     */
+
 
     // abstract public List<Project> findById(int projectId);
     /*

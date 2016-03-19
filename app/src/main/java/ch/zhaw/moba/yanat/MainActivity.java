@@ -5,9 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -15,7 +14,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -29,19 +27,11 @@ import android.view.MenuItem;
 import android.widget.EditText;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.FileChannel;
 import java.util.List;
 
-import ch.zhaw.moba.yanat.domain.model.Point;
 import ch.zhaw.moba.yanat.domain.model.Project;
-import ch.zhaw.moba.yanat.domain.repository.PointRepository;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
+import ch.zhaw.moba.yanat.utility.FileUtility;
 import ch.zhaw.moba.yanat.view.ProjectAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -62,9 +52,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // analyticsTrackers.initialize(MainActivity.this);
         // -> throw error if screen rotated (reinit of analytics)
 
-        // request all permissions on start -> for android 6
-        checkPermissions();
-
+        // uncomment if brakes on pre marshmallows devices
+        // if (this.canMakeSmores()) {
+            // request all permissions on start -> for android 6
+            checkPermissions();
+        // }
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -141,42 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String filename = returnCursor.getString(nameIndex);
                 // Long filesize = returnCursor.getLong(sizeIndex);
 
-                // handle paths
-                String src = returnUri.getPath();
-                File source = new File(src);
-
-                Log.d("src is ", source.toString());
-                Log.d("FileName is ", filename);
-
-                File destination = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/yanat/temp/" + filename);
-                // check if dictionary exists
-                directoryExist(destination.getParentFile());
-
-                try {
-                    destination.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Log.d("Destination is ", destination.toString());
-                Log.d("Destination Parent is ", destination.getParent().toString());
-
-
-                try {
-                    InputStream inputStream = getContentResolver().openInputStream(returnUri);
-                    FileOutputStream outputStream = new FileOutputStream(destination);
-                    byte[] buffer = new byte[1024];
-                    int read;
-                    while ((read = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, read);
-                    }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
                 // open create project dialog
-
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 LayoutInflater inflater = MainActivity.this.getLayoutInflater();
                 final View view = inflater.inflate(R.layout.dialog_create_project, null);
@@ -190,6 +147,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 builder.setTitle("Projektdetails");
                 // Add action buttons
                 builder.setPositiveButton("Erstellen", new DialogInterface.OnClickListener() {
+                    protected Uri returnUri;
+                    protected String filename;
+
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         EditText mProjectName = (EditText) view.findViewById(R.id.input_project_title);
@@ -200,10 +160,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         project.setTitle(projectTitle);
                         projectRepository.add(project);
 
+                        // save & add pdf path
+                        FileUtility fileUtility = new FileUtility(MainActivity.this);
+                        File newFile = fileUtility.saveFile(this.returnUri, project.getId() + "/" + this.filename);
+                        project.setPdf(newFile.getAbsolutePath());
+                        projectRepository.update(project);
+
                         // reload project list
                         listProjects();
                     }
-                })
+
+                    public DialogInterface.OnClickListener init(Uri returnUri, String filename) {
+                        this.returnUri = returnUri;
+                        this.filename = filename;
+                        return this;
+                    }
+
+                }.init(returnUri, filename))
                         .setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                             }
@@ -217,116 +190,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private FileDescriptor getMediaFileDescriptor(Uri outputUri) {
-        try {
-            return MainActivity.this.getContentResolver().openFileDescriptor(outputUri, "w").getFileDescriptor();
-        } catch (FileNotFoundException e) {
-            Log.e("YANAT", ".getMediaFileDescriptor() - Error opening media output stream", e);
-        }
-        return null;
-    }
-
-
-    private void copyFile(File sourceFile, File destFile) throws IOException {
-        if (!sourceFile.exists()) {
-            Log.e("YANAT", "Source file not exists");
-            return;
-        }
-
-        FileChannel source = null;
-        FileChannel destination = null;
-        source = new FileInputStream(sourceFile).getChannel();
-        destination = new FileOutputStream(destFile).getChannel();
-        if (destination != null && source != null) {
-            destination.transferFrom(source, 0, source.size());
-        }
-        if (source != null) {
-            source.close();
-        }
-        if (destination != null) {
-            destination.close();
-        }
-    }
-
-
-
-    private String getRealPathFromURI(Uri contentUri) {
-        String[] proj = { MediaStore.Video.Media.DATA };
-        Cursor cursor = managedQuery(contentUri, proj, null, null, null);
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        return cursor.getString(column_index);
-    }
-
-    /*
-    private void copy(File source, File destination) throws IOException {
-
-        Log.d("YANAT", "inside copy()");
-
-        FileChannel in = new FileInputStream(source).getChannel();
-        Log.d("YANAT", "inside 2 copy()");
-        FileChannel out = new FileOutputStream(destination).getChannel();
-
-        Log.d("YANAT", "Size: " + Long.toString(in.size()));
-
-        try {
-            in.transferTo(0, in.size(), out);
-        } catch(Exception e){
-            Log.d("Exception", e.toString());
-        } finally {
-            if (in != null)
-                in.close();
-            if (out != null)
-                out.close();
-        }
-
-        Log.d("YANAT", "at ent copy()");
-
-    }
-    */
-
-    private void directoryExist(File destination) {
-        if (!destination.isDirectory()) {
-            if (destination.mkdirs()) {
-                Log.d("Carpeta creada", "....");
-            } else {
-                Log.d("Carpeta no creada", "....");
-            }
-        }
-    }
-
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    protected void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-            }
-        }
-    }
-
+    // permissions handling
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -347,6 +211,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             // other 'case' lines to check for other
             // permissions this app might request
+        }
+    }
+
+
+    // menu&settings handling
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    protected void checkPermissions() {
+        // asking for multiple permissions:
+        // src: http://inthecheesefactory.com/blog/things-you-need-to-know-about-android-m-permission-developer-edition/en
+        // src: https://www.captechconsulting.com/blogs/runtime-permissions-best-practices-and-how-to-gracefully-handle-permission-removal
+        if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+            }
         }
     }
 
@@ -375,5 +275,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private boolean canMakeSmores(){
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
     }
 }
