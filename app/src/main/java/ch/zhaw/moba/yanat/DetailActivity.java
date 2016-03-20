@@ -65,22 +65,15 @@ public class DetailActivity extends AppCompatActivity {
                 final View view = inflater.inflate(R.layout.dialog_measure_point, null);
 
                 List<Point> points = getPoints();
-                Point lastPoint = points.get(0);
+
+                if(points.size()>0){
+                    fillFieldsWithPoint(view, points.get(0));
+                }
+
                 builder.setView(view);
                 builder.setTitle("Messpunkt");
 
-
-                final int pointsCount = points.size();
-                Log.v("YANAT", "Points size: " + pointsCount);
-
-
-                ((TextView)view.findViewById(R.id.input_measure_point_comment)).setText(lastPoint.getComment());
-                ((TextView)view.findViewById(R.id.input_measure_point_height)).setText("" + lastPoint.getHeight());
-
-                // TOOO anschauen
-                ((CheckBox)view.findViewById(R.id.ground_floor)).setChecked(lastPoint.isGroundFloor());
-                ((CheckBox)view.findViewById(R.id.meter_above_sea)).setChecked(lastPoint.isAbsolute());
-
+                Log.v("YANAT", "Points size: " + points.size());
 
                 builder.setPositiveButton("Erstellen", new DialogInterface.OnClickListener() {
                     @Override
@@ -113,22 +106,26 @@ public class DetailActivity extends AppCompatActivity {
                         })
                 ;
 
-
-
-
                 AlertDialog dialog = builder.create();
                 dialog.show();
-
-
-
             }
         });
+    }
+
+    private void fillFieldsWithPoint(View view, Point point){
+        ((TextView)view.findViewById(R.id.input_measure_point_comment)).setText(point.getComment());
+        ((TextView)view.findViewById(R.id.input_measure_point_height)).setText("" + point.getHeight());
+
+        //TODO Dropdownliste auffüllen
+        ((CheckBox)view.findViewById(R.id.ground_floor)).setChecked(point.isGroundFloor());
+        ((CheckBox)view.findViewById(R.id.meter_above_sea)).setChecked(point.isAbsolute());
     }
 
     private List<Point> getPoints(){
 
         final List<Point> points = pointRepository.findAll();
         int i;
+
         for (i = 0; i < points.size(); i++) {
             Log.v("YANAT", Float.toString(points.get(i).getHeight()));
         }
