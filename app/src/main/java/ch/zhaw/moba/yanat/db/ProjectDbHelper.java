@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class ProjectDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "Project.db";
 
     private static final String COMMA_SEP = ",";
@@ -26,6 +26,7 @@ public class ProjectDbHelper extends SQLiteOpenHelper {
                     ProjectContract.ProjectEntry.COLUMN_NAME_ID + TYPE_INTEGER + " PRIMARY KEY" + COMMA_SEP +
                     ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE + TYPE_INTEGER + COMMA_SEP +
                     ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP + TYPE_INTEGER + COMMA_SEP +
+                    ProjectContract.ProjectEntry.COLUMN_NAME_DELETED + TYPE_INTEGER + COMMA_SEP +
                     ProjectContract.ProjectEntry.COLUMN_NAME_TITLE + TYPE_TEXT + COMMA_SEP +
                     ProjectContract.ProjectEntry.COLUMN_NAME_PDF + TYPE_TEXT + COMMA_SEP +
                     ProjectContract.ProjectEntry.COLUMN_NAME_PDF_WIDTH + TYPE_INTEGER + COMMA_SEP +

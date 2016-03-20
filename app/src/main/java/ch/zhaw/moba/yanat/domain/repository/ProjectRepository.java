@@ -37,6 +37,7 @@ public class ProjectRepository extends AbstractRepository {
         // values.put(ProjectContract.ProjectEntry.COLUMN_NAME_ID, project.getId());
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE, project.getCreateDate());
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP, project.getTstamp());
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_DELETED, 0);
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TITLE, project.getTitle());
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF, project.getPdf());
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_WIDTH, project.getPdfWidth());
@@ -54,6 +55,7 @@ public class ProjectRepository extends AbstractRepository {
                 ProjectContract.ProjectEntry.TABLE_NAME,
                 null,
                 values);
+        project.setId((int)newRowId);
 
         return newRowId;
     }
@@ -73,16 +75,27 @@ public class ProjectRepository extends AbstractRepository {
 
     public boolean delete(Project project) {
         this.dbWrite = this.mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_DELETED, 1);
+
+        this.dbWrite.update(
+                ProjectContract.ProjectEntry.TABLE_NAME,
+                values,
+                ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
+                new String[]{String.valueOf(project.getId())}
+        );
+        /*
         this.dbWrite.delete(
                 ProjectContract.ProjectEntry.TABLE_NAME,
                 ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
                 new String[]{String.valueOf(project.getId())}
         );
+        */
         return true;
     }
 
     public List<Project> findAll() {
-        return this.find(null, null);
+        return this.find("", null);
     }
 
     public List<Project> findById(int projectId) {
@@ -100,6 +113,11 @@ public class ProjectRepository extends AbstractRepository {
         // read db
         SQLiteDatabase dbRead = this.mDbHelper.getReadableDatabase();
         List<Project> projects = new ArrayList();
+
+        if (whereFilter.length() > 0) {
+            whereFilter = " AND (" + whereFilter + ")";
+        }
+        whereFilter = ProjectContract.ProjectEntry.COLUMN_NAME_DELETED + " = 0" + whereFilter;
 
         String sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP + " DESC";
         Cursor cursor = dbRead.query(

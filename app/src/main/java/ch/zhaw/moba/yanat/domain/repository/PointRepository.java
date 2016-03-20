@@ -43,6 +43,7 @@ public class PointRepository extends AbstractRepository {
         // values.put(PointContract.PointEntry.COLUMN_NAME_ID, point.getId());
         values.put(PointContract.PointEntry.COLUMN_NAME_CREATE_DATE, point.getCreateDate());
         values.put(PointContract.PointEntry.COLUMN_NAME_TSTAMP, point.getTstamp());
+        values.put(PointContract.PointEntry.COLUMN_NAME_DELETED, 0);
         values.put(PointContract.PointEntry.COLUMN_NAME_PROJECT_ID, this.projectId);
         values.put(PointContract.PointEntry.COLUMN_NAME_REFERENCE_ID, point.getReferenceId());
         values.put(PointContract.PointEntry.COLUMN_NAME_GROUP_ID, point.getGroupId());
@@ -66,6 +67,7 @@ public class PointRepository extends AbstractRepository {
                 PointContract.PointEntry.TABLE_NAME,
                 null,
                 values);
+        point.setId((int)newRowId);
 
         return newRowId;
     }
@@ -85,17 +87,28 @@ public class PointRepository extends AbstractRepository {
 
     public boolean delete(Point point) {
         this.dbWrite = this.mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(PointContract.PointEntry.COLUMN_NAME_DELETED, 1);
+
+        this.dbWrite.update(
+                PointContract.PointEntry.TABLE_NAME,
+                values,
+                PointContract.PointEntry.COLUMN_NAME_ID + " LIKE ?",
+                new String[]{String.valueOf(point.getId())}
+        );
+        /*
         this.dbWrite.delete(
                 PointContract.PointEntry.TABLE_NAME,
                 PointContract.PointEntry.COLUMN_NAME_ID + " LIKE ?",
                 new String[]{String.valueOf(point.getId())}
         );
+        */
         return true;
     }
 
 
     public List<Point> findAll() {
-        return this.find(null, null);
+        return this.find("", null);
     }
 
     public List<Point> findById(int projectId) {
@@ -110,26 +123,28 @@ public class PointRepository extends AbstractRepository {
      * @return
      */
     public List<Point> find(String whereFilter, String[] whereValues) {
-        // todo: implement point list for project
-        // todo: implement wherefilter
-
-
         // read db
         SQLiteDatabase dbRead = this.mDbHelper.getReadableDatabase();
         List<Point> points = new ArrayList();
+
+        if (whereFilter.length() > 0) {
+            whereFilter = " AND (" + whereFilter + ")";
+        }
+        whereFilter = PointContract.PointEntry.COLUMN_NAME_DELETED + " = 0 AND " + PointContract.PointEntry.COLUMN_NAME_PROJECT_ID + " LIKE " + projectId + whereFilter;
 
         String sortOrder = PointContract.PointEntry.COLUMN_NAME_TSTAMP + " DESC";
         Cursor cursor = dbRead.query(
                 PointContract.PointEntry.TABLE_NAME,      // The table to query
                 null,                                     // The columns to return
-                PointContract.PointEntry.COLUMN_NAME_PROJECT_ID + " LIKE ?",    // The columns for the WHERE clause
-                new String[]{String.valueOf(projectId)},                        // The values for the WHERE clause
+                whereFilter,                              // The columns for the WHERE clause
+                whereValues,                              // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 sortOrder                                 // The sort order
         );
 
         cursor.moveToFirst();
+        int offset = 0;
         while (!cursor.isAfterLast()) {
             int id = cursor.getInt(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_ID));
             Long createDate = cursor.getLong(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_CREATE_DATE));
@@ -143,7 +158,6 @@ public class PointRepository extends AbstractRepository {
             int posY = cursor.getInt(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_POS_Y));
             Float height = cursor.getFloat(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_HEIGHT));
             String comment = cursor.getString(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_COMMENT));
-
 
             Point point = new Point();
             point.setId(id);
@@ -160,8 +174,8 @@ public class PointRepository extends AbstractRepository {
             point.setHeight(height);
             point.setComment(comment);
 
-            // increment title name (a,b,c,...,z,aa,ab,ac,...)
-            point.setTitle("[A]");
+            point.setTitle(this.makeTitle(offset));
+            offset++;
 
 
             // add point to collection
@@ -171,6 +185,17 @@ public class PointRepository extends AbstractRepository {
         }
 
         return points;
+    }
+
+    protected String makeTitle(int offset) {
+        String title = "";
+        // todo: add more chars than 26 (aa,ab,ac,...)
+
+        if (offset > 26) {
+            offset = 26;
+        }
+        title = String.valueOf(Character.toChars(65+offset));
+        return title;
     }
 
 }
