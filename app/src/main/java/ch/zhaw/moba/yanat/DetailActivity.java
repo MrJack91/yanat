@@ -29,6 +29,7 @@ public class DetailActivity extends AppCompatActivity {
     public ProjectRepository projectRepository = new ProjectRepository(DetailActivity.this);
     public PointRepository pointRepository = null;
     private PointAdapter pointAdapter = null;
+    protected Project project = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +44,16 @@ public class DetailActivity extends AppCompatActivity {
                 ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
                 new String[]{String.valueOf(projectId)}
         );
-        pointRepository = projects.get(0).getPointRepository(this);
+        project = projects.get(0);
+        pointRepository = project.getPointRepository(this);
 
 
+        String pdfPath = project.buildPdf();
+        Log.v("YANAT", "Build PDF: " + pdfPath);
 
-      //  final Point point = new Point();
-      //  point.setHeight(i);
-      //  pointRepository.add(point);
+        //  final Point point = new Point();
+        //  point.setHeight(i);
+        //  pointRepository.add(point);
 
         Button createMeasure = (Button) findViewById(R.id.create_measure_point);
         createMeasure.setOnClickListener(new View.OnClickListener() {
@@ -111,9 +115,7 @@ public class DetailActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // go back
-                Intent i = new Intent(DetailActivity.this, MainActivity.class);
-                DetailActivity.this.startActivity(i);
+                DetailActivity.this.finish();
             }
         });
 
