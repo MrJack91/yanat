@@ -10,31 +10,24 @@ import java.util.List;
 
 import ch.zhaw.moba.yanat.db.PointContract;
 import ch.zhaw.moba.yanat.db.PointDbHelper;
-import ch.zhaw.moba.yanat.db.ProjectContract;
-import ch.zhaw.moba.yanat.db.ProjectDbHelper;
 import ch.zhaw.moba.yanat.domain.model.Point;
-import ch.zhaw.moba.yanat.domain.model.Project;
 
 /**
  * Created by michael on 05.03.16.
  */
-public class PointRepository extends AbstractRepository {
-
-    protected Context context = null;
-    protected PointDbHelper mDbHelper = null;
-
-    protected SQLiteDatabase dbWrite = null;
+public class PointRepository extends AbstractRepository<Point, PointContract.PointEntry> {
 
     /** project id for the points to load */
     protected int projectId = 0;
 
     public PointRepository(Context context, int projectId) {
-        this.context = context;
-        this.projectId = projectId;
+        super(context);
         this.mDbHelper = new PointDbHelper(this.context);
+        this.projectId = projectId;
     }
 
     protected ContentValues buildContentValues(Point point) {
+        /*
         // refresh tstamp
         point.setCurrentTstamp();
 
@@ -44,6 +37,8 @@ public class PointRepository extends AbstractRepository {
         values.put(PointContract.PointEntry.COLUMN_NAME_CREATE_DATE, point.getCreateDate());
         values.put(PointContract.PointEntry.COLUMN_NAME_TSTAMP, point.getTstamp());
         values.put(PointContract.PointEntry.COLUMN_NAME_DELETED, 0);
+        */
+        ContentValues values = super.buildContentValues(point);
         values.put(PointContract.PointEntry.COLUMN_NAME_PROJECT_ID, this.projectId);
         values.put(PointContract.PointEntry.COLUMN_NAME_REFERENCE_ID, point.getReferenceId());
         values.put(PointContract.PointEntry.COLUMN_NAME_GROUP_ID, point.getGroupId());
@@ -57,6 +52,7 @@ public class PointRepository extends AbstractRepository {
         return values;
     }
 
+    /*
     public long add(Point point) {
         this.dbWrite = this.mDbHelper.getWritableDatabase();
         ContentValues values = this.buildContentValues(point);
@@ -67,7 +63,7 @@ public class PointRepository extends AbstractRepository {
                 PointContract.PointEntry.TABLE_NAME,
                 null,
                 values);
-        point.setId((int)newRowId);
+        point.setId((int) newRowId);
 
         return newRowId;
     }
@@ -84,7 +80,9 @@ public class PointRepository extends AbstractRepository {
         );
         return true;
     }
+    */
 
+    /*
     public boolean delete(Point point) {
         this.dbWrite = this.mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -96,16 +94,8 @@ public class PointRepository extends AbstractRepository {
                 PointContract.PointEntry.COLUMN_NAME_ID + " LIKE ?",
                 new String[]{String.valueOf(point.getId())}
         );
-        /*
-        this.dbWrite.delete(
-                PointContract.PointEntry.TABLE_NAME,
-                PointContract.PointEntry.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(point.getId())}
-        );
-        */
         return true;
     }
-
 
     public List<Point> findAll() {
         return this.find("", null);
@@ -117,6 +107,7 @@ public class PointRepository extends AbstractRepository {
                 new String[]{String.valueOf(projectId)}
         );
     }
+    */
 
     /**
      * Gets all points for a project

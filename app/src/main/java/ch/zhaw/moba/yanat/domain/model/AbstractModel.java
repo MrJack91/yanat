@@ -11,7 +11,7 @@ import java.util.TimeZone;
 /**
  * Created by michael on 04.03.16.
  */
-abstract class AbstractModel {
+abstract public class AbstractModel {
 
     protected int id = 0;
 

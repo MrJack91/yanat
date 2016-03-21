@@ -4,8 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import ch.zhaw.moba.yanat.domain.model.Point;
-
 /**
  * Created by michael on 05.03.16.
  */

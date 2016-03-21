@@ -15,20 +15,15 @@ import ch.zhaw.moba.yanat.domain.model.Project;
 /**
  * Created by michael on 05.03.16.
  */
-public class ProjectRepository extends AbstractRepository {
-
-    protected Context context = null;
-    protected ProjectDbHelper mDbHelper = null;
-
-    protected SQLiteDatabase dbWrite = null;
-
+public class ProjectRepository extends AbstractRepository<Project, ProjectContract.ProjectEntry> {
 
     public ProjectRepository(Context context) {
-        this.context = context;
+        super(context);
         this.mDbHelper = new ProjectDbHelper(this.context);
     }
 
     protected ContentValues buildContentValues(Project project) {
+        /*
         // refresh tstamp
         project.setCurrentTstamp();
 
@@ -38,6 +33,9 @@ public class ProjectRepository extends AbstractRepository {
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE, project.getCreateDate());
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP, project.getTstamp());
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_DELETED, 0);
+        */
+
+        ContentValues values = super.buildContentValues(project);
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TITLE, project.getTitle());
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF, project.getPdf());
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_WIDTH, project.getPdfWidth());
@@ -45,6 +43,7 @@ public class ProjectRepository extends AbstractRepository {
         return values;
     }
 
+    /*
     public long add(Project project) {
         this.dbWrite = this.mDbHelper.getWritableDatabase();
         ContentValues values = this.buildContentValues(project);
@@ -55,7 +54,7 @@ public class ProjectRepository extends AbstractRepository {
                 ProjectContract.ProjectEntry.TABLE_NAME,
                 null,
                 values);
-        project.setId((int)newRowId);
+        project.setId((int) newRowId);
 
         return newRowId;
     }
@@ -72,7 +71,9 @@ public class ProjectRepository extends AbstractRepository {
         );
         return true;
     }
+    */
 
+    /*
     public boolean delete(Project project) {
         this.dbWrite = this.mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -84,13 +85,6 @@ public class ProjectRepository extends AbstractRepository {
                 ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
                 new String[]{String.valueOf(project.getId())}
         );
-        /*
-        this.dbWrite.delete(
-                ProjectContract.ProjectEntry.TABLE_NAME,
-                ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(project.getId())}
-        );
-        */
         return true;
     }
 
@@ -104,6 +98,7 @@ public class ProjectRepository extends AbstractRepository {
             new String[]{String.valueOf(projectId)}
         );
     }
+    */
 
     /**
      * Gets all projects

@@ -1,7 +1,5 @@
 package ch.zhaw.moba.yanat.db;
 
-import android.provider.BaseColumns;
-
 /**
  * Created by michael on 05.03.16.
  */
@@ -11,12 +9,8 @@ public class PointContract {
     public PointContract() {}
 
     /* Inner class that defines the table contents */
-    public static abstract class PointEntry implements BaseColumns {
+    public static abstract class PointEntry implements ContractInterface {
         public static final String TABLE_NAME = "point";
-        public static final String COLUMN_NAME_ID = "id";
-        public static final String COLUMN_NAME_CREATE_DATE = "create_date";
-        public static final String COLUMN_NAME_TSTAMP = "timestamp";
-        public static final String COLUMN_NAME_DELETED = "deleted";
         public static final String COLUMN_NAME_PROJECT_ID = "project_id";
         public static final String COLUMN_NAME_REFERENCE_ID = "reference_id";   // reference to point (default: null)
         public static final String COLUMN_NAME_GROUP_ID = "group_id";           // group num (default: own id)
@@ -26,13 +20,6 @@ public class PointContract {
         public static final String COLUMN_NAME_POS_Y = "pos_y";
         public static final String COLUMN_NAME_HEIGHT = "height";
         public static final String COLUMN_NAME_COMMENT = "comment";
-
-
-
-
-
-
-
 
     }
 

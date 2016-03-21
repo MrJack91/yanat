@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import ch.zhaw.moba.yanat.db.ProjectContract;
 import ch.zhaw.moba.yanat.domain.model.Point;
 import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
@@ -40,10 +39,7 @@ public class DetailActivity extends AppCompatActivity {
         int projectId = getIntent().getIntExtra("projectId", 0);
         // load all points
 
-        List<Project> projects = projectRepository.find(
-                ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(projectId)}
-        );
+        List<Project> projects = projectRepository.findById(projectId);
         project = projects.get(0);
         pointRepository = project.getPointRepository(this);
 

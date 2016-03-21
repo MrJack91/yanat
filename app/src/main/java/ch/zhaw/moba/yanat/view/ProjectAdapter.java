@@ -1,10 +1,8 @@
 package ch.zhaw.moba.yanat.view;
 
-import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -125,12 +123,12 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     }
 
     @Override
-    public void onBindViewHolder(ProjectViewHolder personViewHolder, int i) {
-        personViewHolder.currentProject = projects.get(i);
+    public void onBindViewHolder(ProjectViewHolder projectViewHolder, int i) {
+        projectViewHolder.currentProject = projects.get(i);
 
-        personViewHolder.title.setText(projects.get(i).getTitle());
-        personViewHolder.create_date.setText("Erstellt: " + projects.get(i).getCreateDateString());
-        personViewHolder.tstamp.setText("Bearbeitet: " + projects.get(i).getTstampString());
+        projectViewHolder.title.setText(projects.get(i).getTitle());
+        projectViewHolder.create_date.setText("Erstellt: " + projects.get(i).getCreateDateString());
+        projectViewHolder.tstamp.setText("Bearbeitet: " + projects.get(i).getTstampString());
     }
 
     @Override
