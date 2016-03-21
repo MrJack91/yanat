@@ -1,21 +1,18 @@
 package ch.zhaw.moba.yanat;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.AppCompatSpinner;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -26,7 +23,6 @@ import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.view.PointAdapter;
-import ch.zhaw.moba.yanat.view.ProjectAdapter;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -88,7 +84,7 @@ public class DetailActivity extends AppCompatActivity {
                         // TODO testen ob man Buchstaben eingeben kann
                         point.setHeight(Float.parseFloat(pointHeight.getText().toString()));
 
-                        point.setTitle("A");
+                        // point.setTitle("A"); // not needed, will be handled by repository (dynamic name allocation)
                         point.setPosX(1);
                         point.setPosY(1);
                         point.setIsAbsolute(meterAboveSea.isChecked());
@@ -108,6 +104,24 @@ public class DetailActivity extends AppCompatActivity {
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
+            }
+        });
+
+        ImageButton backButton = (ImageButton) findViewById(R.id.back);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // go back
+                Intent i = new Intent(DetailActivity.this, MainActivity.class);
+                DetailActivity.this.startActivity(i);
+            }
+        });
+
+        ImageButton exportButton = (ImageButton) findViewById(R.id.export);
+        exportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // generate pdf & open
             }
         });
     }
