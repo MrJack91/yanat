@@ -65,7 +65,8 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
     // Create new views (invoked by the layout manager)
     @Override
     public PointViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.project_list_item, parent, false);
+        Log.v("YANAT", "on create view helper");
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.point_item, parent, false);
         v.setClickable(true);
         PointViewHolder vh = new PointViewHolder(v);
         return vh;

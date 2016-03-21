@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_measure_point_height_hint"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_margin="20dp"
+        android:layout_marginRight="50dp">
+
+        <EditText
+            android:id="@+id/input_measure_point_height"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:inputType="numberDecimal"
+            android:hint="Höhe:"
+            android:maxWidth="50sp" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/meter_above_sea"
+        android:checked="false"
+        android:text="m.ü.M."
+        android:layout_marginLeft="238dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="40dp" />
+
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ground_floor"
+        android:text="EG"
+        android:checked="false"
+        android:layout_marginLeft="238dp"
+        android:layout_alignParentTop="true"
+        android:layout_below="@+id/meter_above_sea"
+        android:layout_marginTop="120dp" />
+
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/measure_point_reference_point_text"
+        android:text="Referenzpunkt:"
+        android:editable="false"
+        android:layout_below="@+id/input_measure_point_height_hint"
+        android:layout_alignStart="@+id/input_measure_point_height_hint"
+        android:layout_alignEnd="@+id/input_measure_point_height_hint" />
+
+    <android.support.v7.widget.AppCompatSpinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/input_measure_point_reference_point"
+        android:hint="Referenzpunkt:"
+        android:spinnerMode="dropdown"
+        android:layout_below="@+id/measure_point_reference_point_text"
+        android:layout_alignStart="@+id/measure_point_reference_point_text"
+        android:layout_alignEnd="@+id/input_measure_point_height_hint" />
+
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_measure_point_comment_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="20dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/input_measure_point_reference_point"
+        android:layout_alignStart="@+id/input_measure_point_reference_point">
+
+        <EditText
+            android:id="@+id/input_measure_point_comment"
+            android:inputType="textMultiLine"
+            android:lines="2"
+            android:minLines="2"
+            android:maxLines="4"
+            android:scrollbars="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="Kommentar:"
+            android:maxWidth="50sp" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.v7.widget.AppCompatButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/cancel_measure_point_button"
+        android:textColor="@android:color/primary_text_light"
+        android:text="Abbrechen"
+        android:layout_below="@+id/input_measure_point_comment_hint"
+        android:layout_alignStart="@+id/input_measure_point_comment_hint"
+        android:layout_marginTop="39dp"
+        android:background="@color/colorAccent" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/save_measure_point_button"
+        android:layout_alignTop="@+id/cancel_measure_point_button"
+        android:textColor="@android:color/primary_text_light"
+        android:layout_alignEnd="@+id/input_measure_point_comment_hint"
+        android:text="Erstellen"
+        android:background="@color/colorAccent" />
+
+</RelativeLayout>
