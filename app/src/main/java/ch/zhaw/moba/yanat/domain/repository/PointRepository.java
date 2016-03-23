@@ -21,23 +21,12 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
     protected int projectId = 0;
 
     public PointRepository(Context context, int projectId) {
-        super(context);
+        super(context, PointContract.PointEntry.TABLE_NAME);
         this.mDbHelper = new PointDbHelper(this.context);
         this.projectId = projectId;
     }
 
     protected ContentValues buildContentValues(Point point) {
-        /*
-        // refresh tstamp
-        point.setCurrentTstamp();
-
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        // values.put(PointContract.PointEntry.COLUMN_NAME_ID, point.getId());
-        values.put(PointContract.PointEntry.COLUMN_NAME_CREATE_DATE, point.getCreateDate());
-        values.put(PointContract.PointEntry.COLUMN_NAME_TSTAMP, point.getTstamp());
-        values.put(PointContract.PointEntry.COLUMN_NAME_DELETED, 0);
-        */
         ContentValues values = super.buildContentValues(point);
         values.put(PointContract.PointEntry.COLUMN_NAME_PROJECT_ID, this.projectId);
         values.put(PointContract.PointEntry.COLUMN_NAME_REFERENCE_ID, point.getReferenceId());
@@ -51,63 +40,6 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
 
         return values;
     }
-
-    /*
-    public long add(Point point) {
-        this.dbWrite = this.mDbHelper.getWritableDatabase();
-        ContentValues values = this.buildContentValues(point);
-
-        // Insert the new row, returning the primary key value of the new row
-        long newRowId;
-        newRowId = dbWrite.insert(
-                PointContract.PointEntry.TABLE_NAME,
-                null,
-                values);
-        point.setId((int) newRowId);
-
-        return newRowId;
-    }
-
-    public boolean update(Point point) {
-        this.dbWrite = this.mDbHelper.getWritableDatabase();
-        ContentValues values = this.buildContentValues(point);
-
-        this.dbWrite.update(
-                PointContract.PointEntry.TABLE_NAME,
-                values,
-                PointContract.PointEntry.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(point.getId())}
-        );
-        return true;
-    }
-    */
-
-    /*
-    public boolean delete(Point point) {
-        this.dbWrite = this.mDbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(PointContract.PointEntry.COLUMN_NAME_DELETED, 1);
-
-        this.dbWrite.update(
-                PointContract.PointEntry.TABLE_NAME,
-                values,
-                PointContract.PointEntry.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(point.getId())}
-        );
-        return true;
-    }
-
-    public List<Point> findAll() {
-        return this.find("", null);
-    }
-
-    public List<Point> findById(int projectId) {
-        return this.find(
-                PointContract.PointEntry.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(projectId)}
-        );
-    }
-    */
 
     /**
      * Gets all points for a project
@@ -167,7 +99,6 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
 
             point.setTitle(this.makeTitle(offset));
             offset++;
-
 
             // add point to collection
             points.add(point);

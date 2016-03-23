@@ -21,6 +21,13 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
     protected SQLiteOpenHelper mDbHelper = null;
     protected SQLiteDatabase dbWrite = null;
 
+    protected String tableName = "";
+
+    public AbstractRepository(Context context, String tableName) {
+        this.context = context;
+        this.tableName = tableName;
+    }
+
     protected ContentValues buildContentValues(Model entity) {
         // refresh tstamp
         entity.setCurrentTstamp();
@@ -32,10 +39,6 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
         values.put(Contract.COLUMN_NAME_DELETED, 0);
 
         return values;
-    };
-
-    public AbstractRepository(Context context) {
-        this.context = context;
     }
 
     public List<Model> findAll() {
@@ -56,7 +59,7 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
         // Insert the new row, returning the primary key value of the new row
         long newRowId;
         newRowId = dbWrite.insert(
-                Contract.TABLE_NAME,
+                this.tableName,
                 null,
                 values);
         entity.setId((int) newRowId);
@@ -69,7 +72,7 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
         ContentValues values = this.buildContentValues(entity);
 
         this.dbWrite.update(
-                Contract.TABLE_NAME,
+                this.tableName,
                 values,
                 Contract.COLUMN_NAME_ID + " LIKE ?",
                 new String[]{String.valueOf(entity.getId())}
@@ -82,10 +85,10 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
         ContentValues values = new ContentValues();
         values.put(Contract.COLUMN_NAME_DELETED, 1);
 
-        Log.v("YANAT", Contract.TABLE_NAME + ": " + Contract.COLUMN_NAME_ID + ": " + String.valueOf(entity.getId()));
+        Log.v("YANAT", this.tableName + ": " + Contract.COLUMN_NAME_ID + ": " + String.valueOf(entity.getId()));
 
         this.dbWrite.update(
-                Contract.TABLE_NAME,
+                this.tableName,
                 values,
                 Contract.COLUMN_NAME_ID + " LIKE ?",
                 new String[]{String.valueOf(entity.getId())}

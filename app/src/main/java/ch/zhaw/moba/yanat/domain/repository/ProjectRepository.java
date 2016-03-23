@@ -18,23 +18,11 @@ import ch.zhaw.moba.yanat.domain.model.Project;
 public class ProjectRepository extends AbstractRepository<Project, ProjectContract.ProjectEntry> {
 
     public ProjectRepository(Context context) {
-        super(context);
+        super(context, ProjectContract.ProjectEntry.TABLE_NAME);
         this.mDbHelper = new ProjectDbHelper(this.context);
     }
 
     protected ContentValues buildContentValues(Project project) {
-        /*
-        // refresh tstamp
-        project.setCurrentTstamp();
-
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        // values.put(ProjectContract.ProjectEntry.COLUMN_NAME_ID, project.getId());
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE, project.getCreateDate());
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP, project.getTstamp());
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_DELETED, 0);
-        */
-
         ContentValues values = super.buildContentValues(project);
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_TITLE, project.getTitle());
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF, project.getPdf());
@@ -42,63 +30,6 @@ public class ProjectRepository extends AbstractRepository<Project, ProjectContra
         values.put(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_HEIGHT, project.getPdfHeight());
         return values;
     }
-
-    /*
-    public long add(Project project) {
-        this.dbWrite = this.mDbHelper.getWritableDatabase();
-        ContentValues values = this.buildContentValues(project);
-
-        // Insert the new row, returning the primary key value of the new row
-        long newRowId;
-        newRowId = dbWrite.insert(
-                ProjectContract.ProjectEntry.TABLE_NAME,
-                null,
-                values);
-        project.setId((int) newRowId);
-
-        return newRowId;
-    }
-
-    public boolean update(Project project) {
-        this.dbWrite = this.mDbHelper.getWritableDatabase();
-        ContentValues values = this.buildContentValues(project);
-
-        this.dbWrite.update(
-                ProjectContract.ProjectEntry.TABLE_NAME,
-                values,
-                ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(project.getId())}
-        );
-        return true;
-    }
-    */
-
-    /*
-    public boolean delete(Project project) {
-        this.dbWrite = this.mDbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(ProjectContract.ProjectEntry.COLUMN_NAME_DELETED, 1);
-
-        this.dbWrite.update(
-                ProjectContract.ProjectEntry.TABLE_NAME,
-                values,
-                ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(project.getId())}
-        );
-        return true;
-    }
-
-    public List<Project> findAll() {
-        return this.find("", null);
-    }
-
-    public List<Project> findById(int projectId) {
-        return this.find(
-            ProjectContract.ProjectEntry.COLUMN_NAME_ID + " LIKE ?",
-            new String[]{String.valueOf(projectId)}
-        );
-    }
-    */
 
     /**
      * Gets all projects
@@ -118,8 +49,8 @@ public class ProjectRepository extends AbstractRepository<Project, ProjectContra
         Cursor cursor = dbRead.query(
                 ProjectContract.ProjectEntry.TABLE_NAME,  // The table to query
                 null,                                     // The columns to return
-                whereFilter,                                     // The columns for the WHERE clause
-                whereValues,                                     // The values for the WHERE clause
+                whereFilter,                              // The columns for the WHERE clause
+                whereValues,                              // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 sortOrder                                 // The sort order
