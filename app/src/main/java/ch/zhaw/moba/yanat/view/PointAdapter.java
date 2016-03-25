@@ -42,8 +42,8 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
             super(itemView);
             this.view = itemView;
 
-            //TODO 0 -> projectid anpassen
-            this.pointRepository = new PointRepository(itemView.getContext(), 0);
+            // TODO 1 -> projectid anpassen
+            // this.pointRepository = new PointRepository(itemView.getContext(), 1);
 
             height = (TextView)itemView.findViewById(R.id.input_measure_point_height);
             comment = (TextView)itemView.findViewById(R.id.input_measure_point_comment);
@@ -69,11 +69,16 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
     public void onBindViewHolder(PointViewHolder pointViewHolder, int i) {
         pointViewHolder.currentPoint = points.get(i);
 
+        pointViewHolder.comment.setText(points.get(i).getComment());
+        pointViewHolder.height.setText("" + points.get(i).getHeight());
+
+        /*
         pointViewHolder.title.setText(points.get(i).getTitle());
         pointViewHolder.comment.setText(points.get(i).getComment());
         pointViewHolder.height.setText(""+points.get(i).getHeight());
         pointViewHolder.create_date.setText("Erstellt: " + points.get(i).getCreateDateString());
         pointViewHolder.tstamp.setText("Bearbeitet: " + points.get(i).getTstampString());
+        */
     }
 
     @Override

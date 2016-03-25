@@ -57,26 +57,27 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
-
                 LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
                 final View viewList = inflater.inflate(R.layout.dialog_point_list, null);
 
-                   //and a layout manager (needed!)
-                LinearLayoutManager llm = new LinearLayoutManager(DetailActivity.this);
-                recyclerView = (RecyclerView) viewList.findViewById(R.id.point_list);
-                recyclerView.setLayoutManager(llm);
-
                 List<Point> points = getPoints();
 
-                //add the adapter
+                recyclerView = (RecyclerView) viewList.findViewById(R.id.point_list);
+                recyclerView.setHasFixedSize(true);
+
+                // and a layout manager (needed!)
+                LinearLayoutManager llm = new LinearLayoutManager(DetailActivity.this);
+                recyclerView.setLayoutManager(llm);
+
+                // add the adapter
                 PointAdapter adapter = new PointAdapter(points);
                 recyclerView.setAdapter(adapter);
 
-                dialogBuilder.setView(recyclerView);
+                dialogBuilder.setView(viewList);
                 dialogBuilder.setTitle("Messpunkt");
                 Log.v("YANAT", "Points size: " + points.size());
 
-/* Messpunkte speichern
+                /* Messpunkte speichern
                 builder.setPositiveButton("Erstellen", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -107,9 +108,9 @@ public class DetailActivity extends AppCompatActivity {
                             }
                         })
                 ;
-*/
-                AlertDialog dialog = dialogBuilder.create();
+                */
 
+                AlertDialog dialog = dialogBuilder.create();
                 dialog.show();
             }
         });

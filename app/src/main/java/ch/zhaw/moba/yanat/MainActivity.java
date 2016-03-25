@@ -31,6 +31,7 @@ import java.util.List;
 
 import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
+import ch.zhaw.moba.yanat.mock.ExampleProject;
 import ch.zhaw.moba.yanat.utility.FileUtility;
 import ch.zhaw.moba.yanat.view.ProjectAdapter;
 
@@ -51,10 +52,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
 
         // create mock object for testing purposes
-        /*
-        ExampleProject exampleProject = new ExampleProject(this);
-        exampleProject.create();
-        */
+
+        // ExampleProject exampleProject = new ExampleProject(this);
+        // exampleProject.create();
+
 
         // analyticsTrackers.initialize(MainActivity.this);
         // -> throw error if screen rotated (reinit of analytics)
