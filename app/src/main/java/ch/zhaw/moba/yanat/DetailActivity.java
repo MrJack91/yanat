@@ -1,6 +1,8 @@
 package ch.zhaw.moba.yanat;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +22,7 @@ import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.view.PointAdapter;
+import ch.zhaw.moba.yanat.view.ProjectAdapter;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -30,6 +33,8 @@ public class DetailActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
 
     protected Project project = null;
+    protected View viewList;
+    private List<Point> points;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,63 +54,31 @@ public class DetailActivity extends AppCompatActivity {
         //  pointRepository.add(point);
 
         Button createMeasure = (Button) findViewById(R.id.create_measure_point);
+
+
         createMeasure.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
                 LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
-                final View viewList = inflater.inflate(R.layout.dialog_point_list, null);
+                viewList = inflater.inflate(R.layout.dialog_point_list, null);
+                listPoints();
 
-                List<Point> points = getPoints();
 
-                recyclerView = (RecyclerView) viewList.findViewById(R.id.point_list);
-                recyclerView.setHasFixedSize(true);
-
-                // and a layout manager (needed!)
-                LinearLayoutManager llm = new LinearLayoutManager(DetailActivity.this);
-                recyclerView.setLayoutManager(llm);
-
-                // add the adapter
-                PointAdapter adapter = new PointAdapter(points);
-                recyclerView.setAdapter(adapter);
+                FloatingActionButton fab = (FloatingActionButton) viewList.findViewById(R.id.fb_add_measure_point);
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Point newPoint = new Point();
+                        pointRepository.add(newPoint);
+                        listPoints();
+                    }
+                });
 
                 dialogBuilder.setView(viewList);
                 dialogBuilder.setTitle("Messpunkt");
                 Log.v("YANAT", "Points size: " + points.size());
-
-                /* Messpunkte speichern
-                builder.setPositiveButton("Erstellen", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        EditText pointComment = (EditText) view.findViewById(R.id.input_measure_point_comment);
-                        EditText pointHeight = (EditText) view.findViewById(R.id.input_measure_point_height);
-                        CheckBox groundFloor = (CheckBox) view.findViewById(R.id.ground_floor);
-                        CheckBox meterAboveSea = (CheckBox) view.findViewById(R.id.meter_above_sea);
-
-                        Point point = new Point();
-                        point.setComment(pointComment.getText().toString());
-                        // TODO testen ob man Buchstaben eingeben kann
-                        point.setHeight(Float.parseFloat(pointHeight.getText().toString()));
-
-                        // point.setTitle("A"); // not needed, will be handled by repository (dynamic name allocation)
-                        point.setPosX(1);
-                        point.setPosY(1);
-                        point.setIsAbsolute(meterAboveSea.isChecked());
-                        point.setIsGroundFloor(groundFloor.isChecked());
-
-                        Button save = (Button) findViewById(R.id.save_measure_point_button);
-                        pointRepository.add(point);
-
-                        Log.v("YANAT", "Add a point");
-                    }
-                })
-                        .setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                            }
-                        })
-                ;
-                */
 
                 AlertDialog dialog = dialogBuilder.create();
                 dialog.show();
@@ -130,6 +103,33 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void listPoints() {
+         points = getPoints();
+
+        recyclerView = (RecyclerView) viewList.findViewById(R.id.point_list);
+        recyclerView.setHasFixedSize(true);
+
+        // and a layout manager (needed!)
+        LinearLayoutManager llm = new LinearLayoutManager(DetailActivity.this);
+        recyclerView.setLayoutManager(llm);
+
+        // add the adapter
+        PointAdapter adapter = new PointAdapter(points, pointRepository);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+        Log.v("YANAT", "viewList: " + viewList);
+        Log.v("YANAT", "recyclerView: " + recyclerView);
+        Log.v("YANAT", "llm: " + llm);
+    }
+
+
+    public void updatePointList(){
+        recyclerView.getAdapter().notifyDataSetChanged();
+        listPoints();
+    }
+
 
     private void fillFieldsWithPoint(View view, Point point){
         ((TextView)view.findViewById(R.id.input_measure_point_comment)).setText(point.getComment());

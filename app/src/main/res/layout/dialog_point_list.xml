@@ -8,4 +8,15 @@
         android:layout_height="match_parent">
     </android.support.v7.widget.RecyclerView>
 
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fb_add_measure_point"
+        android:src="@drawable/ic_add_white_18dp"
+        android:layout_gravity="top"
+        android:layout_marginLeft="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>
