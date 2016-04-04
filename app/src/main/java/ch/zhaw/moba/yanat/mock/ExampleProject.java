@@ -2,6 +2,8 @@ package ch.zhaw.moba.yanat.mock;
 
 import android.content.Context;
 
+import java.util.List;
+
 import ch.zhaw.moba.yanat.domain.model.Point;
 import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
@@ -22,6 +24,8 @@ public class ExampleProject {
     }
 
     public void create() {
+
+        /*
         Project project = new Project();
         project.setTitle("0.0 Example Project");
         projectRepository.add(project);
@@ -30,6 +34,12 @@ public class ExampleProject {
         project.setPdfHeight(0);
         project.setPdfWidth(0);
         projectRepository.update(project);
+        */
+
+
+        List<Project> projects = projectRepository.findById(1);
+        Project project = projects.get(0);
+
 
         PointRepository pointRepository = project.getPointRepository(this.context);
 
