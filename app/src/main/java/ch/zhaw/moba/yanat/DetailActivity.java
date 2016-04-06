@@ -51,9 +51,6 @@ public class DetailActivity extends AppCompatActivity {
         pointRepository = project.getPointRepository(this);
 
 
-        String pdfPath = project.buildPdf();
-        Log.v("YANAT", "Build PDF: " + pdfPath);
-
         //  final Point point = new Point();
         //  point.setHeight(i);
         //  pointRepository.add(point);
@@ -103,6 +100,8 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // generate pdf & open
+                String pdfPath = project.buildPdf();
+                Log.v("YANAT", "Build PDF: " + pdfPath);
             }
         });
     }
