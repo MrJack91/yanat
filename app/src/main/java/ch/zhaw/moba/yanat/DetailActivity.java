@@ -10,9 +10,11 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.List;
@@ -137,6 +139,15 @@ public class DetailActivity extends AppCompatActivity {
         ((TextView)view.findViewById(R.id.input_measure_point_height)).setText("" + point.getHeight());
 
         //TODO Dropdownliste auffüllen
+
+        ArrayAdapter<Point> adapter = new ArrayAdapter<Point>(
+                this, android.R.layout.simple_spinner_item, getPoints());
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ((Spinner) view.findViewById(R.id.spinner_measure_point_reference_point)).setAdapter(adapter);
+
+
+
         ((CheckBox)view.findViewById(R.id.ground_floor)).setChecked(point.isGroundFloor());
         ((CheckBox)view.findViewById(R.id.meter_above_sea)).setChecked(point.isAbsolute());
     }
