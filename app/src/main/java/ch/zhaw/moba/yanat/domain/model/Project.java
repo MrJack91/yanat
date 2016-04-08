@@ -2,6 +2,7 @@ package ch.zhaw.moba.yanat.domain.model;
 
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 import com.itextpdf.text.DocumentException;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
+import ch.zhaw.moba.yanat.utility.FileUtility;
 import ch.zhaw.moba.yanat.utility.PdfGenerator;
 
 /**
@@ -91,6 +93,10 @@ public class Project extends AbstractModel {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // copy path to external storage
+        // FileUtility.copyFile(path, Environment.getExternalStorageDirectory()+"/yanat/myfile.pdf)
+
         return path;
     }
 }

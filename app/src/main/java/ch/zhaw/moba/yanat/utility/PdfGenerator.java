@@ -1,14 +1,12 @@
 package ch.zhaw.moba.yanat.utility;
 
-import android.util.Log;
+import android.content.Context;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import java.io.FileOutputStream;
@@ -35,7 +33,9 @@ public class PdfGenerator {
         // step 1
         Document document = new Document();
         // step 2
+        // PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filename));
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filename));
+
         // step 3
         document.open();
         // step 4
@@ -58,11 +58,7 @@ public class PdfGenerator {
         // step 5
         document.close();
 
-
-
-
-        // todo: add path to builded pdf
-        return "PATH/TO/PDF";
+        return filename;
     }
 
     /**

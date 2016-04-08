@@ -1,7 +1,10 @@
 package ch.zhaw.moba.yanat;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +17,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
 import java.util.List;
 
 import ch.zhaw.moba.yanat.domain.model.Point;
@@ -57,7 +62,6 @@ public class DetailActivity extends AppCompatActivity {
 
 
         createMeasure.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
@@ -100,6 +104,20 @@ public class DetailActivity extends AppCompatActivity {
                 // generate pdf & open
                 String pdfPath = project.buildPdf();
                 Log.v("YANAT", "Build PDF: " + pdfPath);
+
+                // open generated pdf
+                // File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/"+ filename);
+                File file = new File(pdfPath);
+                Intent target = new Intent(Intent.ACTION_VIEW);
+                target.setDataAndType(Uri.fromFile(file), "application/pdf");
+                target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+
+                Intent intent = Intent.createChooser(target, "Open File");
+                try {
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    // Instruct the user to install a PDF reader here, or something
+                }
             }
         });
     }
