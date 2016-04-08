@@ -11,8 +11,11 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
+import ch.zhaw.moba.yanat.domain.model.Point;
 import ch.zhaw.moba.yanat.domain.model.Project;
+import ch.zhaw.moba.yanat.domain.repository.PointRepository;
 
 /**
  * Created by michael on 21.03.16.
@@ -21,6 +24,8 @@ public class PdfGenerator {
 
     protected Project project;
 
+    public static final float POINT_TO_MM = (float) 0.352778;
+
     public PdfGenerator() {
 
     }
@@ -28,7 +33,10 @@ public class PdfGenerator {
     /** Path to the resulting PDF file. */
     public static final String RESULT = "results/part1/chapter01/hello.pdf";
 
-    public String buildPdf(String filename) throws DocumentException, IOException {
+    public String buildPdf(String filename, Project project, Context context) throws DocumentException, IOException {
+
+        PointRepository pointRepository = project.getPointRepository(context);
+        List<Point> points = pointRepository.findAll();
 
         // step 1
         Document document = new Document();

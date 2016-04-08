@@ -1,8 +1,6 @@
 package ch.zhaw.moba.yanat.domain.model;
 
 
-import android.util.Log;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -86,5 +84,13 @@ abstract public class AbstractModel {
 
     protected long getCurrentTstamp() {
         return new Date().getTime()/1000;
+    }
+
+    @Override
+    public String toString() {
+        return  "id=" + id +
+                ", createDate=" + createDate +
+                ", tstamp=" + tstamp
+        ;
     }
 }

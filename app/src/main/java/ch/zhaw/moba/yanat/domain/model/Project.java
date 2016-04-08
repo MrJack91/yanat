@@ -2,16 +2,14 @@ package ch.zhaw.moba.yanat.domain.model;
 
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 
 import com.itextpdf.text.DocumentException;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
-import ch.zhaw.moba.yanat.utility.FileUtility;
 import ch.zhaw.moba.yanat.utility.PdfGenerator;
 
 /**
@@ -26,7 +24,7 @@ public class Project extends AbstractModel {
     protected int pdfWidth = 0;
     protected int pdfHeight = 0;
 
-    protected List<Point> points = null;
+    // protected List<Point> points = null;
 
     public Project() {
         super();
@@ -80,14 +78,16 @@ public class Project extends AbstractModel {
         return pointRepository;
     }
 
-    public String buildPdf() {
+    public File buildPdf(Context context) {
         PdfGenerator pdfGenerator = new PdfGenerator();
+
+        // Log.v("YANAT", Environment.getDataDirectory().getAbsolutePath());
 
         String pdfName = "/data/data/ch.zhaw.moba.yanat/files/" + this.getId() + "/test.pdf";
 
         String path = null;
         try {
-            path = pdfGenerator.buildPdf(pdfName);
+            path = pdfGenerator.buildPdf(pdfName, this, context);
         } catch (DocumentException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -97,6 +97,21 @@ public class Project extends AbstractModel {
         // copy path to external storage
         // FileUtility.copyFile(path, Environment.getExternalStorageDirectory()+"/yanat/myfile.pdf)
 
-        return path;
+
+        return new File(path);
+    }
+
+
+
+    @Override
+    public String toString() {
+        ;
+        return "Project{" +
+                super.toString() +
+                ", title='" + title + '\'' +
+                ", pdf='" + pdf + '\'' +
+                ", pdfWidth=" + pdfWidth +
+                ", pdfHeight=" + pdfHeight +
+                '}';
     }
 }

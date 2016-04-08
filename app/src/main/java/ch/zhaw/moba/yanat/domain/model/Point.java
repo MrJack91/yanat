@@ -100,4 +100,21 @@ public class Point extends AbstractModel {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    @Override
+    public String toString() {
+        return "Point{" +
+                super.toString() +
+                ", projectId=" + projectId +
+                ", referenceId=" + referenceId +
+                ", groupId=" + groupId +
+                ", isAbsolute=" + isAbsolute +
+                ", isGroundFloor=" + isGroundFloor +
+                ", posX=" + posX +
+                ", posY=" + posY +
+                ", height=" + height +
+                ", comment='" + comment + '\'' +
+                ", title='" + title + '\'' +
+                '}';
+    }
 }

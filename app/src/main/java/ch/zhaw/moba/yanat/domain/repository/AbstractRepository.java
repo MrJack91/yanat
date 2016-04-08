@@ -45,11 +45,16 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
         return this.find("", null);
     }
 
-    public List<Model> findById(int id) {
-        return this.find(
+    public Model findById(int id) {
+        Model entity = null;
+        List<Model> entities = this.find(
                 Contract.COLUMN_NAME_ID + " LIKE ?",
                 new String[]{String.valueOf(id)}
         );
+        if (entities.size() > 0) {
+            entity = entities.get(0);
+        }
+        return entity;
     }
 
     public long add(Model entity) {
