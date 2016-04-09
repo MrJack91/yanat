@@ -1,7 +1,6 @@
 package ch.zhaw.moba.yanat.view;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,7 +78,6 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
     // Create new views (invoked by the layout manager)
     @Override
     public PointViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.v("YANAT", "on create view helper");
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.point_item, parent, false);
         v.setClickable(true);
         PointViewHolder vh = new PointViewHolder(v, pointRepository);

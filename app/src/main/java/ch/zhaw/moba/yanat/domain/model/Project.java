@@ -101,8 +101,6 @@ public class Project extends AbstractModel {
         return new File(path);
     }
 
-
-
     @Override
     public String toString() {
         ;

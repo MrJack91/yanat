@@ -6,7 +6,12 @@ import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfGState;
+import com.itextpdf.text.pdf.PdfImportedPage;
+import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import java.io.FileOutputStream;
@@ -38,69 +43,99 @@ public class PdfGenerator {
         PointRepository pointRepository = project.getPointRepository(context);
         List<Point> points = pointRepository.findAll();
 
+        PdfReader template = new PdfReader(project.getPdf());
+
         // step 1
-        Document document = new Document();
+        Rectangle rectangle = new Rectangle(project.getPdfWidth()/PdfGenerator.POINT_TO_MM, project.getPdfHeight()/PdfGenerator.POINT_TO_MM);
+        Document document = new Document(rectangle, 0, 0, 0, 0);
+
         // step 2
-        // PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filename));
-        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filename));
+        PdfWriter newPdf = PdfWriter.getInstance(document, new FileOutputStream(filename));
+        // PdfCopy newPdf = new PdfCopy(document, new FileOutputStream(filename));
 
         // step 3
         document.open();
-        // step 4
-        document.add(new Paragraph("Hello World!"));
 
-        // add pointer
-        PdfContentByte canvas = writer.getDirectContent();
-        canvas.setColorStroke(BaseColor.RED);
-        canvas.setLineWidth(3);
-        canvas.moveTo(220, 330);
-        canvas.lineTo(240, 370);
-        canvas.arc(200, 350, 240, 390, 0, (float) 180);
-        canvas.lineTo(220, 330);
-        canvas.closePathStroke();
-        canvas.setColorFill(BaseColor.RED);
-        canvas.circle(220, 370, 10);
-        canvas.fill();
-        document.close();
+        // step 4
+        // import first fpage
+        PdfImportedPage page = newPdf.getImportedPage(template, 1);
+        // newPdf.addPage(page);
+
+        PdfContentByte cb = newPdf.getDirectContent();
+        // document.newPage();
+        cb.addTemplate(page, 0, 0);
+
+        for (int i = 0; i < points.size(); i++) {
+            this.addMarker(newPdf, points.get(i));
+        }
+
 
         // step 5
         document.close();
+
+        template.close();
+        newPdf.close();
 
         return filename;
     }
 
     /**
-     * Inspect a PDF file and write the info to a txt file
-     * @param filename Path to the PDF file
-     * @throws IOException
+     *
+     * @param newPdf
+     * @param point
      */
-    /*
-    public static void inspect(String filename) throws IOException {
-        PdfReader reader = new PdfReader(filename);
-        Log.v("YANAT", filename);
-        Log.v("YANAT", "Number of pages: ");
-        Log.v("YANAT", reader.getNumberOfPages());
-        Rectangle mediabox = reader.getPageSize(1);
-        Log.v("YANAT", "Size of page 1: [");
-        Log.v("YANAT", mediabox.getLeft());
-        Log.v("YANAT", ',');
-        Log.v("YANAT", mediabox.getBottom());
-        Log.v("YANAT", ',');
-        Log.v("YANAT", mediabox.getRight());
-        Log.v("YANAT", ',');
-        Log.v("YANAT", mediabox.getTop());
-        Log.v("YANAT", "]");
-        Log.v("YANAT", "Rotation of page 1: ");
-        Log.v("YANAT", reader.getPageRotation(1));
-        Log.v("YANAT", "Page size with rotation of page 1: ");
-        Log.v("YANAT", reader.getPageSizeWithRotation(1));
-        Log.v("YANAT", "Is rebuilt? ");
-        Log.v("YANAT", reader.isRebuilt());
-        Log.v("YANAT", "Is encrypted? ");
-        Log.v("YANAT", reader.isEncrypted());
-        // writer.flush();
-        reader.close();
+    protected void addMarker(PdfWriter newPdf, Point point) {
+        // cast to mm from bottom left corner
+        double x = point.getPosX() / POINT_TO_MM;
+        double y = point.getPosY() / POINT_TO_MM;
+
+        // add pointer
+        PdfContentByte canvas = newPdf.getDirectContent();
+
+        PdfGState gState = new PdfGState();
+        gState.setFillOpacity(0.4f);
+        gState.setStrokeOpacity(0.8f);
+        canvas.setGState(gState);
+        canvas.setColorStroke(BaseColor.RED);
+        canvas.setLineWidth(3);
+
+        // pin
+        canvas.arc(x-20, y+20, x+20, y+60, 0, (float) 180);
+        canvas.lineTo(x, y);
+        canvas.closePathStroke();
+        canvas.closePathFillStroke();
+
+        canvas.setColorFill(BaseColor.RED);
+        canvas.circle(x, y+40, 10);
+        canvas.fill();
+
+        // add text box
+        canvas.roundRectangle(x+35, y, 55, 55, 2);
+        canvas.stroke();
+        // canvas.setColorFill(BaseColor.WHITE);
+        canvas.fill();
+
+        // add text
+        gState = new PdfGState();
+        gState.setFillOpacity(1f);
+        gState.setStrokeOpacity(1);
+        canvas.setGState(gState);
+        Rectangle rect = new Rectangle((float) (x+35+3), (float) (y+3), (float) (x+35+55-3), (float) (y+55));
+        ColumnText ct = new ColumnText(canvas);
+        ct.setSimpleColumn(rect);
+        ct.addElement(new Paragraph("This\nis"));
+        try {
+            ct.go();
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+
+        // todo: add additional information
+        // point.getHeight()
+        // point.getTitle()
+        // point.getReferenceId()
+        // point.getComment()
     }
-    */
+
 
 }
