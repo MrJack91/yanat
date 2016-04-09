@@ -13,7 +13,7 @@ public class PointContract {
         public static final String TABLE_NAME = "point";
         public static final String COLUMN_NAME_PROJECT_ID = "project_id";
         public static final String COLUMN_NAME_REFERENCE_ID = "reference_id";   // reference to point (default: null)
-        public static final String COLUMN_NAME_GROUP_ID = "group_id";           // group num (default: own id)
+        public static final String COLUMN_NAME_GROUP_ID = "group_id";           // group num (default: own id) (1 group per absolute point (points with no reference_id)) -> used for color per group
         public static final String COLUMN_NAME_IS_ABSOLUTE = "is_absolute";
         public static final String COLUMN_NAME_IS_GROUND_FLOOR = "is_ground_floor";
         public static final String COLUMN_NAME_POS_X = "pos_x";

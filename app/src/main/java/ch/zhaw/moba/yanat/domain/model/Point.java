@@ -15,7 +15,12 @@ public class Point extends AbstractModel {
     protected float height = 0;
     protected String comment = "";
 
+    // dynamic calculated data
     protected String title = "";
+    protected float heightAbsolute = 0;
+    protected float heightRelative = 0;
+    protected float heightToGroundFloor = 0;
+
 
     public Point() {
         super();
@@ -93,6 +98,7 @@ public class Point extends AbstractModel {
         this.comment = comment;
     }
 
+
     public String getTitle() {
         return title;
     }
@@ -100,6 +106,31 @@ public class Point extends AbstractModel {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public float getHeightAbsolute() {
+        return heightAbsolute;
+    }
+
+    public void setHeightAbsolute(float heightAbsolute) {
+        this.heightAbsolute = heightAbsolute;
+    }
+
+    public float getHeightToGroundFloor() {
+        return heightToGroundFloor;
+    }
+
+    public void setHeightToGroundFloor(float heightToGroundFloor) {
+        this.heightToGroundFloor = heightToGroundFloor;
+    }
+
+    public float getHeightRelative() {
+        return heightRelative;
+    }
+
+    public void setHeightRelative(float heightRelative) {
+        this.heightRelative = heightRelative;
+    }
+
 
     @Override
     public String toString() {
@@ -112,9 +143,12 @@ public class Point extends AbstractModel {
                 ", isGroundFloor=" + isGroundFloor +
                 ", posX=" + posX +
                 ", posY=" + posY +
-                ", height=" + height +
-                ", comment='" + comment + '\'' +
                 ", title='" + title + '\'' +
+                ", height=" + height +
+                ", heightAbsolute=" + heightAbsolute +
+                ", heightRelative=" + heightRelative +
+                ", heightToGroundFloor=" + heightToGroundFloor +
+                ", comment='" + comment + '\'' +
                 '}';
     }
 }

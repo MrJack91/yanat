@@ -188,10 +188,10 @@ public class DetailActivity extends AppCompatActivity {
     private List<Point> getPoints(){
 
         final List<Point> points = pointRepository.findAll();
-        int i;
 
-        for (i = 0; i < points.size(); i++) {
-            Log.v("YANAT", Float.toString(points.get(i).getHeight()));
+        Log.v("YANAT", "Points size: " + points.size());
+        for (Point point : points) {
+            Log.v("YANAT", point.toString());
         }
 
         return points;

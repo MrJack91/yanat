@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,12 +106,13 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
 
             cursor.moveToNext();
         }
+        cursor.close();
 
         return points;
     }
 
     protected String makeTitle(int offset) {
-        String title = "";
+        String title;
         // todo: add more chars than 26 (aa,ab,ac,...)
 
         if (offset > 26) {
@@ -118,6 +120,69 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         }
         title = String.valueOf(Character.toChars(65+offset));
         return title;
+    }
+
+
+    public List<Point> findAll() {
+        // load all fix points (root points without references)
+        List<Point> points = new ArrayList();
+        points.addAll(this.findChildren(null, null));
+
+        // search groundfloor to calc relative groundfloor height
+        List<Point> floorGroundPoints = this.find("is_ground_floor = 1", null);
+        if (floorGroundPoints.size() == 1) {
+            Point groundFloorPoint = this.findLoadedById(floorGroundPoints.get(0).getId(), points);
+            Log.v("YANAT", "Ground point abs. height: " + String.valueOf(groundFloorPoint.getHeightAbsolute()));
+            for (Point point : points) {
+                point.setHeightToGroundFloor((point.getHeightAbsolute() - groundFloorPoint.getHeightAbsolute()));
+            }
+        }
+
+        return points;
+    }
+
+    /**
+     * Loads all childs recursiver
+     * @param parentPoint
+     * @return
+     */
+    protected List<Point> findChildren(Point parentPoint, Point rootPoint) {
+        int parentId = 0;
+        if (parentPoint != null) {
+            parentId = parentPoint.getId();
+        }
+
+        List<Point> points = this.find("reference_id = " + parentId, null);
+        List<Point> childPoints = new ArrayList();
+        for (Point point : points) {
+            // calc heights of this point
+            if (parentPoint == null) {
+                rootPoint = point;
+                point.setHeightAbsolute(point.getHeight());
+                point.setHeightRelative(0);
+            } else {
+                point.setHeightAbsolute(parentPoint.getHeightAbsolute() + point.getHeight());
+                point.setHeightRelative(point.getHeightAbsolute() - rootPoint.getHeightAbsolute());
+            }
+
+            // calc all childs
+            childPoints.addAll(this.findChildren(point, rootPoint));
+        }
+        points.addAll(childPoints);
+
+        // todo: findall: Titel fixen, group setzen
+
+        return points;
+    }
+
+    public Point findLoadedById(int id, List<Point> points) {
+        for (Point point : points) {
+            if (point.getId() == id) {
+                return point;
+            }
+        }
+        return null;
+
     }
 
 }

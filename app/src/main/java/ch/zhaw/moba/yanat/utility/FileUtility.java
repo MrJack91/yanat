@@ -81,7 +81,7 @@ public class FileUtility {
     private File getChildrenFolder(String path) {
         File dir = context.getFilesDir();
         List<String> dirs = new ArrayList<String>(Arrays.<String>asList(path.split("/")));
-        for(int i = 0; i < dirs.size(); ++i) { // use size-1 to skip file name
+        for (int i = 0; i < dirs.size(); ++i) { // use size-1 to skip file name
             // is folder name
             dir = new File(dir, dirs.get(i)); //Getting a file within the dir.
             if (i != dirs.size()-1) {

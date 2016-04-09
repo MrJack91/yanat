@@ -35,9 +35,6 @@ public class PdfGenerator {
 
     }
 
-    /** Path to the resulting PDF file. */
-    public static final String RESULT = "results/part1/chapter01/hello.pdf";
-
     public String buildPdf(String filename, Project project, Context context) throws DocumentException, IOException {
 
         PointRepository pointRepository = project.getPointRepository(context);
@@ -59,16 +56,13 @@ public class PdfGenerator {
         // step 4
         // import first fpage
         PdfImportedPage page = newPdf.getImportedPage(template, 1);
-        // newPdf.addPage(page);
 
         PdfContentByte cb = newPdf.getDirectContent();
-        // document.newPage();
         cb.addTemplate(page, 0, 0);
 
-        for (int i = 0; i < points.size(); i++) {
-            this.addMarker(newPdf, points.get(i));
+        for (Point point : points) {
+            this.addMarker(newPdf, point);
         }
-
 
         // step 5
         document.close();
@@ -88,6 +82,21 @@ public class PdfGenerator {
         // cast to mm from bottom left corner
         double x = point.getPosX() / POINT_TO_MM;
         double y = point.getPosY() / POINT_TO_MM;
+
+        // build text
+        int textLines = 2;
+        String text =
+                "Abs.: " + point.getHeightAbsolute() + "\n" +
+                "Rel.: " + point.getHeightRelative();
+        // todo: fix: if groundfloor is zero -> means not null
+        if (point.getHeightToGroundFloor() > 0 || point.isGroundFloor()) {
+            textLines++;
+            text += "\nGF: " + point.getHeightToGroundFloor();
+        }
+        if (point.getComment().length() > 0) {
+            textLines++;
+            text += "\n" + point.getComment();
+        }
 
         // add pointer
         PdfContentByte canvas = newPdf.getDirectContent();
@@ -110,7 +119,11 @@ public class PdfGenerator {
         canvas.fill();
 
         // add text box
-        canvas.roundRectangle(x+35, y, 55, 55, 2);
+        float llx = 35;  // low left x
+        float lly = 0;
+        float width = 90;
+        float height = 80;
+        canvas.roundRectangle(x+llx, y+lly, width, height, 2);
         canvas.stroke();
         // canvas.setColorFill(BaseColor.WHITE);
         canvas.fill();
@@ -120,21 +133,16 @@ public class PdfGenerator {
         gState.setFillOpacity(1f);
         gState.setStrokeOpacity(1);
         canvas.setGState(gState);
-        Rectangle rect = new Rectangle((float) (x+35+3), (float) (y+3), (float) (x+35+55-3), (float) (y+55));
+        Rectangle rect = new Rectangle((float) (x+llx+8), (float) (y+lly+3), (float) (x+llx+width-3), (float) (y+lly+height));
+        // (4-textLines)*10
         ColumnText ct = new ColumnText(canvas);
         ct.setSimpleColumn(rect);
-        ct.addElement(new Paragraph("This\nis"));
+        ct.addElement(new Paragraph(text));
         try {
             ct.go();
         } catch (DocumentException e) {
             e.printStackTrace();
         }
-
-        // todo: add additional information
-        // point.getHeight()
-        // point.getTitle()
-        // point.getReferenceId()
-        // point.getComment()
     }
 
 
