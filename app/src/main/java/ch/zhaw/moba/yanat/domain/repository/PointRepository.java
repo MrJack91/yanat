@@ -4,9 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ch.zhaw.moba.yanat.db.PointContract;
@@ -20,6 +20,9 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
 
     /** project id for the points to load */
     protected int projectId = 0;
+
+    /** used for title, required manually reset */
+    protected int titleOffset = 0;
 
     public PointRepository(Context context, int projectId) {
         super(context, PointContract.PointEntry.TABLE_NAME);
@@ -44,6 +47,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
 
     /**
      * Gets all points for a project
+     * If you use public, reset titleOffset manually to 0
      * @return
      */
     public List<Point> find(String whereFilter, String[] whereValues) {
@@ -68,7 +72,6 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         );
 
         cursor.moveToFirst();
-        int offset = 0;
         while (!cursor.isAfterLast()) {
             int id = cursor.getInt(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_ID));
             Long createDate = cursor.getLong(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_CREATE_DATE));
@@ -98,8 +101,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
             point.setHeight(height);
             point.setComment(comment);
 
-            point.setTitle(this.makeTitle(offset));
-            offset++;
+            point.setTitle(this.makeTitle(this.titleOffset));
 
             // add point to collection
             points.add(point);
@@ -119,25 +121,26 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
             offset = 26;
         }
         title = String.valueOf(Character.toChars(65+offset));
+
+        this.titleOffset++;
         return title;
     }
 
 
     public List<Point> findAll() {
         // load all fix points (root points without references)
+        this.titleOffset = 0;
         List<Point> points = new ArrayList();
-        points.addAll(this.findChildren(null, null));
+        points.addAll(this.findChildren(null, null, 0));
 
         // search groundfloor to calc relative groundfloor height
         List<Point> floorGroundPoints = this.find("is_ground_floor = 1", null);
         if (floorGroundPoints.size() == 1) {
             Point groundFloorPoint = this.findLoadedById(floorGroundPoints.get(0).getId(), points);
-            Log.v("YANAT", "Ground point abs. height: " + String.valueOf(groundFloorPoint.getHeightAbsolute()));
             for (Point point : points) {
                 point.setHeightToGroundFloor((point.getHeightAbsolute() - groundFloorPoint.getHeightAbsolute()));
             }
         }
-
         return points;
     }
 
@@ -146,7 +149,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
      * @param parentPoint
      * @return
      */
-    protected List<Point> findChildren(Point parentPoint, Point rootPoint) {
+    protected List<Point> findChildren(Point parentPoint, Point rootPoint, int groupId) {
         int parentId = 0;
         if (parentPoint != null) {
             parentId = parentPoint.getId();
@@ -157,20 +160,22 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         for (Point point : points) {
             // calc heights of this point
             if (parentPoint == null) {
+                // is absolute point
                 rootPoint = point;
                 point.setHeightAbsolute(point.getHeight());
-                point.setHeightRelative(0);
+                point.setHeightRelative(0f);
+                groupId++;
             } else {
+                // is relative point
                 point.setHeightAbsolute(parentPoint.getHeightAbsolute() + point.getHeight());
                 point.setHeightRelative(point.getHeightAbsolute() - rootPoint.getHeightAbsolute());
             }
+            point.setGroupId(groupId);
 
             // calc all childs
-            childPoints.addAll(this.findChildren(point, rootPoint));
+            childPoints.addAll(this.findChildren(point, rootPoint, groupId));
         }
         points.addAll(childPoints);
-
-        // todo: findall: Titel fixen, group setzen
 
         return points;
     }
@@ -182,7 +187,56 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
             }
         }
         return null;
+    }
 
+    /**
+     * Group points by coordinates -> get duplicates -> points on same location
+     * @param points
+     * @return
+     */
+    public List<List> groupPointsByCoordinates(List<Point> points) {
+        // sort by coordinates to easy recognize same coordinates
+        Collections.sort(points);
+
+        /*
+        for (Point point : points) {
+            Log.v("YANAT group before: ", point.toString());
+        }
+        */
+
+        // List<List<Point>> groupedPoints = new ArrayList<List<Point>>;
+        List<List> groupedPoints = new ArrayList();
+        int lastX;
+        int lastY;
+        for (int i = 0; i < points.size(); i++) {
+            Point point = points.get(i);
+            List<Point> groupOfPoints = new ArrayList();
+            groupOfPoints.add(point);
+            lastX = point.getPosX();
+            lastY = point.getPosY();
+
+            int j;
+            for (j = i+1; j < points.size(); j++) {
+                Point nextPoint = points.get(j);
+                if (lastX != nextPoint.getPosX() || lastY != nextPoint.getPosY()) {
+                    break;
+                }
+                groupOfPoints.add(nextPoint);
+            }
+            i = j-1;
+
+            groupedPoints.add(groupOfPoints);
+        }
+
+        /*
+        for (List<Point> groupOfPoints : groupedPoints) {
+            for (Point point : groupOfPoints) {
+                Log.v("YANAT group after: ", point.toString());
+            }
+        }
+        */
+
+        return groupedPoints;
     }
 
 }

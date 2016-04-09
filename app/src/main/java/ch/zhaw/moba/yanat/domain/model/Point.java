@@ -3,23 +3,23 @@ package ch.zhaw.moba.yanat.domain.model;
 /**
  * Created by michael on 04.03.16.
  */
-public class Point extends AbstractModel {
+public class Point extends AbstractModel implements Comparable<Point> {
 
     protected int projectId = 0;
     protected int referenceId = 0;
     protected int groupId = 0;
     protected boolean isAbsolute = false;
     protected boolean isGroundFloor = false;
-    protected float posX = 0;
-    protected float posY = 0;
+    protected int posX = 0;
+    protected int posY = 0;
     protected float height = 0;
     protected String comment = "";
 
     // dynamic calculated data
     protected String title = "";
-    protected float heightAbsolute = 0;
-    protected float heightRelative = 0;
-    protected float heightToGroundFloor = 0;
+    protected Float heightAbsolute = 0f;
+    protected Float heightRelative = 0f;
+    protected Float heightToGroundFloor = null;
 
 
     public Point() {
@@ -42,6 +42,10 @@ public class Point extends AbstractModel {
         this.referenceId = referenceId;
     }
 
+    /**
+     * unique group id per absolute point
+     * @return
+     */
     public int getGroupId() {
         return groupId;
     }
@@ -66,7 +70,7 @@ public class Point extends AbstractModel {
         this.isGroundFloor = isGroundFloor;
     }
 
-    public double getPosX() {
+    public int getPosX() {
         return posX;
     }
 
@@ -74,7 +78,7 @@ public class Point extends AbstractModel {
         this.posX = posX;
     }
 
-    public double getPosY() {
+    public int getPosY() {
         return posY;
     }
 
@@ -107,27 +111,27 @@ public class Point extends AbstractModel {
         this.title = title;
     }
 
-    public float getHeightAbsolute() {
+    public Float getHeightAbsolute() {
         return heightAbsolute;
     }
 
-    public void setHeightAbsolute(float heightAbsolute) {
+    public void setHeightAbsolute(Float heightAbsolute) {
         this.heightAbsolute = heightAbsolute;
     }
 
-    public float getHeightToGroundFloor() {
+    public Float getHeightToGroundFloor() {
         return heightToGroundFloor;
     }
 
-    public void setHeightToGroundFloor(float heightToGroundFloor) {
+    public void setHeightToGroundFloor(Float heightToGroundFloor) {
         this.heightToGroundFloor = heightToGroundFloor;
     }
 
-    public float getHeightRelative() {
+    public Float getHeightRelative() {
         return heightRelative;
     }
 
-    public void setHeightRelative(float heightRelative) {
+    public void setHeightRelative(Float heightRelative) {
         this.heightRelative = heightRelative;
     }
 
@@ -150,5 +154,24 @@ public class Point extends AbstractModel {
                 ", heightToGroundFloor=" + heightToGroundFloor +
                 ", comment='" + comment + '\'' +
                 '}';
+    }
+
+    /**
+     * Order by coordinate, to get points on same position
+     * @param o
+     * @return
+     */
+    @Override
+    public int compareTo(Point o) {
+        int xDiff = this.getPosX() - o.getPosX();
+        int yDiff = this.getPosY() - o.getPosY();
+        if (xDiff == 0 && yDiff == 0) {
+            return 0;
+        }
+        // use not zero var and return it
+        if (xDiff == 0) {
+            xDiff = yDiff;
+        }
+        return xDiff;
     }
 }
