@@ -33,7 +33,7 @@
         android:layout_below="@+id/mesure_point_name_label"
         android:layout_marginTop="110dp">
 
-        <EditText
+        <android.support.design.widget.TextInputEditText
             android:id="@+id/input_measure_point_height"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
@@ -41,7 +41,8 @@
             android:windowSoftInputMode="adjustResize"
             android:inputType="numberDecimal"
             android:hint="Höhe:"
-            android:maxWidth="50sp" />
+            android:maxWidth="50sp">
+        </android.support.design.widget.TextInputEditText>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatCheckBox
@@ -99,7 +100,7 @@
         android:layout_below="@+id/spinner_measure_point_reference_point"
         android:layout_alignStart="@+id/spinner_measure_point_reference_point">
 
-        <EditText
+        <android.support.design.widget.TextInputEditText
             android:id="@+id/input_measure_point_comment"
             android:inputType="textMultiLine"
             android:lines="2"
@@ -110,7 +111,8 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:hint="Kommentar:"
-            android:maxWidth="50sp" />
+            android:maxWidth="50sp">
+        </android.support.design.widget.TextInputEditText>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatButton

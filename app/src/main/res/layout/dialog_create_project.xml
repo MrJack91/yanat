@@ -10,7 +10,7 @@
         android:layout_alignParentTop="true"
         android:layout_margin="20dp">
 
-        <EditText
+        <android.support.design.widget.TextInputEditText
             android:id="@+id/input_project_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

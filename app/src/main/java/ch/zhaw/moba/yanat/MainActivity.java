@@ -26,13 +26,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfReader;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
-import ch.zhaw.moba.yanat.mock.ExampleProject;
 import ch.zhaw.moba.yanat.utility.FileUtility;
+import ch.zhaw.moba.yanat.utility.PdfGenerator;
 import ch.zhaw.moba.yanat.view.ProjectAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -46,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
     private static final int MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 3;
 
-    String[] perms = { "android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE"};
+    String[] perms = { "android.permission.WRITE_EXTERNAL_STORAGE"};
 
     public ProjectRepository projectRepository = new ProjectRepository(MainActivity.this);
 
@@ -176,8 +180,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         // save & add pdf path
                         FileUtility fileUtility = new FileUtility(MainActivity.this);
-                        File newFile = fileUtility.saveFile(this.returnUri, project.getId() + "/" + this.filename);
-                        project.setPdf(newFile.getAbsolutePath());
+                        File newPdf = fileUtility.saveFile(this.returnUri, project.getId() + "/" + this.filename);
+                        project.setPdf(newPdf.getAbsolutePath());
+
+                        // get&set size of pdf -> Inspecting PDFs
+                        PdfReader reader = null;
+                        try {
+                            reader = new PdfReader(newPdf.getAbsolutePath());
+                            Rectangle mediabox = reader.getPageSize(1);
+
+                            project.setPdfWidth((int) (mediabox.getRight() * PdfGenerator.POINT_TO_MM));
+                            project.setPdfHeight((int) (mediabox.getTop() * PdfGenerator.POINT_TO_MM));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
                         projectRepository.update(project);
 
                         // reload project list

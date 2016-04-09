@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,8 +49,8 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Integer element = getAdapterPosition();
-                    Log.v("YANAT", "clicked on " + currentProject.getTitle() + " ID: " + String.valueOf(currentProject.getId()) + " (getAdapterPosition: " + element.toString() + ")");
+                    // Integer element = getAdapterPosition();
+                    // Log.v("YANAT", "clicked on " + currentProject.getTitle() + " ID: " + String.valueOf(currentProject.getId()) + " (getAdapterPosition: " + element.toString() + ")");
                     // open project
                     Intent i = new Intent(getMainActivity(), DetailActivity.class);
                     i.putExtra("projectId", currentProject.getId());

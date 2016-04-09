@@ -1,8 +1,12 @@
 package ch.zhaw.moba.yanat;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.List;
 
 import ch.zhaw.moba.yanat.domain.model.Point;
@@ -24,7 +29,6 @@ import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.view.PointAdapter;
-import ch.zhaw.moba.yanat.view.ProjectAdapter;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -46,8 +50,8 @@ public class DetailActivity extends AppCompatActivity {
         int projectId = getIntent().getIntExtra("projectId", 0);
         // load all points
 
-        List<Project> projects = projectRepository.findById(projectId);
-        project = projects.get(0);
+        project = projectRepository.findById(projectId);
+        Log.v("YANAT", project.toString());
         pointRepository = project.getPointRepository(this);
 
 
@@ -59,7 +63,6 @@ public class DetailActivity extends AppCompatActivity {
 
 
         createMeasure.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
@@ -100,8 +103,50 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // generate pdf & open
-                String pdfPath = project.buildPdf();
-                Log.v("YANAT", "Build PDF: " + pdfPath);
+                // Log.v("YANAT", getApplicationInfo().dataDir + "/files/");
+                File pdfFile = project.buildPdf(DetailActivity.this);
+                Log.v("YANAT", "Build PDF: " + pdfFile.getAbsolutePath());
+
+                Uri fileUri = null;
+                // answer with the create file provider
+                try {
+                    fileUri = FileProvider.getUriForFile(
+                            DetailActivity.this,
+                            "ch.zhaw.moba.yanat.fileprovider",
+                            pdfFile);
+                } catch (IllegalArgumentException e) {
+                    Log.e("File Selector",
+                            "The selected file can't be shared: ");
+                }
+
+                // open generated pdf
+                // File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/"+ filename);
+                // File file = new File(pdfPath);
+                Intent target = new Intent(Intent.ACTION_VIEW);
+                // target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+
+                // Grant temporary read permission to the content URI
+                target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                if (fileUri != null) {
+                    // Put the Uri and MIME type in the result Intent
+                    // target.setDataAndType(fileUri, "application/pdf");
+                    target.setDataAndType(fileUri, getContentResolver().getType(fileUri));
+
+                    // Set the result
+                    DetailActivity.this.setResult(Activity.RESULT_OK, target);
+                } else {
+                    target.setDataAndType(null, "");
+                    DetailActivity.this.setResult(RESULT_CANCELED, target);
+                }
+
+                // for explicit request which app should open it
+                // Intent intent = Intent.createChooser(target, "Open File");
+                try {
+                    startActivity(target);
+                } catch (ActivityNotFoundException e) {
+                    // Instruct the user to install a PDF reader here, or something
+                }
             }
         });
     }
