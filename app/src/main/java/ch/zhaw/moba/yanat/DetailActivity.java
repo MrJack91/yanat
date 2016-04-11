@@ -14,6 +14,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
@@ -68,7 +69,6 @@ public class DetailActivity extends AppCompatActivity {
                 viewList = inflater.inflate(R.layout.dialog_point_list, null);
                 listPoints();
 
-
                 FloatingActionButton fab = (FloatingActionButton) viewList.findViewById(R.id.fb_add_measure_point);
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -85,6 +85,8 @@ public class DetailActivity extends AppCompatActivity {
 
                 AlertDialog dialog = dialogBuilder.create();
                 dialog.show();
+                dialog.getWindow().clearFlags( WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             }
         });
 
@@ -164,9 +166,11 @@ public class DetailActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
+        /*
         Log.v("YANAT", "viewList: " + viewList);
         Log.v("YANAT", "recyclerView: " + recyclerView);
         Log.v("YANAT", "llm: " + llm);
+        */
     }
 
 
@@ -182,7 +186,6 @@ public class DetailActivity extends AppCompatActivity {
 
         //TODO Dropdownliste auffüllen
         ((CheckBox)view.findViewById(R.id.ground_floor)).setChecked(point.isGroundFloor());
-        ((CheckBox)view.findViewById(R.id.meter_above_sea)).setChecked(point.isAbsolute());
     }
 
     private List<Point> getPoints(){

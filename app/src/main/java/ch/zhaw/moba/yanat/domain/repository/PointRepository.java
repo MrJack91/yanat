@@ -35,7 +35,6 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         values.put(PointContract.PointEntry.COLUMN_NAME_PROJECT_ID, this.projectId);
         values.put(PointContract.PointEntry.COLUMN_NAME_REFERENCE_ID, point.getReferenceId());
         values.put(PointContract.PointEntry.COLUMN_NAME_GROUP_ID, point.getGroupId());
-        values.put(PointContract.PointEntry.COLUMN_NAME_IS_ABSOLUTE, point.isAbsolute());
         values.put(PointContract.PointEntry.COLUMN_NAME_IS_GROUND_FLOOR, point.isGroundFloor());
         values.put(PointContract.PointEntry.COLUMN_NAME_POS_X, point.getPosX());
         values.put(PointContract.PointEntry.COLUMN_NAME_POS_Y, point.getPosY());
@@ -79,7 +78,6 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
             int projectId = cursor.getInt(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_PROJECT_ID));
             int referenceId = cursor.getInt(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_REFERENCE_ID));
             int groupId = cursor.getInt(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_GROUP_ID));
-            Short nAbsolute = cursor.getShort(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_IS_ABSOLUTE));
             Short nGroundFloor = cursor.getShort(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_IS_GROUND_FLOOR));
             int posX = cursor.getInt(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_POS_X));
             int posY = cursor.getInt(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_POS_Y));
@@ -94,7 +92,6 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
             point.setProjectId(projectId);
             point.setReferenceId(referenceId);
             point.setGroupId(groupId);
-            point.setIsAbsolute(nAbsolute == 1);
             point.setIsGroundFloor(nGroundFloor == 1);
             point.setPosX(posX);
             point.setPosY(posY);

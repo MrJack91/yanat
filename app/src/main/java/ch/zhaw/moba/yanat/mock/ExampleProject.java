@@ -41,7 +41,6 @@ public class ExampleProject {
 
         // fix point
         Point pointFix = new Point();
-        pointFix.setIsAbsolute(true);
         pointFix.setHeight(450);
         pointFix.setComment("Absolute point");
         pointFix.setPosX(10);
@@ -119,14 +118,14 @@ public class ExampleProject {
 
 
         BEGIN TRANSACTION;
-        CREATE TABLE point (id INTEGER PRIMARY KEY,create_date INTEGER,timestamp INTEGER,deleted INTEGER,project_id INTEGER,reference_id INTEGER,group_id INTEGER,is_absolute INTEGER,is_ground_floor INTEGER,pos_x INTEGER,pos_y INTEGER,height REAL,comment TEXT );
-        INSERT INTO "point" VALUES(1,1459768229,1460209866,0,1,0,0,1,0,123,204,450.0,'Absolute point');
-        INSERT INTO "point" VALUES(2,1459768229,1460209866,0,1,1,0,0,1,208,204,-10.0,'Ground Floor (-10m)');
-        INSERT INTO "point" VALUES(3,1459768229,1460209863,0,1,2,0,0,0,146,111,-20.0,'Reference Point 0 (-20.0m)');
-        INSERT INTO "point" VALUES(4,1459768229,1460209863,0,1,1,0,0,0,171,310,-10.0,'Reference Point 1 (-10.0m)');
-        INSERT INTO "point" VALUES(5,1459768229,1460209866,0,1,1,0,0,0,92,322,0.0,'Reference Point 2 (0.0m)');
-        INSERT INTO "point" VALUES(6,1459768229,1460209866,0,1,1,0,0,0,116,356,10.0,'Reference Point 3 (10.0m)');
-        INSERT INTO "point" VALUES(7,1459768229,1460209866,0,1,1,0,0,0,18,224,20.0,'Reference Point 4 (20.0m)');
+        CREATE TABLE point (id INTEGER PRIMARY KEY,create_date INTEGER,timestamp INTEGER,deleted INTEGER,project_id INTEGER,reference_id INTEGER,group_id INTEGER,is_ground_floor INTEGER,pos_x INTEGER,pos_y INTEGER,height REAL,comment TEXT );
+        INSERT INTO "point" VALUES(1,1459768229,1460209866,0,1,0,0,0,123,204,450.0,'Absolute point');
+        INSERT INTO "point" VALUES(2,1459768229,1460209866,0,1,1,0,1,208,204,-10.0,'Ground Floor (-10m)');
+        INSERT INTO "point" VALUES(3,1459768229,1460209863,0,1,2,0,0,146,111,-20.0,'Reference Point 0 (-20.0m)');
+        INSERT INTO "point" VALUES(4,1459768229,1460209863,0,1,1,0,0,171,310,-10.0,'Reference Point 1 (-10.0m)');
+        INSERT INTO "point" VALUES(5,1459768229,1460209866,0,1,1,0,0,92,322,0.0,'Reference Point 2 (0.0m)');
+        INSERT INTO "point" VALUES(6,1459768229,1460209866,0,1,1,0,0,116,356,10.0,'Reference Point 3 (10.0m)');
+        INSERT INTO "point" VALUES(7,1459768229,1460209866,0,1,1,0,0,18,224,20.0,'Reference Point 4 (20.0m)');
         COMMIT;
 
         */

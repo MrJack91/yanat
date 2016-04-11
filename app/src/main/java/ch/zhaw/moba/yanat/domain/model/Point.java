@@ -8,7 +8,6 @@ public class Point extends AbstractModel implements Comparable<Point> {
     protected int projectId = 0;
     protected int referenceId = 0;
     protected int groupId = 0;
-    protected boolean isAbsolute = false;
     protected boolean isGroundFloor = false;
     protected int posX = 0;
     protected int posY = 0;
@@ -52,14 +51,6 @@ public class Point extends AbstractModel implements Comparable<Point> {
 
     public void setGroupId(int groupId) {
         this.groupId = groupId;
-    }
-
-    public boolean isAbsolute() {
-        return isAbsolute;
-    }
-
-    public void setIsAbsolute(boolean isAbsolute) {
-        this.isAbsolute = isAbsolute;
     }
 
     public boolean isGroundFloor() {
@@ -143,7 +134,6 @@ public class Point extends AbstractModel implements Comparable<Point> {
                 ", projectId=" + projectId +
                 ", referenceId=" + referenceId +
                 ", groupId=" + groupId +
-                ", isAbsolute=" + isAbsolute +
                 ", isGroundFloor=" + isGroundFloor +
                 ", posX=" + posX +
                 ", posY=" + posY +

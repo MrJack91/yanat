@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class PointDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 7;
+    public static final int DATABASE_VERSION = 8;
     public static final String DATABASE_NAME = "Point.db";
 
     private static final String COMMA_SEP = ",";
@@ -28,7 +28,6 @@ public class PointDbHelper extends SQLiteOpenHelper {
                     PointContract.PointEntry.COLUMN_NAME_PROJECT_ID + TYPE_INTEGER + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_REFERENCE_ID + TYPE_INTEGER + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_GROUP_ID + TYPE_INTEGER + COMMA_SEP +
-                    PointContract.PointEntry.COLUMN_NAME_IS_ABSOLUTE + TYPE_INTEGER + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_IS_GROUND_FLOOR + TYPE_INTEGER + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_POS_X + TYPE_INTEGER + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_POS_Y + TYPE_INTEGER + COMMA_SEP +
