@@ -26,6 +26,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
@@ -203,7 +204,6 @@ public class DetailActivity extends AppCompatActivity {
                 viewList = inflater.inflate(R.layout.dialog_point_list, null);
                 listPoints();
 
-
                 FloatingActionButton fab = (FloatingActionButton) viewList.findViewById(R.id.fb_add_measure_point);
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -220,6 +220,8 @@ public class DetailActivity extends AppCompatActivity {
 
                 AlertDialog dialog = dialogBuilder.create();
                 dialog.show();
+                dialog.getWindow().clearFlags( WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             }
         });
 
@@ -303,9 +305,11 @@ public class DetailActivity extends AppCompatActivity {
 
         adapter.notifyDataSetChanged();
 
+        /*
         Log.v("YANAT", "viewList: " + viewList);
         Log.v("YANAT", "recyclerView: " + recyclerView);
         Log.v("YANAT", "llm: " + llm);
+        */
     }
 
 
@@ -330,16 +334,15 @@ public class DetailActivity extends AppCompatActivity {
 
 
         ((CheckBox)view.findViewById(R.id.ground_floor)).setChecked(point.isGroundFloor());
-        ((CheckBox)view.findViewById(R.id.meter_above_sea)).setChecked(point.isAbsolute());
     }
 
     private List<Point> getPoints(){
 
         final List<Point> points = pointRepository.findAll();
-        int i;
 
-        for (i = 0; i < points.size(); i++) {
-            Log.v("YANAT", Float.toString(points.get(i).getHeight()));
+        Log.v("YANAT", "Points size: " + points.size());
+        for (Point point : points) {
+            Log.v("YANAT", point.toString());
         }
 
         return points;

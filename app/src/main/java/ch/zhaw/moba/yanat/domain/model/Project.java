@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
-import ch.zhaw.moba.yanat.utility.PdfGenerator;
+import ch.zhaw.moba.yanat.utility.PdfGeneratorUtility;
 
 /**
  * Created by michael on 04.03.16.
@@ -79,15 +79,18 @@ public class Project extends AbstractModel {
     }
 
     public File buildPdf(Context context) {
-        PdfGenerator pdfGenerator = new PdfGenerator();
+        PdfGeneratorUtility pdfGeneratorUtility = new PdfGeneratorUtility();
 
         // Log.v("YANAT", Environment.getDataDirectory().getAbsolutePath());
 
-        String pdfName = "/data/data/ch.zhaw.moba.yanat/files/" + this.getId() + "/test.pdf";
+
+        String fileTitle = this.getTitle() + "_yanat";
+        fileTitle = fileTitle.replaceAll("[^a-zA-Z0-9.-]", "_");
+        String pdfName = "/data/data/ch.zhaw.moba.yanat/files/" + this.getId() + "/" + fileTitle + ".pdf";
 
         String path = null;
         try {
-            path = pdfGenerator.buildPdf(pdfName, this, context);
+            path = pdfGeneratorUtility.buildPdf(pdfName, this, context);
         } catch (DocumentException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -100,8 +103,6 @@ public class Project extends AbstractModel {
 
         return new File(path);
     }
-
-
 
     @Override
     public String toString() {

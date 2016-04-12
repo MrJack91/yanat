@@ -36,7 +36,7 @@ import java.util.List;
 import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.utility.FileUtility;
-import ch.zhaw.moba.yanat.utility.PdfGenerator;
+import ch.zhaw.moba.yanat.utility.PdfGeneratorUtility;
 import ch.zhaw.moba.yanat.view.ProjectAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -189,8 +189,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             reader = new PdfReader(newPdf.getAbsolutePath());
                             Rectangle mediabox = reader.getPageSize(1);
 
-                            project.setPdfWidth((int) (mediabox.getRight() * PdfGenerator.POINT_TO_MM));
-                            project.setPdfHeight((int) (mediabox.getTop() * PdfGenerator.POINT_TO_MM));
+                            project.setPdfWidth((int) (mediabox.getRight() * PdfGeneratorUtility.POINT_TO_MM));
+                            project.setPdfHeight((int) (mediabox.getTop() * PdfGeneratorUtility.POINT_TO_MM));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
