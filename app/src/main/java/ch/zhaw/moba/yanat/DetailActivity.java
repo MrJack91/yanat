@@ -2,9 +2,16 @@ package ch.zhaw.moba.yanat;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
@@ -12,12 +19,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -36,11 +51,13 @@ public class DetailActivity extends AppCompatActivity {
     public PointRepository pointRepository = null;
 
     private PointAdapter pointAddapter = null;
-    private RecyclerView recyclerView;
+    private ScrollView recyclerView;
 
     protected Project project = null;
     protected View viewList;
     private List<Point> points;
+
+    private android.widget.RelativeLayout.LayoutParams layoutParams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,12 +72,128 @@ public class DetailActivity extends AppCompatActivity {
         pointRepository = project.getPointRepository(this);
 
 
-        //  final Point point = new Point();
+        // Marker Drag and Drop Test
+        /*
+        final ImageView img=(ImageView)findViewById(R.id.image_view_pin);
+
+        img.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
+                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+
+                ClipData dragData = new ClipData(v.getTag().toString(),mimeTypes, item);
+                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(img);
+
+                v.startDrag(dragData,myShadow,null,0);
+                return true;
+            }
+        });
+
+        img.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                switch(event.getAction())
+                {
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        layoutParams = (RelativeLayout.LayoutParams)v.getLayoutParams();
+                        Log.d("Drag", "Action is DragEvent.ACTION_DRAG_STARTED");
+                        Log.i("Drag", "Action is DragEvent.ACTION_DRAG_STARTED");
+
+                        // Do nothing
+                        break;
+
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                        Log.d("Drag", "Action is DragEvent.ACTION_DRAG_ENTERED");
+                        int x_cord = (int) event.getX();
+                        int y_cord = (int) event.getY();
+                        break;
+
+                    case DragEvent.ACTION_DRAG_EXITED :
+                        Log.d("Drag", "Action is DragEvent.ACTION_DRAG_EXITED");
+                        x_cord = (int) event.getX();
+                        y_cord = (int) event.getY();
+                        layoutParams.leftMargin = x_cord;
+                        layoutParams.topMargin = y_cord;
+                        v.setLayoutParams(layoutParams);
+                        break;
+
+                    case DragEvent.ACTION_DRAG_LOCATION  :
+                        Log.d("Drag", "Action is DragEvent.ACTION_DRAG_LOCATION");
+                        x_cord = (int) event.getX();
+                        y_cord = (int) event.getY();
+                        break;
+
+                    case DragEvent.ACTION_DRAG_ENDED   :
+                        Log.d("Drag", "Action is DragEvent.ACTION_DRAG_ENDED");
+
+                        // Do nothing
+                        break;
+
+                    case DragEvent.ACTION_DROP:
+                        Log.d("Drag", "ACTION_DROP event");
+
+                        /*
+                        ImageView view = (ImageView) event.getLocalState();
+                        ViewGroup owner = (ViewGroup) view.getParent();
+
+                        owner.removeView(view);
+
+                        RelativeLayout container = (RelativeLayout) v;
+                        container.addView(view);
+                        view.setVisibility(View.VISIBLE);
+                        */
+
+                        // Do nothing
+                  /*      break;
+                    default: break;
+                }
+                return true;
+            }
+        });
+
+        img.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    ClipData data = ClipData.newPlainText("", "");
+                    View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(img);
+
+                    img.startDrag(data, shadowBuilder, img, 0);
+
+                    img.setVisibility(View.INVISIBLE);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        });*/
+
+
+    //  final Point point = new Point();
         //  point.setHeight(i);
         //  pointRepository.add(point);
 
-        Button createMeasure = (Button) findViewById(R.id.create_measure_point);
 
+        ImageView pdfView = (ImageView) findViewById(R.id.pdf_view);
+        Bitmap bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_4444);
+
+        try {
+            File file = new File(project.getPdf());
+            Log.v("YANAT", "PDF: " + project.getPdf());
+            PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
+
+
+            renderer.openPage(0).render(bitmap, new Rect(0, 0, 500, 500), new Matrix(), PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            pdfView.setImageBitmap(bitmap);
+            pdfView.invalidate();
+        }catch(Exception e){
+
+        }
+
+        Button createMeasure = (Button) findViewById(R.id.create_measure_point);
 
         createMeasure.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,19 +284,23 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
+
+
+
     public void listPoints() {
          points = getPoints();
 
-        recyclerView = (RecyclerView) viewList.findViewById(R.id.point_list);
-        recyclerView.setHasFixedSize(true);
+        recyclerView = (ScrollView) viewList.findViewById(R.id.point_list);
+      //  recyclerView.setHasFixedSize(true);
 
         // and a layout manager (needed!)
         LinearLayoutManager llm = new LinearLayoutManager(DetailActivity.this);
-        recyclerView.setLayoutManager(llm);
+       // recyclerView.setLayoutManager(llm);
 
         // add the adapter
         PointAdapter adapter = new PointAdapter(points, pointRepository);
-        recyclerView.setAdapter(adapter);
+        //recyclerView.setAdapter(adapter);
+
         adapter.notifyDataSetChanged();
 
         Log.v("YANAT", "viewList: " + viewList);
@@ -173,7 +310,7 @@ public class DetailActivity extends AppCompatActivity {
 
 
     public void updatePointList(){
-        recyclerView.getAdapter().notifyDataSetChanged();
+        //recyclerView.getAdapter().notifyDataSetChanged();
         listPoints();
     }
 
