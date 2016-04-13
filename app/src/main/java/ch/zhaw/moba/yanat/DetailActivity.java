@@ -160,6 +160,7 @@ public class DetailActivity extends AppCompatActivity {
                         int x = (int) event.getX();
                         int y = (int)  event.getY();
 
+                        openPointDialog();
                         // Do nothing
                         break;
                     default:
