@@ -45,17 +45,6 @@
         </android.support.design.widget.TextInputEditText>
     </android.support.design.widget.TextInputLayout>
 
-    <android.support.v7.widget.AppCompatCheckBox
-        android:id="@+id/meter_above_sea"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checked="false"
-        android:text="m.ü.M."
-        android:layout_marginLeft="238dp"
-        android:layout_alignParentTop="true"
-        android:layout_below="@+id/mesure_point_name_show"
-        android:layout_marginTop="90dp" />
-
 
     <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/ground_floor"
@@ -65,8 +54,8 @@
         android:checked="false"
         android:layout_marginLeft="238dp"
         android:layout_alignParentTop="true"
-        android:layout_below="@+id/meter_above_sea"
-        android:layout_marginTop="150dp" />
+        android:layout_marginTop="125dp"
+        android:layout_below="@+id/mesure_point_name_show" />
 
 
     <EditText

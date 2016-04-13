@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.graphics.pdf.PdfDocument;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,6 +39,7 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+
 import java.io.File;
 import java.util.List;
 
@@ -45,6 +48,7 @@ import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.view.PointAdapter;
+import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -52,11 +56,12 @@ public class DetailActivity extends AppCompatActivity {
     public PointRepository pointRepository = null;
 
     private PointAdapter pointAddapter = null;
-    private ScrollView recyclerView;
+    private RecyclerView recyclerView;
 
     protected Project project = null;
     protected View viewList;
     private List<Point> points;
+    private ImageViewTouch  pdfView;
 
     private android.widget.RelativeLayout.LayoutParams layoutParams;
 
@@ -72,10 +77,9 @@ public class DetailActivity extends AppCompatActivity {
         Log.v("YANAT", project.toString());
         pointRepository = project.getPointRepository(this);
 
+        showPDfAsImagee();
 
-        // Marker Drag and Drop Test
-        /*
-        final ImageView img=(ImageView)findViewById(R.id.image_view_pin);
+        final ImageView img = (ImageView) findViewById(R.id.image_view_pin);
 
         img.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -91,27 +95,44 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
-        img.setOnDragListener(new View.OnDragListener() {
+        img.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    ClipData data = ClipData.newPlainText("", "");
+
+                    View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(img);
+                    img.startDrag(data, shadowBuilder, img, 0);
+                    img.setVisibility(View.INVISIBLE);
+
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+
+        pdfView.setOnDragListener(new View.OnDragListener() {
+
             @Override
             public boolean onDrag(View v, DragEvent event) {
-                switch(event.getAction())
-                {
+                switch (event.getAction()) {
                     case DragEvent.ACTION_DRAG_STARTED:
-                        layoutParams = (RelativeLayout.LayoutParams)v.getLayoutParams();
-                        Log.d("Drag", "Action is DragEvent.ACTION_DRAG_STARTED");
-                        Log.i("Drag", "Action is DragEvent.ACTION_DRAG_STARTED");
+                        layoutParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
+                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_STARTED");
 
                         // Do nothing
                         break;
 
                     case DragEvent.ACTION_DRAG_ENTERED:
-                        Log.d("Drag", "Action is DragEvent.ACTION_DRAG_ENTERED");
+                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_ENTERED");
                         int x_cord = (int) event.getX();
                         int y_cord = (int) event.getY();
                         break;
 
-                    case DragEvent.ACTION_DRAG_EXITED :
-                        Log.d("Drag", "Action is DragEvent.ACTION_DRAG_EXITED");
+                    case DragEvent.ACTION_DRAG_EXITED:
+                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_EXITED");
                         x_cord = (int) event.getX();
                         y_cord = (int) event.getY();
                         layoutParams.leftMargin = x_cord;
@@ -119,111 +140,39 @@ public class DetailActivity extends AppCompatActivity {
                         v.setLayoutParams(layoutParams);
                         break;
 
-                    case DragEvent.ACTION_DRAG_LOCATION  :
-                        Log.d("Drag", "Action is DragEvent.ACTION_DRAG_LOCATION");
+                    case DragEvent.ACTION_DRAG_LOCATION:
+                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_LOCATION");
                         x_cord = (int) event.getX();
                         y_cord = (int) event.getY();
                         break;
 
-                    case DragEvent.ACTION_DRAG_ENDED   :
-                        Log.d("Drag", "Action is DragEvent.ACTION_DRAG_ENDED");
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        Log.d("YANAT", "Action is DragEvent.ACTION_DRAG_ENDED");
 
                         // Do nothing
                         break;
 
                     case DragEvent.ACTION_DROP:
-                        Log.d("Drag", "ACTION_DROP event");
+                        Log.i("YANAT", "ACTION_DROP event");
+                        Log.i("YANAT", "event.getX(): " + event.getX());
+                        Log.i("YANAT", "event.gety(): " + event.getY());
 
-                        /*
-                        ImageView view = (ImageView) event.getLocalState();
-                        ViewGroup owner = (ViewGroup) view.getParent();
-
-                        owner.removeView(view);
-
-                        RelativeLayout container = (RelativeLayout) v;
-                        container.addView(view);
-                        view.setVisibility(View.VISIBLE);
-                        */
+                        int x = (int) event.getX();
+                        int y = (int)  event.getY();
 
                         // Do nothing
-                  /*      break;
-                    default: break;
+                        break;
+                    default:
+
+                        Log.i("YANAT", "Unknown action type received by OnDragListener.");
+
+                        break;
                 }
                 return true;
             }
         });
 
-        img.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    ClipData data = ClipData.newPlainText("", "");
-                    View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(img);
 
-                    img.startDrag(data, shadowBuilder, img, 0);
-
-                    img.setVisibility(View.INVISIBLE);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        });*/
-
-
-    //  final Point point = new Point();
-        //  point.setHeight(i);
-        //  pointRepository.add(point);
-
-
-        ImageView pdfView = (ImageView) findViewById(R.id.pdf_view);
-        Bitmap bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_4444);
-
-        try {
-            File file = new File(project.getPdf());
-            Log.v("YANAT", "PDF: " + project.getPdf());
-            PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
-
-
-            renderer.openPage(0).render(bitmap, new Rect(0, 0, 500, 500), new Matrix(), PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-            pdfView.setImageBitmap(bitmap);
-            pdfView.invalidate();
-        }catch(Exception e){
-
-        }
-
-        Button createMeasure = (Button) findViewById(R.id.create_measure_point);
-
-        createMeasure.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
-                LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
-                viewList = inflater.inflate(R.layout.dialog_point_list, null);
-                listPoints();
-
-                FloatingActionButton fab = (FloatingActionButton) viewList.findViewById(R.id.fb_add_measure_point);
-                fab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Point newPoint = new Point();
-                        pointRepository.add(newPoint);
-                        listPoints();
-                    }
-                });
-
-                dialogBuilder.setView(viewList);
-                dialogBuilder.setTitle("Messpunkt");
-                Log.v("YANAT", "Points size: " + points.size());
-
-                AlertDialog dialog = dialogBuilder.create();
-                dialog.show();
-                dialog.getWindow().clearFlags( WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-            }
-        });
 
         ImageButton backButton = (ImageButton) findViewById(R.id.back);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -286,54 +235,83 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-
-
-
     public void listPoints() {
          points = getPoints();
 
-        recyclerView = (ScrollView) viewList.findViewById(R.id.point_list);
-      //  recyclerView.setHasFixedSize(true);
+        recyclerView = (RecyclerView) viewList.findViewById(R.id.point_list);
+        recyclerView.setHasFixedSize(true);
 
         // and a layout manager (needed!)
         LinearLayoutManager llm = new LinearLayoutManager(DetailActivity.this);
-       // recyclerView.setLayoutManager(llm);
+        recyclerView.setLayoutManager(llm);
 
         // add the adapter
         PointAdapter adapter = new PointAdapter(points, pointRepository);
-        //recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
 
         adapter.notifyDataSetChanged();
 
-        /*
-        Log.v("YANAT", "viewList: " + viewList);
-        Log.v("YANAT", "recyclerView: " + recyclerView);
-        Log.v("YANAT", "llm: " + llm);
-        */
     }
-
 
     public void updatePointList(){
         //recyclerView.getAdapter().notifyDataSetChanged();
         listPoints();
     }
 
-
     private void fillFieldsWithPoint(View view, Point point){
         ((TextView)view.findViewById(R.id.input_measure_point_comment)).setText(point.getComment());
         ((TextView)view.findViewById(R.id.input_measure_point_height)).setText("" + point.getHeight());
-
-        //TODO Dropdownliste auffüllen
-
-        ArrayAdapter<Point> adapter = new ArrayAdapter<Point>(
-                this, android.R.layout.simple_spinner_item, getPoints());
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ((Spinner) view.findViewById(R.id.spinner_measure_point_reference_point)).setAdapter(adapter);
-
-
-
         ((CheckBox)view.findViewById(R.id.ground_floor)).setChecked(point.isGroundFloor());
+    }
+
+
+    private void openPointDialog(){
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
+        LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
+        viewList = inflater.inflate(R.layout.dialog_point_list, null);
+        listPoints();
+
+        FloatingActionButton fab = (FloatingActionButton) viewList.findViewById(R.id.fb_add_measure_point);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Point newPoint = new Point();
+                pointRepository.add(newPoint);
+                listPoints();
+            }
+        });
+
+        dialogBuilder.setView(viewList);
+        dialogBuilder.setTitle("Messpunkt");
+        Log.v("YANAT", "Points size: " + points.size());
+
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
+    public void showPDfAsImagee(){
+
+        pdfView = (ImageViewTouch) findViewById(R.id.pdf_view);
+
+        try {
+            File file = new File(project.getPdf());
+            PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
+
+            PdfRenderer.Page page = renderer.openPage(0);
+            Log.v("YANAT", "PDF: " + project.getPdf()+"-"+page.getWidth()+"-"+page.getHeight());
+            Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_4444);
+
+            page.render(bitmap, new Rect(0, 0, page.getWidth(), page.getHeight()), new Matrix(), PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+
+            pdfView.setImageBitmap(bitmap);
+            pdfView.invalidate();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     private List<Point> getPoints(){
