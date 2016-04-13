@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -71,13 +72,14 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         int projectId = getIntent().getIntExtra("projectId", 0);
-        // load all points
+        pdfView = (ImageViewTouch) findViewById(R.id.pdf_view);
+
 
         project = projectRepository.findById(projectId);
         Log.v("YANAT", project.toString());
         pointRepository = project.getPointRepository(this);
 
-        showPDfAsImagee();
+        showPDfAsImage();
 
         final ImageView img = (ImageView) findViewById(R.id.image_view_pin);
 
@@ -103,7 +105,7 @@ public class DetailActivity extends AppCompatActivity {
 
                     View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(img);
                     img.startDrag(data, shadowBuilder, img, 0);
-                    img.setVisibility(View.INVISIBLE);
+                    img.setVisibility(View.VISIBLE);
 
                     return true;
                 } else {
@@ -160,7 +162,7 @@ public class DetailActivity extends AppCompatActivity {
                         int x = (int) event.getX();
                         int y = (int)  event.getY();
 
-                        openPointDialog();
+                        openPointDialog(x , y);
                         // Do nothing
                         break;
                     default:
@@ -266,18 +268,18 @@ public class DetailActivity extends AppCompatActivity {
     }
 
 
-    private void openPointDialog(){
+    private void openPointDialog(final int x, final int y){
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
         LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
         viewList = inflater.inflate(R.layout.dialog_point_list, null);
+        createNewPoint(x, y);
         listPoints();
 
         FloatingActionButton fab = (FloatingActionButton) viewList.findViewById(R.id.fb_add_measure_point);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Point newPoint = new Point();
-                pointRepository.add(newPoint);
+                createNewPoint(x, y);
                 listPoints();
             }
         });
@@ -290,24 +292,39 @@ public class DetailActivity extends AppCompatActivity {
         dialog.show();
         dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+
+                showPDfAsImage();
+                Log.v("YANAT", "setOnCancelListener");
+            }
+        });
     }
 
-    public void showPDfAsImagee(){
-
-        pdfView = (ImageViewTouch) findViewById(R.id.pdf_view);
-
+    public void showPDfAsImage(){
         try {
-            File file = new File(project.getPdf());
+
+            File file = new File(project.buildPdf(DetailActivity.this).getAbsolutePath());
+            pdfView.clear();
             PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
 
             PdfRenderer.Page page = renderer.openPage(0);
-            Log.v("YANAT", "PDF: " + project.getPdf()+"-"+page.getWidth()+"-"+page.getHeight());
+            Log.v("YANAT", "PDF: " + project.getPdf() + "-" + page.getWidth() + "-" + page.getHeight());
+
             Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_4444);
 
             page.render(bitmap, new Rect(0, 0, page.getWidth(), page.getHeight()), new Matrix(), PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
             pdfView.setImageBitmap(bitmap);
+            // Wenn man setScaleType(..) auskommentiert, kann man zoomen (mit Doppelklick)
+            //pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
+
+            //pdfView.setScaleEnabled(true);
+            //pdfView.setDoubleTapEnabled(true);
+            Log.v("YANAT", "PDF: "+pdfView.getImageAlpha());
             pdfView.invalidate();
+
 
         }catch(Exception e){
             e.printStackTrace();
@@ -315,6 +332,17 @@ public class DetailActivity extends AppCompatActivity {
 
     }
 
+
+    private Point createNewPoint(final int x, final int y){
+        Point newPoint = new Point();
+
+        // TODO Berechnen (relativ)
+        newPoint.setPosX(x);
+        newPoint.setPosY(y);
+        pointRepository.add(newPoint);
+
+        return newPoint;
+    }
     private List<Point> getPoints(){
 
         final List<Point> points = pointRepository.findAll();
