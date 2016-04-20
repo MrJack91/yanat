@@ -65,6 +65,7 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
                 @Override
                 public void onClick(View v) {
                     pointRepository.update(currentPoint);
+
                 }
             });
         }

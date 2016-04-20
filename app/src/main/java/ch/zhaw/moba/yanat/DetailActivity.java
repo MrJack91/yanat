@@ -114,6 +114,43 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
+        pdfView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+                    float scale = pdfView.getScale();
+                    float left = pdfView.getLeft();
+                    float top = pdfView.getTop();
+
+                    float curX = (event.getX() / scale) - (left * scale);
+                    float curY = (event.getY() / scale) - (top * scale);
+
+                    Log.i("YANAT", "x: "+curX+", y: "+ curY);
+
+
+
+/*
+                    // Get the values of the matrix
+                    float[] values = new float[9];
+                    pdfView.getMatrix().getValues(values);
+
+                    // values[2] and values[5] are the x,y coordinates of the top left corner of the drawable image, regardless of the zoom factor.
+                    // values[0] and values[4] are the zoom factors for the image's width and height respectively. If you zoom at the same factor, these should both be the same value.
+
+                    // event is the touch event for MotionEvent.ACTION_UP
+                    float relativeX = (event.getX() - values[2]) / values[0];
+                    float relativeY = (event.getY() - values[5]) / values[4];
+
+
+
+                    Log.i("YANAT", "x: "+relativeX+", y: "+ relativeY);*/
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
 
         pdfView.setOnDragListener(new View.OnDragListener() {
 
@@ -159,10 +196,36 @@ public class DetailActivity extends AppCompatActivity {
                         Log.i("YANAT", "event.getX(): " + event.getX());
                         Log.i("YANAT", "event.gety(): " + event.getY());
 
-                        int x = (int) event.getX();
-                        int y = (int)  event.getY();
 
-                        openPointDialog(x , y);
+                        //Möglichkeit 1:
+                        /*float[] values = new float[9];
+                        pdfView.getMatrix().getValues(values);
+
+                        // values[2] and values[5] are the x,y coordinates of the top left corner of the drawable image, regardless of the zoom factor.
+                        // values[0] and values[4] are the zoom factors for the image's width and height respectively. If you zoom at the same factor, these should both be the same value.
+
+                        // event is the touch event for MotionEvent.ACTION_UP
+                        float relativeX = (event.getX() - values[2]) / values[0];
+                        float relativeY = (event.getY() - values[5]) / values[4];
+
+                        Log.i("YANAT", "x: "+relativeX+", y: "+ relativeY);
+
+                        openPointDialog((int) relativeX , (int) relativeY);*/
+
+
+                        //Möglichkeit 2:
+                        float scale = pdfView.getScale();
+                        float left = pdfView.getLeft();
+                        float top = pdfView.getTop();
+
+                        float curX = (event.getX() / scale) - (left * scale);
+                        float curY = (event.getY() / scale) - (top * scale);
+
+
+                        Log.i("YANAT", "x: " + curX + ", y: " + curY);
+
+                        openPointDialog((int) curX, (int) curY);
+
                         // Do nothing
                         break;
                     default:
@@ -296,39 +359,55 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onCancel(DialogInterface dialog) {
 
-                showPDfAsImage();
+                //showPDfAsImage();
                 Log.v("YANAT", "setOnCancelListener");
             }
         });
     }
 
     public void showPDfAsImage(){
-        try {
+        pdfView.clear();
 
-            File file = new File(project.buildPdf(DetailActivity.this).getAbsolutePath());
-            pdfView.clear();
-            PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
+        DetailActivity.this.runOnUiThread(new Runnable() {
 
-            PdfRenderer.Page page = renderer.openPage(0);
-            Log.v("YANAT", "PDF: " + project.getPdf() + "-" + page.getWidth() + "-" + page.getHeight());
-
-            Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_4444);
-
-            page.render(bitmap, new Rect(0, 0, page.getWidth(), page.getHeight()), new Matrix(), PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-
-            pdfView.setImageBitmap(bitmap);
-            // Wenn man setScaleType(..) auskommentiert, kann man zoomen (mit Doppelklick)
-            //pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
-
-            //pdfView.setScaleEnabled(true);
-            //pdfView.setDoubleTapEnabled(true);
-            Log.v("YANAT", "PDF: "+pdfView.getImageAlpha());
-            pdfView.invalidate();
+            public void run() {
 
 
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+                try {
+
+                    File file = new File(project.buildPdf(DetailActivity.this).getAbsolutePath());
+
+                    PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
+
+                    PdfRenderer.Page page = renderer.openPage(0);
+                    Log.v("YANAT", "PDF: " + project.getPdf() + "-" + page.getWidth() + "-" + page.getHeight());
+
+                    Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_4444);
+
+                    page.render(bitmap, new Rect(0, 0, page.getWidth(), page.getHeight()), new Matrix(), PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+
+                    pdfView.setImageBitmap(bitmap);
+                    // Wenn man setScaleType(..) auskommentiert, kann man zoomen (mit Doppelklick)
+                    //pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
+
+                    //pdfView.setScaleEnabled(true);
+                    pdfView.setDoubleTapEnabled(true);
+
+                    pdfView.invalidate();
+                    Log.v("YANAT", "PDF: showPDfAsImage" );
+
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+
+
+
+            }
+        });
+
+
+
 
     }
 
