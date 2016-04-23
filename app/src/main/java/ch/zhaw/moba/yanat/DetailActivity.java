@@ -6,8 +6,15 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Picture;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.pdf.PdfDocument;
@@ -41,6 +48,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 
+import com.itextpdf.text.BaseColor;
+
 import java.io.File;
 import java.util.List;
 
@@ -63,6 +72,8 @@ public class DetailActivity extends AppCompatActivity {
     protected View viewList;
     private List<Point> points;
     private ImageViewTouch  pdfView;
+
+    private Bitmap pdfBitmap;
 
     private android.widget.RelativeLayout.LayoutParams layoutParams;
 
@@ -126,25 +137,9 @@ public class DetailActivity extends AppCompatActivity {
                     float curX = (event.getX() / scale) - (left * scale);
                     float curY = (event.getY() / scale) - (top * scale);
 
+
                     Log.i("YANAT", "x: "+curX+", y: "+ curY);
 
-
-
-/*
-                    // Get the values of the matrix
-                    float[] values = new float[9];
-                    pdfView.getMatrix().getValues(values);
-
-                    // values[2] and values[5] are the x,y coordinates of the top left corner of the drawable image, regardless of the zoom factor.
-                    // values[0] and values[4] are the zoom factors for the image's width and height respectively. If you zoom at the same factor, these should both be the same value.
-
-                    // event is the touch event for MotionEvent.ACTION_UP
-                    float relativeX = (event.getX() - values[2]) / values[0];
-                    float relativeY = (event.getY() - values[5]) / values[4];
-
-
-
-                    Log.i("YANAT", "x: "+relativeX+", y: "+ relativeY);*/
                     return true;
                 } else {
                     return false;
@@ -156,6 +151,11 @@ public class DetailActivity extends AppCompatActivity {
 
             @Override
             public boolean onDrag(View v, DragEvent event) {
+
+                float scaleY= pdfView.getScaleY();
+                float scaleX = pdfView.getScaleX();
+                Log.i("YANAT SCALE: ", "x: " + scaleX + ", y: " + scaleY);
+
                 switch (event.getAction()) {
                     case DragEvent.ACTION_DRAG_STARTED:
                         layoutParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
@@ -187,33 +187,12 @@ public class DetailActivity extends AppCompatActivity {
 
                     case DragEvent.ACTION_DRAG_ENDED:
                         Log.d("YANAT", "Action is DragEvent.ACTION_DRAG_ENDED");
-
                         // Do nothing
                         break;
 
                     case DragEvent.ACTION_DROP:
                         Log.i("YANAT", "ACTION_DROP event");
-                        Log.i("YANAT", "event.getX(): " + event.getX());
-                        Log.i("YANAT", "event.gety(): " + event.getY());
 
-
-                        //Möglichkeit 1:
-                        /*float[] values = new float[9];
-                        pdfView.getMatrix().getValues(values);
-
-                        // values[2] and values[5] are the x,y coordinates of the top left corner of the drawable image, regardless of the zoom factor.
-                        // values[0] and values[4] are the zoom factors for the image's width and height respectively. If you zoom at the same factor, these should both be the same value.
-
-                        // event is the touch event for MotionEvent.ACTION_UP
-                        float relativeX = (event.getX() - values[2]) / values[0];
-                        float relativeY = (event.getY() - values[5]) / values[4];
-
-                        Log.i("YANAT", "x: "+relativeX+", y: "+ relativeY);
-
-                        openPointDialog((int) relativeX , (int) relativeY);*/
-
-
-                        //Möglichkeit 2:
                         float scale = pdfView.getScale();
                         float left = pdfView.getLeft();
                         float top = pdfView.getTop();
@@ -221,10 +200,11 @@ public class DetailActivity extends AppCompatActivity {
                         float curX = (event.getX() / scale) - (left * scale);
                         float curY = (event.getY() / scale) - (top * scale);
 
-
                         Log.i("YANAT", "x: " + curX + ", y: " + curY);
 
-                        openPointDialog((int) curX, (int) curY);
+                        drawMarker(curX, curY);
+
+                        openPointDialog((int) curX, (int) curY, scale, scaleX, scaleY);
 
                         // Do nothing
                         break;
@@ -319,6 +299,65 @@ public class DetailActivity extends AppCompatActivity {
 
     }
 
+    private void drawMarker(float curX, float curY){
+
+        Canvas canvas = new Canvas(pdfBitmap);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(Color.MAGENTA);
+
+        // 1. Variante: gefüllter Halbkreis mit Dreieck
+        // pin Halbkreis
+
+                       /* canvas.drawArc(curX - 10, curY - 30, curX + 10, curY, 0, (float) -180, true, paint);
+                        canvas.drawLine(curX, curY, curX - 10, curY - 20, paint);
+                        canvas.drawLine(curX, curY, curX+10, curY-20, paint);
+                        canvas.drawPicture(new Picture());
+                        pdfView.setImageBitmap(pdfBitmap);*/
+
+        // ----------------------------------------------------------------------------------------
+
+        // 2. Variante: gefüllter Halbkreis mit gefüllter Dreieck
+        // ACHTUNG: Dreieck wird nicht ausgefüllt, Lösung nicht gefunden
+        // pin Halbkreis
+        // canvas.drawArc(curX - 10, curY - 30, curX + 10, curY, 0, (float) -180, true, paint);
+
+        // pin Dreieck, Funktioniert nicht
+                       /* Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
+                        canvas.drawPaint(paint2);
+
+                        paint2.setStrokeWidth(1);
+                        paint2.setStyle(Paint.Style.STROKE);
+                        paint2.setAntiAlias(true);
+
+                        Path path = new Path();
+                        //path.setFillType(Path.FillType.EVEN_ODD);
+                        path.moveTo(curX, curY);
+                        path.lineTo(curX - 10, curY - 20);
+                        path.lineTo(curX+10, curY- 20);
+                        path.lineTo(curX, curY);
+                        path.close();
+
+                        canvas.drawPath(path, paint2);
+                        pdfView.setImageBitmap(pdfBitmap);*/
+
+
+        // ----------------------------------------------------------------------------------------
+
+        // 3 Variante: Bild hinzufügen
+        Resources res = getResources();
+        Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.marker_small);
+        canvas.drawBitmap(bitmap, curX, curY, null);
+
+        pdfView.setImageBitmap(pdfBitmap);
+
+    }
+
+    private void drawPoints(){
+        for (Point point : getPoints()) {
+            drawMarker(point.getPosX(), point.getPosY());
+        }
+    }
+
     public void updatePointList(){
         //recyclerView.getAdapter().notifyDataSetChanged();
         listPoints();
@@ -330,8 +369,7 @@ public class DetailActivity extends AppCompatActivity {
         ((CheckBox)view.findViewById(R.id.ground_floor)).setChecked(point.isGroundFloor());
     }
 
-
-    private void openPointDialog(final int x, final int y){
+    private void openPointDialog(final int x, final int y,  float scale, final float scaleX, final float scaleY){
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
         LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
         viewList = inflater.inflate(R.layout.dialog_point_list, null);
@@ -359,6 +397,8 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onCancel(DialogInterface dialog) {
 
+                pdfView.setScaleX(scaleX);
+                pdfView.setScaleY(scaleY);
                 //showPDfAsImage();
                 Log.v("YANAT", "setOnCancelListener");
             }
@@ -372,21 +412,22 @@ public class DetailActivity extends AppCompatActivity {
 
             public void run() {
 
-
                 try {
 
-                    File file = new File(project.buildPdf(DetailActivity.this).getAbsolutePath());
+                    File file = new File(project.getPdf());
 
                     PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
 
                     PdfRenderer.Page page = renderer.openPage(0);
                     Log.v("YANAT", "PDF: " + project.getPdf() + "-" + page.getWidth() + "-" + page.getHeight());
 
-                    Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_4444);
+                    pdfBitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_4444);
 
-                    page.render(bitmap, new Rect(0, 0, page.getWidth(), page.getHeight()), new Matrix(), PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+                    page.render(pdfBitmap, new Rect(0, 0, page.getWidth(), page.getHeight()), new Matrix(), PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
-                    pdfView.setImageBitmap(bitmap);
+                    drawPoints();
+
+                    pdfView.setImageBitmap(pdfBitmap);
                     // Wenn man setScaleType(..) auskommentiert, kann man zoomen (mit Doppelklick)
                     //pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
 
@@ -395,7 +436,7 @@ public class DetailActivity extends AppCompatActivity {
 
                     pdfView.invalidate();
                     Log.v("YANAT", "PDF: showPDfAsImage" );
-
+                    renderer.close();
 
                 }catch(Exception e){
                     e.printStackTrace();
@@ -411,7 +452,6 @@ public class DetailActivity extends AppCompatActivity {
 
     }
 
-
     private Point createNewPoint(final int x, final int y){
         Point newPoint = new Point();
 
@@ -422,6 +462,7 @@ public class DetailActivity extends AppCompatActivity {
 
         return newPoint;
     }
+
     private List<Point> getPoints(){
 
         final List<Point> points = pointRepository.findAll();

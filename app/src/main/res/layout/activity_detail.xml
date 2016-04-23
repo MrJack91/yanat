@@ -40,7 +40,7 @@
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:id="@+id/image_view_pin"
-               android:src="@drawable/pin"
+               android:src="@drawable/marker"
                android:layout_alignParentTop="true"
                android:layout_centerHorizontal="true" />
 
