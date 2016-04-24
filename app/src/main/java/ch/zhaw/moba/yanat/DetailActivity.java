@@ -61,6 +61,7 @@ import ch.zhaw.moba.yanat.domain.model.Point;
 import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
+import ch.zhaw.moba.yanat.paint.MarkerPaint;
 import ch.zhaw.moba.yanat.view.PointAdapter;
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 
@@ -75,11 +76,13 @@ public class DetailActivity extends AppCompatActivity {
     protected Project project = null;
     protected View viewList;
     private List<Point> points;
-    private ImageViewTouch  pdfView;
+    private ImageViewTouch pdfView;
 
     private Bitmap pdfBitmap;
+    private Bitmap originalEmptyPdfBitmap; // original pdf Bitmap without markers. To use after deleting markers
 
     private android.widget.RelativeLayout.LayoutParams layoutParams;
+    private MarkerPaint markerPaint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,26 +92,15 @@ public class DetailActivity extends AppCompatActivity {
         int projectId = getIntent().getIntExtra("projectId", 0);
         pdfView = (ImageViewTouch) findViewById(R.id.pdf_view);
 
-
         project = projectRepository.findById(projectId);
         Log.v("YANAT", project.toString());
         pointRepository = project.getPointRepository(this);
 
-
-        // Note: declare ProgressDialog progress as a field in your class.
-
-        // Toast.makeText(getApplicationContext(), "msg msg", Toast.LENGTH_LONG).show();
-
-
         showPDfAsImage();
         initListener();
-
     }
 
-
     private void initListener(){
-
-
 
     final ImageView img = (ImageView) findViewById(R.id.image_view_pin);
 
@@ -155,7 +147,6 @@ public class DetailActivity extends AppCompatActivity {
                 float curX = (event.getX() / scale) - (left * scale);
                 float curY = (event.getY() / scale) - (top * scale);
 
-
                 Log.i("YANAT", "x: "+curX+", y: "+ curY);
 
                 return true;
@@ -170,7 +161,7 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         public boolean onDrag(View v, DragEvent event) {
 
-            float scaleY= pdfView.getScaleY();
+            float scaleY = pdfView.getScaleY();
             float scaleX = pdfView.getScaleX();
             Log.i("YANAT SCALE: ", "x: " + scaleX + ", y: " + scaleY);
 
@@ -220,11 +211,8 @@ public class DetailActivity extends AppCompatActivity {
 
                     Log.i("YANAT", "x: " + curX + ", y: " + curY);
 
-                    drawMarker(curX, curY, "x");
-
                     openPointDialog((int) curX, (int) curY, scale, scaleX, scaleY);
 
-                    // Do nothing
                     break;
                 default:
 
@@ -317,100 +305,15 @@ public class DetailActivity extends AppCompatActivity {
 
     }
 
-    private void drawMarker(float curX, float curY, String name){
+    private void drawPoints(){
 
-        Canvas canvas = new Canvas(pdfBitmap);
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        pdfBitmap= originalEmptyPdfBitmap.copy(originalEmptyPdfBitmap.getConfig(), true);
 
-        paint.setColor(Color.RED);
-
-        // 1. Variante: gefüllter Halbkreis mit Dreieck
-        // pin Halbkreis
-
-                       /* canvas.drawArc(curX - 10, curY - 30, curX + 10, curY, 0, (float) -180, true, paint);
-                        canvas.drawLine(curX, curY, curX - 10, curY - 20, paint);
-                        canvas.drawLine(curX, curY, curX+10, curY-20, paint);
-                        canvas.drawPicture(new Picture());
-                        pdfView.setImageBitmap(pdfBitmap);*/
-
-        // ----------------------------------------------------------------------------------------
-
-        // 2. Variante: gefüllter Halbkreis mit gefüllter Dreieck
-        // ACHTUNG: Dreieck wird nicht ausgefüllt, Lösung nicht gefunden
-        // pin Halbkreis
-        // canvas.drawArc(curX - 10, curY - 30, curX + 10, curY, 0, (float) -180, true, paint);
-
-        // pin Dreieck, Funktioniert nicht
-                       /* Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
-                        canvas.drawPaint(paint2);
-
-                        paint2.setStrokeWidth(1);
-                        paint2.setStyle(Paint.Style.STROKE);
-                        paint2.setAntiAlias(true);
-
-                        Path path = new Path();
-                        //path.setFillType(Path.FillType.EVEN_ODD);
-                        path.moveTo(curX, curY);
-                        path.lineTo(curX - 10, curY - 20);
-                        path.lineTo(curX+10, curY- 20);
-                        path.lineTo(curX, curY);
-                        path.close();
-
-                        canvas.drawPath(path, paint2);
-                        pdfView.setImageBitmap(pdfBitmap);*/
-
-
-        // ----------------------------------------------------------------------------------------
-
-        // 3 Variante: Bild hinzufügen
-        Resources res = getResources();
-        Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.marker_small);
-        canvas.drawBitmap(bitmap, curX, curY, null);
-
-/*
-        Paint paintLetter = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-        paintLetter.setColor(Color.BLUE);
-        //paintLetter.setColor(Color.argb(0, 64, 192, 219));
-
-        int scale =1;
-        paintLetter.setTextSize((int) (24 * scale));
-        canvas.drawText(name, curX+40, curY-10, paintLetter);*/
-
-
-
-
-
-        Paint letterPaint = new Paint();
-        Paint circlePaint = new Paint();
-
-        letterPaint.setColor(Color.WHITE);
-        letterPaint.setTextSize(24);
-        letterPaint.setAntiAlias(true);
-        letterPaint.setTextAlign(Paint.Align.CENTER);
-
-        Rect bounds = new Rect();
-        letterPaint.getTextBounds(name, 0, name.length(), bounds);
-
-        circlePaint.setColor(ContextCompat.getColor(getApplicationContext(), R.color.turquoise));
-        circlePaint.setAntiAlias(true);
-
-        canvas.drawCircle(curX+40, curY-10 - (bounds.height() / 2), bounds.width() + 5, circlePaint);
-
-        canvas.drawText(name, curX+40, curY-10,  letterPaint);
-
-
-
-
+        for (Point point : getPoints()) {
+            markerPaint.drawMarker(point.getPosX(), point.getPosY(), point.getTitle(), pdfBitmap);
+        }
 
         pdfView.setImageBitmap(pdfBitmap);
-
-    }
-
-    private void drawPoints(){
-        for (Point point : getPoints()) {
-            drawMarker(point.getPosX(), point.getPosY(), point.getTitle());
-        }
     }
 
     public void updatePointList(){
@@ -428,7 +331,9 @@ public class DetailActivity extends AppCompatActivity {
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
         LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
         viewList = inflater.inflate(R.layout.dialog_point_list, null);
-        createNewPoint(x, y);
+
+        final Point newPoint = createNewPoint((int) x,(int) y);
+
         listPoints();
 
         FloatingActionButton fab = (FloatingActionButton) viewList.findViewById(R.id.fb_add_measure_point);
@@ -448,13 +353,18 @@ public class DetailActivity extends AppCompatActivity {
         dialog.show();
         dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+
+
             @Override
             public void onCancel(DialogInterface dialog) {
 
                 pdfView.setScaleX(scaleX);
                 pdfView.setScaleY(scaleY);
-                //showPDfAsImage();
+
+                drawPoints();
+
                 Log.v("YANAT", "setOnCancelListener");
             }
         });
@@ -462,11 +372,6 @@ public class DetailActivity extends AppCompatActivity {
 
     public void showPDfAsImage(){
         pdfView.clear();
-
-     /*   DetailActivity.this.runOnUiThread(new Runnable() {
-
-            public void run() {*/
-
                 try {
 
                     File file = new File(project.getPdf());
@@ -480,9 +385,11 @@ public class DetailActivity extends AppCompatActivity {
 
                     page.render(pdfBitmap, new Rect(0, 0, page.getWidth(), page.getHeight()), new Matrix(), PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
+                    originalEmptyPdfBitmap = pdfBitmap.copy(pdfBitmap.getConfig(), true);
+
+                    markerPaint = new MarkerPaint(getResources(), getApplicationContext(), pdfView);
                     drawPoints();
 
-                    pdfView.setImageBitmap(pdfBitmap);
                     // Wenn man setScaleType(..) auskommentiert, kann man zoomen (mit Doppelklick)
                     //pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
 
@@ -497,14 +404,6 @@ public class DetailActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-
-
-     //       }
-//        });
-
-
-
-
     }
 
     private Point createNewPoint(final int x, final int y){
@@ -513,7 +412,8 @@ public class DetailActivity extends AppCompatActivity {
         // TODO Berechnen (relativ)
         newPoint.setPosX(x);
         newPoint.setPosY(y);
-        pointRepository.add(newPoint);
+        long id =  pointRepository.add(newPoint);
+        newPoint = pointRepository.findById((int) id);
 
         return newPoint;
     }
