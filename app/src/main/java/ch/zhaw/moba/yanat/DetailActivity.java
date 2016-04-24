@@ -1,6 +1,7 @@
 package ch.zhaw.moba.yanat;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -20,9 +21,11 @@ import android.graphics.drawable.Drawable;
 import android.graphics.pdf.PdfDocument;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -46,6 +49,7 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.itextpdf.text.BaseColor;
@@ -90,45 +94,122 @@ public class DetailActivity extends AppCompatActivity {
         Log.v("YANAT", project.toString());
         pointRepository = project.getPointRepository(this);
 
+
+        // Note: declare ProgressDialog progress as a field in your class.
+
+        // Toast.makeText(getApplicationContext(), "msg msg", Toast.LENGTH_LONG).show();
+
+
         showPDfAsImage();
+        initListener();
 
-        final ImageView img = (ImageView) findViewById(R.id.image_view_pin);
+    }
 
-        img.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
-                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
 
-                ClipData dragData = new ClipData(v.getTag().toString(),mimeTypes, item);
-                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(img);
+    private void initListener(){
 
-                v.startDrag(dragData,myShadow,null,0);
+
+
+    final ImageView img = (ImageView) findViewById(R.id.image_view_pin);
+
+    img.setOnLongClickListener(new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
+            String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+
+            ClipData dragData = new ClipData(v.getTag().toString(),mimeTypes, item);
+            View.DragShadowBuilder myShadow = new View.DragShadowBuilder(img);
+
+            v.startDrag(dragData,myShadow,null,0);
+            return true;
+        }
+    });
+
+    img.setOnTouchListener(new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                ClipData data = ClipData.newPlainText("", "");
+
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(img);
+                img.startDrag(data, shadowBuilder, img, 0);
+                img.setVisibility(View.VISIBLE);
+
                 return true;
+            } else {
+                return false;
             }
-        });
+        }
+    });
 
-        img.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    ClipData data = ClipData.newPlainText("", "");
+    pdfView.setOnTouchListener(new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
-                    View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(img);
-                    img.startDrag(data, shadowBuilder, img, 0);
-                    img.setVisibility(View.VISIBLE);
+                float scale = pdfView.getScale();
+                float left = pdfView.getLeft();
+                float top = pdfView.getTop();
 
-                    return true;
-                } else {
-                    return false;
-                }
+                float curX = (event.getX() / scale) - (left * scale);
+                float curY = (event.getY() / scale) - (top * scale);
+
+
+                Log.i("YANAT", "x: "+curX+", y: "+ curY);
+
+                return true;
+            } else {
+                return false;
             }
-        });
+        }
+    });
 
-        pdfView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+    pdfView.setOnDragListener(new View.OnDragListener() {
+
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+
+            float scaleY= pdfView.getScaleY();
+            float scaleX = pdfView.getScaleX();
+            Log.i("YANAT SCALE: ", "x: " + scaleX + ", y: " + scaleY);
+
+            switch (event.getAction()) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    layoutParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
+                    Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_STARTED");
+
+                    // Do nothing
+                    break;
+
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_ENTERED");
+                    int x_cord = (int) event.getX();
+                    int y_cord = (int) event.getY();
+                    break;
+
+                case DragEvent.ACTION_DRAG_EXITED:
+                    Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_EXITED");
+                    x_cord = (int) event.getX();
+                    y_cord = (int) event.getY();
+                    layoutParams.leftMargin = x_cord;
+                    layoutParams.topMargin = y_cord;
+                    v.setLayoutParams(layoutParams);
+                    break;
+
+                case DragEvent.ACTION_DRAG_LOCATION:
+                    Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_LOCATION");
+                    x_cord = (int) event.getX();
+                    y_cord = (int) event.getY();
+                    break;
+
+                case DragEvent.ACTION_DRAG_ENDED:
+                    Log.d("YANAT", "Action is DragEvent.ACTION_DRAG_ENDED");
+                    // Do nothing
+                    break;
+
+                case DragEvent.ACTION_DROP:
+                    Log.i("YANAT", "ACTION_DROP event");
 
                     float scale = pdfView.getScale();
                     float left = pdfView.getLeft();
@@ -137,149 +218,86 @@ public class DetailActivity extends AppCompatActivity {
                     float curX = (event.getX() / scale) - (left * scale);
                     float curY = (event.getY() / scale) - (top * scale);
 
+                    Log.i("YANAT", "x: " + curX + ", y: " + curY);
 
-                    Log.i("YANAT", "x: "+curX+", y: "+ curY);
+                    drawMarker(curX, curY, "x");
 
-                    return true;
-                } else {
-                    return false;
-                }
+                    openPointDialog((int) curX, (int) curY, scale, scaleX, scaleY);
+
+                    // Do nothing
+                    break;
+                default:
+
+                    Log.i("YANAT", "Unknown action type received by OnDragListener.");
+
+                    break;
             }
-        });
+            return true;
+        }
+    });
 
-        pdfView.setOnDragListener(new View.OnDragListener() {
 
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
 
-                float scaleY= pdfView.getScaleY();
-                float scaleX = pdfView.getScaleX();
-                Log.i("YANAT SCALE: ", "x: " + scaleX + ", y: " + scaleY);
+    ImageButton backButton = (ImageButton) findViewById(R.id.back);
+    backButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            DetailActivity.this.finish();
+        }
+    });
 
-                switch (event.getAction()) {
-                    case DragEvent.ACTION_DRAG_STARTED:
-                        layoutParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
-                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_STARTED");
+    ImageButton exportButton = (ImageButton) findViewById(R.id.export);
+    exportButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // generate pdf & open
+            // Log.v("YANAT", getApplicationInfo().dataDir + "/files/");
+            File pdfFile = project.buildPdf(DetailActivity.this);
+            Log.v("YANAT", "Build PDF: " + pdfFile.getAbsolutePath());
 
-                        // Do nothing
-                        break;
-
-                    case DragEvent.ACTION_DRAG_ENTERED:
-                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_ENTERED");
-                        int x_cord = (int) event.getX();
-                        int y_cord = (int) event.getY();
-                        break;
-
-                    case DragEvent.ACTION_DRAG_EXITED:
-                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_EXITED");
-                        x_cord = (int) event.getX();
-                        y_cord = (int) event.getY();
-                        layoutParams.leftMargin = x_cord;
-                        layoutParams.topMargin = y_cord;
-                        v.setLayoutParams(layoutParams);
-                        break;
-
-                    case DragEvent.ACTION_DRAG_LOCATION:
-                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_LOCATION");
-                        x_cord = (int) event.getX();
-                        y_cord = (int) event.getY();
-                        break;
-
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        Log.d("YANAT", "Action is DragEvent.ACTION_DRAG_ENDED");
-                        // Do nothing
-                        break;
-
-                    case DragEvent.ACTION_DROP:
-                        Log.i("YANAT", "ACTION_DROP event");
-
-                        float scale = pdfView.getScale();
-                        float left = pdfView.getLeft();
-                        float top = pdfView.getTop();
-
-                        float curX = (event.getX() / scale) - (left * scale);
-                        float curY = (event.getY() / scale) - (top * scale);
-
-                        Log.i("YANAT", "x: " + curX + ", y: " + curY);
-
-                        drawMarker(curX, curY);
-
-                        openPointDialog((int) curX, (int) curY, scale, scaleX, scaleY);
-
-                        // Do nothing
-                        break;
-                    default:
-
-                        Log.i("YANAT", "Unknown action type received by OnDragListener.");
-
-                        break;
-                }
-                return true;
+            Uri fileUri = null;
+            // answer with the create file provider
+            try {
+                fileUri = FileProvider.getUriForFile(
+                        DetailActivity.this,
+                        "ch.zhaw.moba.yanat.fileprovider",
+                        pdfFile);
+            } catch (IllegalArgumentException e) {
+                Log.e("File Selector",
+                        "The selected file can't be shared: ");
             }
-        });
 
+            // open generated pdf
+            // File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/"+ filename);
+            // File file = new File(pdfPath);
+            Intent target = new Intent(Intent.ACTION_VIEW);
+            // target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
+            // Grant temporary read permission to the content URI
+            target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-        ImageButton backButton = (ImageButton) findViewById(R.id.back);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DetailActivity.this.finish();
+            if (fileUri != null) {
+                // Put the Uri and MIME type in the result Intent
+                // target.setDataAndType(fileUri, "application/pdf");
+                target.setDataAndType(fileUri, getContentResolver().getType(fileUri));
+
+                // Set the result
+                DetailActivity.this.setResult(Activity.RESULT_OK, target);
+            } else {
+                target.setDataAndType(null, "");
+                DetailActivity.this.setResult(RESULT_CANCELED, target);
             }
-        });
 
-        ImageButton exportButton = (ImageButton) findViewById(R.id.export);
-        exportButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // generate pdf & open
-                // Log.v("YANAT", getApplicationInfo().dataDir + "/files/");
-                File pdfFile = project.buildPdf(DetailActivity.this);
-                Log.v("YANAT", "Build PDF: " + pdfFile.getAbsolutePath());
-
-                Uri fileUri = null;
-                // answer with the create file provider
-                try {
-                    fileUri = FileProvider.getUriForFile(
-                            DetailActivity.this,
-                            "ch.zhaw.moba.yanat.fileprovider",
-                            pdfFile);
-                } catch (IllegalArgumentException e) {
-                    Log.e("File Selector",
-                            "The selected file can't be shared: ");
-                }
-
-                // open generated pdf
-                // File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/"+ filename);
-                // File file = new File(pdfPath);
-                Intent target = new Intent(Intent.ACTION_VIEW);
-                // target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-
-                // Grant temporary read permission to the content URI
-                target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-                if (fileUri != null) {
-                    // Put the Uri and MIME type in the result Intent
-                    // target.setDataAndType(fileUri, "application/pdf");
-                    target.setDataAndType(fileUri, getContentResolver().getType(fileUri));
-
-                    // Set the result
-                    DetailActivity.this.setResult(Activity.RESULT_OK, target);
-                } else {
-                    target.setDataAndType(null, "");
-                    DetailActivity.this.setResult(RESULT_CANCELED, target);
-                }
-
-                // for explicit request which app should open it
-                // Intent intent = Intent.createChooser(target, "Open File");
-                try {
-                    startActivity(target);
-                } catch (ActivityNotFoundException e) {
-                    // Instruct the user to install a PDF reader here, or something
-                }
+            // for explicit request which app should open it
+            // Intent intent = Intent.createChooser(target, "Open File");
+            try {
+                startActivity(target);
+            } catch (ActivityNotFoundException e) {
+                // Instruct the user to install a PDF reader here, or something
             }
-        });
-    }
+        }
+    });
+}
 
     public void listPoints() {
          points = getPoints();
@@ -299,11 +317,12 @@ public class DetailActivity extends AppCompatActivity {
 
     }
 
-    private void drawMarker(float curX, float curY){
+    private void drawMarker(float curX, float curY, String name){
 
         Canvas canvas = new Canvas(pdfBitmap);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.MAGENTA);
+
+        paint.setColor(Color.RED);
 
         // 1. Variante: gefüllter Halbkreis mit Dreieck
         // pin Halbkreis
@@ -348,13 +367,49 @@ public class DetailActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.marker_small);
         canvas.drawBitmap(bitmap, curX, curY, null);
 
+/*
+        Paint paintLetter = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        paintLetter.setColor(Color.BLUE);
+        //paintLetter.setColor(Color.argb(0, 64, 192, 219));
+
+        int scale =1;
+        paintLetter.setTextSize((int) (24 * scale));
+        canvas.drawText(name, curX+40, curY-10, paintLetter);*/
+
+
+
+
+
+        Paint letterPaint = new Paint();
+        Paint circlePaint = new Paint();
+
+        letterPaint.setColor(Color.WHITE);
+        letterPaint.setTextSize(24);
+        letterPaint.setAntiAlias(true);
+        letterPaint.setTextAlign(Paint.Align.CENTER);
+
+        Rect bounds = new Rect();
+        letterPaint.getTextBounds(name, 0, name.length(), bounds);
+
+        circlePaint.setColor(ContextCompat.getColor(getApplicationContext(), R.color.turquoise));
+        circlePaint.setAntiAlias(true);
+
+        canvas.drawCircle(curX+40, curY-10 - (bounds.height() / 2), bounds.width() + 5, circlePaint);
+
+        canvas.drawText(name, curX+40, curY-10,  letterPaint);
+
+
+
+
+
         pdfView.setImageBitmap(pdfBitmap);
 
     }
 
     private void drawPoints(){
         for (Point point : getPoints()) {
-            drawMarker(point.getPosX(), point.getPosY());
+            drawMarker(point.getPosX(), point.getPosY(), point.getTitle());
         }
     }
 
@@ -408,9 +463,9 @@ public class DetailActivity extends AppCompatActivity {
     public void showPDfAsImage(){
         pdfView.clear();
 
-        DetailActivity.this.runOnUiThread(new Runnable() {
+     /*   DetailActivity.this.runOnUiThread(new Runnable() {
 
-            public void run() {
+            public void run() {*/
 
                 try {
 
@@ -436,7 +491,7 @@ public class DetailActivity extends AppCompatActivity {
 
                     pdfView.invalidate();
                     Log.v("YANAT", "PDF: showPDfAsImage" );
-                    renderer.close();
+                //    renderer.close();
 
                 }catch(Exception e){
                     e.printStackTrace();
@@ -444,8 +499,8 @@ public class DetailActivity extends AppCompatActivity {
 
 
 
-            }
-        });
+     //       }
+//        });
 
 
 
