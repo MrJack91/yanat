@@ -64,7 +64,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         }
         whereFilter = PointContract.PointEntry.COLUMN_NAME_DELETED + " = 0 AND " + PointContract.PointEntry.COLUMN_NAME_PROJECT_ID + " LIKE " + projectId + whereFilter;
 
-        String sortOrder = PointContract.PointEntry.COLUMN_NAME_CREATE_DATE + " ASC";
+        String sortOrder = PointContract.PointEntry.COLUMN_NAME_CREATE_DATE + " DESC";
         Cursor cursor = dbRead.query(
                 PointContract.PointEntry.TABLE_NAME,      // The table to query
                 null,                                     // The columns to return
