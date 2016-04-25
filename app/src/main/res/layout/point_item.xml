@@ -44,6 +44,7 @@
         </android.support.design.widget.TextInputEditText>
     </android.support.design.widget.TextInputLayout>
 
+    <!--
     <android.support.v7.widget.AppCompatCheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -54,6 +55,7 @@
         android:layout_alignParentTop="true"
         android:layout_below="@+id/mesure_point_name_show"
         android:layout_marginTop="90dp" />
+    -->
 
 
     <android.support.v7.widget.AppCompatCheckBox
@@ -65,7 +67,7 @@
         android:layout_marginLeft="238dp"
         android:layout_alignParentTop="true"
         android:layout_below="@+id/meter_above_sea"
-        android:layout_marginTop="150dp" />
+        android:layout_marginTop="160dp" />
 
 
     <EditText
@@ -88,7 +90,6 @@
         android:layout_below="@+id/measure_point_reference_point_text"
         android:layout_alignStart="@+id/measure_point_reference_point_text"
         android:layout_alignEnd="@+id/input_measure_point_height_hint" />
-
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/input_measure_point_comment_hint"

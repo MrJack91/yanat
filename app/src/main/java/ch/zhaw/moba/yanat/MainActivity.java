@@ -201,18 +201,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         listProjects();
                     }
 
+                    // example to bind vars to function
                     public DialogInterface.OnClickListener init(Uri returnUri, String filename) {
                         this.returnUri = returnUri;
                         this.filename = filename;
                         return this;
                     }
 
-                }.init(returnUri, filename))
-                        .setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                }.init(returnUri, filename));
+
+                builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                             }
-                        })
-                ;
+                        }
+                );
 
                 AlertDialog dialog = builder.create();
                 dialog.show();

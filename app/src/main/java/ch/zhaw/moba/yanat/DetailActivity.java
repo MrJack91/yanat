@@ -47,19 +47,11 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         int projectId = getIntent().getIntExtra("projectId", 0);
-        // load all points
-
         project = projectRepository.findById(projectId);
         Log.v("YANAT", project.toString());
         pointRepository = project.getPointRepository(this);
 
-
-        //  final Point point = new Point();
-        //  point.setHeight(i);
-        //  pointRepository.add(point);
-
         Button createMeasure = (Button) findViewById(R.id.create_measure_point);
-
 
         createMeasure.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,10 +73,11 @@ public class DetailActivity extends AppCompatActivity {
 
                 dialogBuilder.setView(viewList);
                 dialogBuilder.setTitle("Messpunkt");
-                Log.v("YANAT", "Points size: " + points.size());
 
                 AlertDialog dialog = dialogBuilder.create();
                 dialog.show();
+
+                // fix to show keyboard on input fields on dialogs
                 dialog.getWindow().clearFlags( WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
                 dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             }
@@ -152,7 +145,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     public void listPoints() {
-         points = getPoints();
+        points = getPoints();
 
         recyclerView = (RecyclerView) viewList.findViewById(R.id.point_list);
         recyclerView.setHasFixedSize(true);
@@ -162,19 +155,14 @@ public class DetailActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(llm);
 
         // add the adapter
-        PointAdapter adapter = new PointAdapter(points, pointRepository);
+        List<Point> allPoints = pointRepository.findAll();
+        PointAdapter adapter = new PointAdapter(points, allPoints, pointRepository);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-
-        /*
-        Log.v("YANAT", "viewList: " + viewList);
-        Log.v("YANAT", "recyclerView: " + recyclerView);
-        Log.v("YANAT", "llm: " + llm);
-        */
     }
 
 
-    public void updatePointList(){
+    public void updatePointList() {
         recyclerView.getAdapter().notifyDataSetChanged();
         listPoints();
     }
@@ -188,7 +176,7 @@ public class DetailActivity extends AppCompatActivity {
         ((CheckBox)view.findViewById(R.id.ground_floor)).setChecked(point.isGroundFloor());
     }
 
-    private List<Point> getPoints(){
+    private List<Point> getPoints() {
 
         final List<Point> points = pointRepository.findAll();
 
