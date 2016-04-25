@@ -68,7 +68,7 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
             title = (TextView)itemView.findViewById(R.id.mesure_point_name_show);
             height = (TextView)itemView.findViewById(R.id.input_measure_point_height);
             comment = (TextView)itemView.findViewById(R.id.input_measure_point_comment);
-            spinner = (Spinner)itemView.findViewById(R.id.input_measure_point_reference_point);
+            spinner = (Spinner)itemView.findViewById(R.id.spinner_measure_point_reference_point);
             spinner.setOnItemSelectedListener(
                     new AdapterView.OnItemSelectedListener() {
 
