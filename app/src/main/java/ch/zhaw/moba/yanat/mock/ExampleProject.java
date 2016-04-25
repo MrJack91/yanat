@@ -63,8 +63,8 @@ public class ExampleProject {
             point.setHeight(height);
             point.setComment("Reference Point " + i + " (" + height + "m)");
             point.setReferenceId(pointFix.getId());
-            point.setPosX(15 + (i*5));
-            point.setPosY(15 + (i*5));
+            point.setPosX(15 + (i * 5));
+            point.setPosY(15 + (i * 5));
 
             pointRepository.add(point);
         }

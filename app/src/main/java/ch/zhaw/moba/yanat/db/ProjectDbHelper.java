@@ -30,7 +30,7 @@ public class ProjectDbHelper extends SQLiteOpenHelper {
                     ProjectContract.ProjectEntry.COLUMN_NAME_PDF + TYPE_TEXT + COMMA_SEP +
                     ProjectContract.ProjectEntry.COLUMN_NAME_PDF_WIDTH + TYPE_INTEGER + COMMA_SEP +
                     ProjectContract.ProjectEntry.COLUMN_NAME_PDF_HEIGHT + TYPE_INTEGER +
-            " )";
+                    " )";
 
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + ProjectContract.ProjectEntry.TABLE_NAME;

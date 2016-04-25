@@ -22,13 +22,13 @@ public class MarkerPaint {
     private Context context;
     private ImageViewTouch pdfView;
 
-    public MarkerPaint(Resources res, Context context, ImageViewTouch pdfView){
+    public MarkerPaint(Resources res, Context context, ImageViewTouch pdfView) {
         this.res = res;
         this.context = context;
         this.pdfView = pdfView;
     }
 
-    private void paintLetter(float curX, float curY, String name, Canvas canvas){
+    private void paintLetter(float curX, float curY, String name, Canvas canvas) {
         Paint letterPaint = new Paint();
         Paint circlePaint = new Paint();
 
@@ -43,13 +43,13 @@ public class MarkerPaint {
         circlePaint.setColor(ContextCompat.getColor(context, R.color.turquoise));
         circlePaint.setAntiAlias(true);
 
-        canvas.drawCircle(curX+40, curY-10 - (bounds.height() / 2), bounds.width() + 5, circlePaint);
+        canvas.drawCircle(curX + 40, curY - 10 - (bounds.height() / 2), bounds.width() + 5, circlePaint);
 
-        canvas.drawText(name, curX+40, curY-10,  letterPaint);
+        canvas.drawText(name, curX + 40, curY - 10, letterPaint);
     }
 
 
-    public void drawMarker(float curX, float curY, String name, Bitmap pdfBitmap){
+    public void drawMarker(float curX, float curY, String name, Bitmap pdfBitmap) {
         Canvas canvas = new Canvas(pdfBitmap);
 
         // 1. Variante: gefüllter Halbkreis mit Dreieck

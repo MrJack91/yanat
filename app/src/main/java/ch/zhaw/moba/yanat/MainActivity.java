@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
     private static final int MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 3;
 
-    String[] perms = { "android.permission.WRITE_EXTERNAL_STORAGE"};
+    String[] perms = {"android.permission.WRITE_EXTERNAL_STORAGE"};
 
     public ProjectRepository projectRepository = new ProjectRepository(MainActivity.this);
 
@@ -66,14 +66,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         */
 
 
-
         // analyticsTrackers.initialize(MainActivity.this);
         // -> throw error if screen rotated (reinit of analytics)
 
         // uncomment if brakes on pre marshmallows devices
         // if (this.canMakeSmores()) {
-            // request all permissions on start -> for android 6
-            checkPermissions();
+        // request all permissions on start -> for android 6
+        checkPermissions();
         // }
 
         setContentView(R.layout.activity_main);
@@ -119,8 +118,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // ProjectAdapter adapter = new ProjectAdapter(projects);
         // if (adapter == null) {
-            adapter = new ProjectAdapter(projects);
-            mRecyclerView.setAdapter(adapter);
+        adapter = new ProjectAdapter(projects);
+        mRecyclerView.setAdapter(adapter);
         /*
         } else {
             // will update, but not resort new by edit
@@ -201,18 +200,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         listProjects();
                     }
 
+                    // example to bind vars to function
                     public DialogInterface.OnClickListener init(Uri returnUri, String filename) {
                         this.returnUri = returnUri;
                         this.filename = filename;
                         return this;
                     }
 
-                }.init(returnUri, filename))
-                        .setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                }.init(returnUri, filename));
+
+                builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                             }
-                        })
-                ;
+                        }
+                );
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -308,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private boolean canMakeSmores(){
+    private boolean canMakeSmores() {
         return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
     }
 }

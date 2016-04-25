@@ -84,9 +84,9 @@ public class FileUtility {
         for (int i = 0; i < dirs.size(); ++i) { // use size-1 to skip file name
             // is folder name
             dir = new File(dir, dirs.get(i)); //Getting a file within the dir.
-            if (i != dirs.size()-1) {
+            if (i != dirs.size() - 1) {
                 // until its last part, create folder
-                if(!dir.exists()) {
+                if (!dir.exists()) {
                     dir.mkdir();
                 }
             }

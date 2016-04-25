@@ -18,10 +18,14 @@ import ch.zhaw.moba.yanat.domain.model.Point;
  */
 public class PointRepository extends AbstractRepository<Point, PointContract.PointEntry> {
 
-    /** project id for the points to load */
+    /**
+     * project id for the points to load
+     */
     protected int projectId = 0;
 
-    /** used for title, required manually reset */
+    /**
+     * used for title, required manually reset
+     */
     protected int titleOffset = 0;
 
     public PointRepository(Context context, int projectId) {
@@ -47,6 +51,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
     /**
      * Gets all points for a project
      * If you use public, reset titleOffset manually to 0
+     *
      * @return
      */
     public List<Point> find(String whereFilter, String[] whereValues) {
@@ -59,7 +64,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         }
         whereFilter = PointContract.PointEntry.COLUMN_NAME_DELETED + " = 0 AND " + PointContract.PointEntry.COLUMN_NAME_PROJECT_ID + " LIKE " + projectId + whereFilter;
 
-        String sortOrder = PointContract.PointEntry.COLUMN_NAME_TSTAMP + " DESC";
+        String sortOrder = PointContract.PointEntry.COLUMN_NAME_CREATE_DATE + " ASC";
         Cursor cursor = dbRead.query(
                 PointContract.PointEntry.TABLE_NAME,      // The table to query
                 null,                                     // The columns to return
@@ -117,7 +122,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         if (offset > 26) {
             offset = 26;
         }
-        title = String.valueOf(Character.toChars(65+offset));
+        title = String.valueOf(Character.toChars(65 + offset));
 
         this.titleOffset++;
         return title;
@@ -143,6 +148,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
 
     /**
      * Loads all childs recursiver
+     *
      * @param parentPoint
      * @return
      */
@@ -188,6 +194,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
 
     /**
      * Group points by coordinates -> get duplicates -> points on same location
+     *
      * @param points
      * @return
      */
@@ -213,14 +220,14 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
             lastY = point.getPosY();
 
             int j;
-            for (j = i+1; j < points.size(); j++) {
+            for (j = i + 1; j < points.size(); j++) {
                 Point nextPoint = points.get(j);
                 if (lastX != nextPoint.getPosX() || lastY != nextPoint.getPosY()) {
                     break;
                 }
                 groupOfPoints.add(nextPoint);
             }
-            i = j-1;
+            i = j - 1;
 
             groupedPoints.add(groupOfPoints);
         }
