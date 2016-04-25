@@ -4,21 +4,21 @@
     android:layout_height="wrap_content">
 
     <TextView
+        android:id="@+id/mesure_point_name_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Messpunktname:"
-        android:id="@+id/mesure_point_name_label"
         android:layout_alignParentTop="true"
         android:layout_alignStart="@+id/input_measure_point_height_hint"
         android:layout_marginTop="30dp" />
 
     <TextView
+        android:id="@+id/mesure_point_name_show"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="[name]"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/mesure_point_name_show"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/measure_point_reference_point_text"
         android:layout_marginTop="30dp" />
@@ -38,6 +38,7 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:singleLine="true"
+            android:windowSoftInputMode="adjustResize"
             android:inputType="numberDecimal"
             android:hint="Höhe:"
             android:maxWidth="50sp">
@@ -46,9 +47,9 @@
 
     <!--
     <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/meter_above_sea"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/meter_above_sea"
         android:checked="false"
         android:text="m.ü.M."
         android:layout_marginLeft="238dp"
@@ -57,8 +58,20 @@
         android:layout_marginTop="90dp" />
     -->
 
-
     <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/ground_floor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="EG"
+        android:checked="false"
+        android:layout_marginLeft="238dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="125dp"
+        android:layout_below="@+id/mesure_point_name_show" />
+
+    <!--
+
+        <android.support.v7.widget.AppCompatCheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/ground_floor"
@@ -69,11 +82,13 @@
         android:layout_below="@+id/meter_above_sea"
         android:layout_marginTop="160dp" />
 
+    -->
+
 
     <EditText
+        android:id="@+id/measure_point_reference_point_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/measure_point_reference_point_text"
         android:text="Referenzpunkt:"
         android:editable="false"
         android:layout_below="@+id/input_measure_point_height_hint"
@@ -82,9 +97,9 @@
         android:layout_marginTop="10dp" />
 
     <android.support.v7.widget.AppCompatSpinner
+        android:id="@+id/spinner_measure_point_reference_point"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/input_measure_point_reference_point"
         android:hint="Referenzpunkt:"
         android:spinnerMode="dropdown"
         android:layout_below="@+id/measure_point_reference_point_text"
@@ -97,8 +112,8 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="20dp"
         android:layout_marginTop="10dp"
-        android:layout_below="@+id/input_measure_point_reference_point"
-        android:layout_alignStart="@+id/input_measure_point_reference_point">
+        android:layout_below="@+id/spinner_measure_point_reference_point"
+        android:layout_alignStart="@+id/spinner_measure_point_reference_point">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/input_measure_point_comment"
@@ -116,9 +131,9 @@
     </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatButton
+        android:id="@+id/button_delete_measure_point"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/button_delete_measure_point"
         android:textColor="@android:color/primary_text_light"
         android:text="Löschen"
         android:layout_below="@+id/input_measure_point_comment_hint"
@@ -127,9 +142,9 @@
         android:background="@color/colorAccent" />
 
     <android.support.v7.widget.AppCompatButton
+        android:id="@+id/button_save_measure_point"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/button_save_measure_point"
         android:layout_alignTop="@+id/button_delete_measure_point"
         android:textColor="@android:color/primary_text_light"
         android:layout_alignEnd="@+id/input_measure_point_comment_hint"
@@ -137,13 +152,12 @@
         android:background="@color/colorAccent" />
 
     <TextView
+        android:id="@+id/trennlinie"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/trennlinie"
         android:layout_below="@+id/button_delete_measure_point"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="25dp"
         android:background="@color/colorAccent" />
-
 
 </RelativeLayout>
