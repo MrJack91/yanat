@@ -326,7 +326,6 @@ public class DetailActivity extends AppCompatActivity {
         dialogBuilder.setTitle("Messpunkt");
         Log.v("YANAT", "Points size: " + points.size());
 
-
         markerPaint.drawMarker(newPoint.getPosX(), newPoint.getPosY(), newPoint.getTitle(), pdfBitmap);
 
         AlertDialog dialog = dialogBuilder.create();
@@ -372,7 +371,8 @@ public class DetailActivity extends AppCompatActivity {
             markerPaint = new MarkerPaint(getResources(), getApplicationContext(), pdfView);
             drawPoints();
 
-                    pdfView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            // Wenn man setScaleType(..) auskommentiert, kann man zoomen (mit Doppelklick)
+            pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
 
             //pdfView.setScaleEnabled(true);
             pdfView.setDoubleTapEnabled(true);
