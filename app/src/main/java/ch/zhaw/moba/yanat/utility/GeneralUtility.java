@@ -7,14 +7,13 @@ public class GeneralUtility {
 
     public static String formatHeight(float value) {
 
-        return String.format("%.2f", (double)value);
+        return String.format("%.2f", (double) value);
 
         /*
         DecimalFormat myFormatter = new DecimalFormat("#.###");
         return myFormatter.format(value);
         */
     }
-
 
 
 }

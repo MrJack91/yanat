@@ -49,7 +49,7 @@ public class PdfGeneratorUtility {
         PdfReader template = new PdfReader(project.getPdf());
 
         // step 1
-        Rectangle rectangle = new Rectangle(project.getPdfWidth()/ PdfGeneratorUtility.POINT_TO_MM, project.getPdfHeight()/ PdfGeneratorUtility.POINT_TO_MM);
+        Rectangle rectangle = new Rectangle(project.getPdfWidth() / PdfGeneratorUtility.POINT_TO_MM, project.getPdfHeight() / PdfGeneratorUtility.POINT_TO_MM);
         Document document = new Document(rectangle, 0, 0, 0, 0);
 
         // step 2
@@ -86,7 +86,6 @@ public class PdfGeneratorUtility {
     }
 
     /**
-     *
      * @param newPdf
      * @param points
      */
@@ -108,14 +107,14 @@ public class PdfGeneratorUtility {
         canvas.setLineWidth(3);
 
         // pin
-        canvas.arc(x-20, y+20, x+20, y+60, 0, (float) 180);
+        canvas.arc(x - 20, y + 20, x + 20, y + 60, 0, (float) 180);
         canvas.lineTo(x, y);
         canvas.closePathStroke();
         canvas.closePathFillStroke();
 
         //// pin point inside
         canvas.setColorFill(BaseColor.RED);
-        canvas.circle(x, y+40, 10);
+        canvas.circle(x, y + 40, 10);
         canvas.fill();
 
 
@@ -126,8 +125,8 @@ public class PdfGeneratorUtility {
             textLines += 2;
             text +=
                     point.getTitle() + ": " +
-                    GeneralUtility.formatHeight(point.getHeightAbsolute()) + "m (abs.)\n" +
-                    GeneralUtility.formatHeight(point.getHeightRelative()) + "m (rel.)\n";
+                            GeneralUtility.formatHeight(point.getHeightAbsolute()) + "m (abs.)\n" +
+                            GeneralUtility.formatHeight(point.getHeightRelative()) + "m (rel.)\n";
             if (point.getHeightToGroundFloor() != null && !point.isGroundFloor()) {
                 textLines++;
                 text += GeneralUtility.formatHeight(point.getHeightToGroundFloor()) + "m (GF)\n";
@@ -146,12 +145,12 @@ public class PdfGeneratorUtility {
         float lly = 0;
         float width = 115;
         float height = 80;
-        float lineCorrection = (4-textLines)*20;
+        float lineCorrection = (4 - textLines) * 20;
         gState = new PdfGState();
         gState.setFillOpacity(0.8f);
         gState.setStrokeOpacity(0.8f);
         canvas.setGState(gState);
-        canvas.roundRectangle(x+llx, y+lly+lineCorrection, width, height-lineCorrection, 2);
+        canvas.roundRectangle(x + llx, y + lly + lineCorrection, width, height - lineCorrection, 2);
         canvas.setColorFill(BaseColor.WHITE);
         canvas.fillStroke();
 
@@ -162,7 +161,7 @@ public class PdfGeneratorUtility {
         gState.setStrokeOpacity(1);
         canvas.setGState(gState);
 
-        Rectangle rect = new Rectangle((float) (x+llx+8), (float) (y+lly+3+lineCorrection), (float) (x+llx+width-3), (float) (y+lly+height));
+        Rectangle rect = new Rectangle((float) (x + llx + 8), (float) (y + lly + 3 + lineCorrection), (float) (x + llx + width - 3), (float) (y + lly + height));
         rect.setBackgroundColor(BaseColor.LIGHT_GRAY);
 
         ColumnText ct = new ColumnText(canvas);

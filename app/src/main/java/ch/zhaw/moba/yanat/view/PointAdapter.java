@@ -40,7 +40,7 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
     private PointRepository pointRepository;
     private ViewGroup view;
 
-    public PointAdapter(List<Point> points, List<Point> allPoints, PointRepository pointRepository){
+    public PointAdapter(List<Point> points, List<Point> allPoints, PointRepository pointRepository) {
         this.points = points;
         this.allPoints = allPoints;
         this.pointRepository = pointRepository;
@@ -65,10 +65,10 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
 
             final PointRepository pointRepository = pointRepository1;
 
-            title = (TextView)itemView.findViewById(R.id.mesure_point_name_show);
-            height = (TextView)itemView.findViewById(R.id.input_measure_point_height);
-            comment = (TextView)itemView.findViewById(R.id.input_measure_point_comment);
-            spinner = (Spinner)itemView.findViewById(R.id.spinner_measure_point_reference_point);
+            title = (TextView) itemView.findViewById(R.id.mesure_point_name_show);
+            height = (TextView) itemView.findViewById(R.id.input_measure_point_height);
+            comment = (TextView) itemView.findViewById(R.id.input_measure_point_comment);
+            spinner = (Spinner) itemView.findViewById(R.id.spinner_measure_point_reference_point);
             spinner.setOnItemSelectedListener(
                     new AdapterView.OnItemSelectedListener() {
 
@@ -94,18 +94,18 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
             );
 
 
-            ((Button)itemView.findViewById(R.id.button_delete_measure_point)).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        pointRepository.delete(currentPoint);
-                        getDetailActivity().updatePointList();
+            ((Button) itemView.findViewById(R.id.button_delete_measure_point)).setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            pointRepository.delete(currentPoint);
+                            getDetailActivity().updatePointList();
+                        }
                     }
-                }
             );
 
 
-            ((Button)itemView.findViewById(R.id.button_save_measure_point)).setOnClickListener(
+            ((Button) itemView.findViewById(R.id.button_save_measure_point)).setOnClickListener(
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -122,7 +122,7 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
         }
 
         protected DetailActivity getDetailActivity() {
-            return ((DetailActivity)this.view.getContext());
+            return ((DetailActivity) this.view.getContext());
         }
     }
 
@@ -154,7 +154,7 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
                 spinnerRefData.put(point.getId(), point.getTitle());
                 // search index of current selected item
                 if (point.getId() == pointCurrent.getReferenceId()) {
-                    indexOfRef = spinnerRefData.size()-1;
+                    indexOfRef = spinnerRefData.size() - 1;
                 }
             }
         }

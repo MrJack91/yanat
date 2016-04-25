@@ -6,7 +6,8 @@ package ch.zhaw.moba.yanat.db;
 public class PointContract {
     // To prevent someone from accidentally instantiating the contract class,
     // give it an empty constructor.
-    public PointContract() {}
+    public PointContract() {
+    }
 
     /* Inner class that defines the table contents */
     public static abstract class PointEntry implements ContractInterface {

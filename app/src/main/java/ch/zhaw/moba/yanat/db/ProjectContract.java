@@ -6,7 +6,8 @@ package ch.zhaw.moba.yanat.db;
 public class ProjectContract {
     // To prevent someone from accidentally instantiating the contract class,
     // give it an empty constructor.
-    public ProjectContract() {}
+    public ProjectContract() {
+    }
 
     /* Inner class that defines the table contents */
     public static abstract class ProjectEntry implements ContractInterface {

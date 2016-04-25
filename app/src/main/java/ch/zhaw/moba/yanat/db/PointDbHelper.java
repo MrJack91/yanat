@@ -33,7 +33,7 @@ public class PointDbHelper extends SQLiteOpenHelper {
                     PointContract.PointEntry.COLUMN_NAME_POS_Y + TYPE_INTEGER + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_HEIGHT + TYPE_REAL + COMMA_SEP +
                     PointContract.PointEntry.COLUMN_NAME_COMMENT + TYPE_TEXT +
-            " )";
+                    " )";
 
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + PointContract.PointEntry.TABLE_NAME;

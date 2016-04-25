@@ -64,6 +64,7 @@ public class Project extends AbstractModel {
 
     /**
      * Can only be called, after project is persist (has an ID)
+     *
      * @param context
      * @return
      */

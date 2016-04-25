@@ -33,6 +33,7 @@ public class ProjectRepository extends AbstractRepository<Project, ProjectContra
 
     /**
      * Gets all projects
+     *
      * @return
      */
     public List<Project> find(String whereFilter, String[] whereValues) {
