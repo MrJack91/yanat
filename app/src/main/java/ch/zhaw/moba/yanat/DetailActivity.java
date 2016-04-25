@@ -55,6 +55,8 @@ public class DetailActivity extends AppCompatActivity {
     private List<Point> points;
     private ImageViewTouch pdfView;
 
+    private AlertDialog dialog = null;
+
     private Bitmap pdfBitmap;
     private Bitmap originalEmptyPdfBitmap; // original pdf Bitmap without markers. To use after deleting markers
 
@@ -263,7 +265,7 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-    public void listPoints() {
+    public void listPoints(Point topPoint) {
         points = getPoints();
 
         recyclerView = (RecyclerView) viewList.findViewById(R.id.point_list);
@@ -273,8 +275,20 @@ public class DetailActivity extends AppCompatActivity {
         LinearLayoutManager llm = new LinearLayoutManager(DetailActivity.this);
         recyclerView.setLayoutManager(llm);
 
-        // add the adapter
         List<Point> allPoints = pointRepository.findAll();
+        if (topPoint != null) {
+            // add new point at first position
+            points.add(0, topPoint);
+            try {
+                Point topPointTemplate = topPoint.clone();
+                topPointTemplate.setTitle("");
+                allPoints.add(0, topPointTemplate);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // add the adapter
         PointAdapter adapter = new PointAdapter(points, allPoints, pointRepository);
         recyclerView.setAdapter(adapter);
 
@@ -293,9 +307,9 @@ public class DetailActivity extends AppCompatActivity {
         pdfView.setImageBitmap(pdfBitmap);
     }
 
-    public void updatePointList() {
+    public void updatePointList(Point topPoint) {
         //recyclerView.getAdapter().notifyDataSetChanged();
-        listPoints();
+        listPoints(topPoint);
     }
 
     private void fillFieldsWithPoint(View view, Point point) {
@@ -309,16 +323,19 @@ public class DetailActivity extends AppCompatActivity {
         LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
         viewList = inflater.inflate(R.layout.dialog_point_list, null);
 
-        final Point newPoint = createNewPoint((int) x, (int) y);
+        Point newPoint = createNewPoint((int) x, (int) y);
 
-        listPoints();
+        // todo: load only points of this coordinates
+        updatePointList(newPoint);
+        // listPoints(newPoint);
 
         FloatingActionButton fab = (FloatingActionButton) viewList.findViewById(R.id.fb_add_measure_point);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createNewPoint(x, y);
-                listPoints();
+                Point newPoint = createNewPoint(x, y);
+                updatePointList(newPoint);
+                // listPoints(newPoint);
             }
         });
 
@@ -328,27 +345,29 @@ public class DetailActivity extends AppCompatActivity {
 
         markerPaint.drawMarker(newPoint.getPosX(), newPoint.getPosY(), newPoint.getTitle(), pdfBitmap);
 
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.show();
+        this.dialog = dialogBuilder.create();
+        this.dialog.show();
 
         // fix to show keyboard on input fields on dialogs
-        dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        this.dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        this.dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-
-
+        this.dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-
                 pdfView.setScaleX(scaleX);
                 pdfView.setScaleY(scaleY);
-
                 drawPoints();
-
                 Log.v("YANAT", "setOnCancelListener");
             }
         });
+    }
+
+    public void closeDialog() {
+        if (this.dialog != null) {
+            this.dialog.dismiss();
+            this.dialog = null;
+        }
     }
 
     public void showPDfAsImage() {
@@ -390,11 +409,11 @@ public class DetailActivity extends AppCompatActivity {
     private Point createNewPoint(final int x, final int y) {
         Point newPoint = new Point();
 
-        // TODO Berechnen (relativ)
+        newPoint.setTitle("[neuer Punkt]");
         newPoint.setPosX(x);
         newPoint.setPosY(y);
-        long id = pointRepository.add(newPoint);
-        newPoint = pointRepository.findById((int) id);
+        // long id = pointRepository.add(newPoint);
+        // newPoint = pointRepository.findById((int) id);
 
         return newPoint;
     }
