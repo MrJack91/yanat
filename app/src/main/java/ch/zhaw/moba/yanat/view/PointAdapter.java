@@ -99,7 +99,7 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
                         @Override
                         public void onClick(View v) {
                             pointRepository.delete(currentPoint);
-                            getDetailActivity().updatePointList();
+                            getDetailActivity().updatePointList(null);
                         }
                     }
             );
@@ -116,6 +116,7 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
                             currentPoint.setComment(comment);
 
                             pointRepository.update(currentPoint);
+                            getDetailActivity().closeDialog();
                         }
                     }
             );
@@ -146,8 +147,10 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
         pointViewHolder.height.setText("" + pointCurrent.getHeight());
 
         spinnerRefData = new LinkedHashMap<>();
+
         // add empty option
         spinnerRefData.put(0, "");
+
         int indexOfRef = 0;
         for (Point point : this.allPoints) {
             if (this.allPoints.get(i).getId() != point.getId()) {

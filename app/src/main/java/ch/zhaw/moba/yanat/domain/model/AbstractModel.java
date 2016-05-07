@@ -19,6 +19,7 @@ abstract public class AbstractModel {
     final String DATE_FORMAT_DAY = "dd.MM.yyyy";
 
     protected AbstractModel() {
+        this.id = 0;
         // crdate equals current tstamp
         // tstamp is in miliseconds convert to seconds
         Long tstamp = this.setCurrentTstamp();

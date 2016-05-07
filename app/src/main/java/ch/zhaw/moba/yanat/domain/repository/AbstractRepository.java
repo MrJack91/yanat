@@ -73,16 +73,21 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
     }
 
     public boolean update(Model entity) {
-        this.dbWrite = this.mDbHelper.getWritableDatabase();
-        ContentValues values = this.buildContentValues(entity);
+        if (entity.getId() == 0) {
+            this.add(entity);
+            return true;
+        } else {
+            this.dbWrite = this.mDbHelper.getWritableDatabase();
+            ContentValues values = this.buildContentValues(entity);
 
-        this.dbWrite.update(
-                this.tableName,
-                values,
-                Contract.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(entity.getId())}
-        );
-        return true;
+            this.dbWrite.update(
+                    this.tableName,
+                    values,
+                    Contract.COLUMN_NAME_ID + " LIKE ?",
+                    new String[]{String.valueOf(entity.getId())}
+            );
+            return true;
+        }
     }
 
     public boolean delete(Model entity) {

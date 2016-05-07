@@ -3,7 +3,7 @@ package ch.zhaw.moba.yanat.domain.model;
 /**
  * Created by michael on 04.03.16.
  */
-public class Point extends AbstractModel implements Comparable<Point> {
+public class Point extends AbstractModel implements Comparable<Point>, Cloneable {
 
     protected int projectId = 0;
     protected int referenceId = 0;
@@ -163,5 +163,9 @@ public class Point extends AbstractModel implements Comparable<Point> {
             xDiff = yDiff;
         }
         return xDiff;
+    }
+
+    public Point clone() throws CloneNotSupportedException {
+        return (Point) super.clone();
     }
 }

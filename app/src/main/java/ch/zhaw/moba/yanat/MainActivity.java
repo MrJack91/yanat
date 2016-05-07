@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
     private static final int MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 3;
 
-    String[] perms = {"android.permission.WRITE_EXTERNAL_STORAGE"};
+    // String[] perms = {"android.permission.WRITE_EXTERNAL_STORAGE"};
+    String[] perms = {};
 
     public ProjectRepository projectRepository = new ProjectRepository(MainActivity.this);
 
@@ -64,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ExampleProject exampleProject = new ExampleProject(this);
         exampleProject.create();
         */
-
 
         // analyticsTrackers.initialize(MainActivity.this);
         // -> throw error if screen rotated (reinit of analytics)
