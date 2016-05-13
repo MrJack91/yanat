@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.support.design.internal.NavigationMenu;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -25,6 +26,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+
+import android.util.Log;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfReader;
@@ -79,31 +84,98 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        NavigationView  navMenu = (NavigationView) findViewById(R.id.nav_gallery);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        toolbar.setOnMenuItemClickListener(
+                new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // open file dialog
-                mRequestFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                mRequestFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                // mRequestFileIntent.setType(Intent.normalizeMimeType("application/pdf")); // application/pdf | */*
-                mRequestFileIntent.setType(Intent.normalizeMimeType("*/*")); // application/pdf | */*
-                startActivityForResult(mRequestFileIntent, PICK_FILE_RESULT_CODE);
-            }
-        });
+                        //TODO Titel mit String vergleichen nicht schön-> andere Lösung finden
+                        if (item.getTitle().equals("Sortierung")) {
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+                            final View view = inflater.inflate(R.layout.dialog_sort_projects, null);
 
-        this.listProjects();
+                            builder.setPositiveButton("Sortieren", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
 
-    }
+                                            RadioGroup radioGroup =(RadioGroup) view.findViewById(R.id.sort_radio_group);
+
+                                            int checkedId= radioGroup.getCheckedRadioButtonId();
+                                            View radioButton = radioGroup.findViewById(checkedId);
+                                            int idRadioButton = radioGroup.indexOfChild(radioButton);
+
+                                            switch (idRadioButton) {
+                                                case 0:
+                                                    // TODO Sortierung nach Namen
+                                                    Log.i("YANAT", "Sortierung nach Namen" );
+                                                    break;
+                                                case 1:
+                                                    // TODO Sortierung nach Bearbeitungsdatum
+                                                    Log.i("YANAT", "Sortierung nach Bearbeitungsdatum");
+                                                    break;
+                                                case 2:
+                                                    // TODO Sortierung nach Erstelldatum
+                                                    Log.i("YANAT", "Sortierung nach Erstelldatum");
+                                                    break;
+                                            }
+
+                                        }
+                                    }
+                            );
+
+                            builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                        }
+                                    }
+                            );
+
+                            builder.setView(view);
+                            builder.setTitle("Sortieren");
+
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+
+                        }
+                        return false;
+                    }
+                    }
+
+                    );
+
+
+                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                    drawer.addDrawerListener(toggle);
+                    toggle.syncState();
+
+                    NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+                    navigationView.setNavigationItemSelectedListener(this);
+
+                    FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+                    fab.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View v){
+                        // open file dialog
+                        mRequestFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                        mRequestFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                        // mRequestFileIntent.setType(Intent.normalizeMimeType("application/pdf")); // application/pdf | */*
+                        mRequestFileIntent.setType(Intent.normalizeMimeType("*/*")); // application/pdf | */*
+                        startActivityForResult(mRequestFileIntent, PICK_FILE_RESULT_CODE);
+                    }
+                    }
+
+                    );
+
+                    this.
+
+                    listProjects();
+
+                }
 
 
     public void listProjects() {
