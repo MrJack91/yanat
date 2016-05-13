@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:windowSoftInputMode="adjustResize"
-            android:inputType="numberDecimal"
+            android:inputType="numberSigned|numberDecimal"
             android:hint="Höhe:"
             android:maxWidth="50sp">
         </android.support.design.widget.TextInputEditText>

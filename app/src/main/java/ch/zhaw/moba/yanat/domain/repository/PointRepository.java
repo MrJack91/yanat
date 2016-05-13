@@ -111,7 +111,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
             cursor.moveToNext();
         }
         cursor.close();
-
+        dbRead.close();
         return points;
     }
 

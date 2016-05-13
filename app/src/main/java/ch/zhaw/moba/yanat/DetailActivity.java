@@ -7,8 +7,9 @@ import android.content.ClipDescription;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,7 +29,6 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
@@ -47,7 +47,6 @@ public class DetailActivity extends AppCompatActivity {
     public ProjectRepository projectRepository = new ProjectRepository(DetailActivity.this);
     public PointRepository pointRepository = null;
 
-    private PointAdapter pointAddapter = null;
     private RecyclerView recyclerView;
 
     protected Project project = null;
@@ -63,6 +62,8 @@ public class DetailActivity extends AppCompatActivity {
     private android.widget.RelativeLayout.LayoutParams layoutParams;
     private MarkerPaint markerPaint;
 
+    public static final float POINT_TO_MM = (float) 0.352778;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,37 +76,37 @@ public class DetailActivity extends AppCompatActivity {
         Log.v("YANAT", project.toString());
         pointRepository = project.getPointRepository(this);
 
-        showPDfAsImage();
+        showPdfAsImage();
         initListener();
     }
 
     private void initListener() {
 
-        final ImageView img = (ImageView) findViewById(R.id.image_view_pin);
+        final ImageView marker = (ImageView) findViewById(R.id.image_view_pin);
 
-        img.setOnLongClickListener(new View.OnLongClickListener() {
+        marker.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 ClipData.Item item = new ClipData.Item((CharSequence) v.getTag());
                 String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
 
                 ClipData dragData = new ClipData(v.getTag().toString(), mimeTypes, item);
-                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(img);
+                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(marker);
 
                 v.startDrag(dragData, myShadow, null, 0);
                 return true;
             }
         });
 
-        img.setOnTouchListener(new View.OnTouchListener() {
+        marker.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     ClipData data = ClipData.newPlainText("", "");
 
-                    View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(img);
-                    img.startDrag(data, shadowBuilder, img, 0);
-                    img.setVisibility(View.VISIBLE);
+                    View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(marker);
+                    marker.startDrag(data, shadowBuilder, marker, 0);
+                    marker.setVisibility(View.VISIBLE);
 
                     return true;
                 } else {
@@ -114,19 +115,13 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
+        /*
+        // Calc coordinates of touch events
         pdfView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
-                    float scale = pdfView.getScale();
-                    float left = pdfView.getLeft();
-                    float top = pdfView.getTop();
-
-                    float curX = (event.getX() / scale) - (left * scale);
-                    float curY = (event.getY() / scale) - (top * scale);
-
-                    Log.i("YANAT", "x: " + curX + ", y: " + curY);
+                    calcAbsoluteCoord(event.getX(), event.getY());
 
                     return true;
                 } else {
@@ -134,19 +129,18 @@ public class DetailActivity extends AppCompatActivity {
                 }
             }
         });
+        */
 
+        // set on drag event actions
         pdfView.setOnDragListener(new View.OnDragListener() {
-
             @Override
             public boolean onDrag(View v, DragEvent event) {
 
-                float scaleY = pdfView.getScaleY();
-                float scaleX = pdfView.getScaleX();
-                Log.i("YANAT SCALE: ", "x: " + scaleX + ", y: " + scaleY);
+                // Log.i("YANAT SCALE: ", "x: " + scaleX + ", y: " + scaleY);
 
                 switch (event.getAction()) {
                     case DragEvent.ACTION_DRAG_STARTED:
-                        layoutParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
+                        // layoutParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
                         Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_STARTED");
 
                         // Do nothing
@@ -154,23 +148,23 @@ public class DetailActivity extends AppCompatActivity {
 
                     case DragEvent.ACTION_DRAG_ENTERED:
                         Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_ENTERED");
-                        int x_cord = (int) event.getX();
-                        int y_cord = (int) event.getY();
+                        // int x_cord = (int) event.getX();
+                        // int y_cord = (int) event.getY();
                         break;
 
                     case DragEvent.ACTION_DRAG_EXITED:
                         Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_EXITED");
-                        x_cord = (int) event.getX();
-                        y_cord = (int) event.getY();
-                        layoutParams.leftMargin = x_cord;
-                        layoutParams.topMargin = y_cord;
-                        v.setLayoutParams(layoutParams);
+                        // x_cord = (int) event.getX();
+                        // y_cord = (int) event.getY();
+                        // layoutParams.leftMargin = x_cord;
+                        // layoutParams.topMargin = y_cord;
+                        // v.setLayoutParams(layoutParams);
                         break;
 
                     case DragEvent.ACTION_DRAG_LOCATION:
                         Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_LOCATION");
-                        x_cord = (int) event.getX();
-                        y_cord = (int) event.getY();
+                        // x_cord = (int) event.getX();
+                        // y_cord = (int) event.getY();
                         break;
 
                     case DragEvent.ACTION_DRAG_ENDED:
@@ -180,17 +174,14 @@ public class DetailActivity extends AppCompatActivity {
 
                     case DragEvent.ACTION_DROP:
                         Log.i("YANAT", "ACTION_DROP event");
+                        float[] pos = calcAbsoluteCoord(event.getX(), event.getY());
 
-                        float scale = pdfView.getScale();
-                        float left = pdfView.getLeft();
-                        float top = pdfView.getTop();
-
-                        float curX = (event.getX() / scale) - (left * scale);
-                        float curY = (event.getY() / scale) - (top * scale);
-
-                        Log.i("YANAT", "x: " + curX + ", y: " + curY);
-
-                        openPointDialog((int) curX, (int) curY, scale, scaleX, scaleY);
+                        int posX = (int)pos[0];
+                        int posY = (int)pos[1];
+                        // only positive values are alowed
+                        if (Math.min(posX, posY) > 0) {
+                            openPointDialog((int)pos[0], (int)pos[1], pos[2], pos[3]);
+                        }
 
                         break;
                     default:
@@ -202,7 +193,6 @@ public class DetailActivity extends AppCompatActivity {
                 return true;
             }
         });
-
 
         ImageButton backButton = (ImageButton) findViewById(R.id.back);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -217,7 +207,6 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // generate pdf & open
-                // Log.v("YANAT", getApplicationInfo().dataDir + "/files/");
                 File pdfFile = project.buildPdf(DetailActivity.this);
                 Log.v("YANAT", "Build PDF: " + pdfFile.getAbsolutePath());
 
@@ -293,7 +282,6 @@ public class DetailActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         adapter.notifyDataSetChanged();
-
     }
 
     private void drawPoints() {
@@ -301,7 +289,7 @@ public class DetailActivity extends AppCompatActivity {
         pdfBitmap = originalEmptyPdfBitmap.copy(originalEmptyPdfBitmap.getConfig(), true);
 
         for (Point point : getPoints()) {
-            markerPaint.drawMarker(point.getPosX(), point.getPosY(), point.getTitle(), pdfBitmap);
+            markerPaint.drawMarker(point.getPosX() / POINT_TO_MM, point.getPosY() / POINT_TO_MM, point.getTitle(), pdfBitmap);
         }
 
         pdfView.setImageBitmap(pdfBitmap);
@@ -318,12 +306,13 @@ public class DetailActivity extends AppCompatActivity {
         ((CheckBox) view.findViewById(R.id.ground_floor)).setChecked(point.isGroundFloor());
     }
 
-    private void openPointDialog(final int x, final int y, float scale, final float scaleX, final float scaleY) {
+    private void openPointDialog(final int x, final int y, final float scaleX, final float scaleY) {
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
         LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
         viewList = inflater.inflate(R.layout.dialog_point_list, null);
 
-        Point newPoint = createNewPoint((int) x, (int) y);
+        Log.v("YANAT MH", "x,y = " + Integer.toString(x) + ", " + Integer.toString(y) + "; mm: " + Float.toString(x * POINT_TO_MM) + ", " + Float.toString(y * POINT_TO_MM));
+        Point newPoint = createNewPoint((int) (x * POINT_TO_MM), (int) (y * POINT_TO_MM));
 
         // todo: load only points of this coordinates
         updatePointList(newPoint);
@@ -355,8 +344,10 @@ public class DetailActivity extends AppCompatActivity {
         this.dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
+                /*
                 pdfView.setScaleX(scaleX);
                 pdfView.setScaleY(scaleY);
+                */
                 drawPoints();
                 Log.v("YANAT", "setOnCancelListener");
             }
@@ -370,7 +361,7 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    public void showPDfAsImage() {
+    public void showPdfAsImage() {
         pdfView.clear();
         try {
 
@@ -381,24 +372,25 @@ public class DetailActivity extends AppCompatActivity {
             PdfRenderer.Page page = renderer.openPage(0);
             Log.v("YANAT", "PDF: " + project.getPdf() + "-" + page.getWidth() + "-" + page.getHeight());
 
-            pdfBitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_4444);
+            pdfBitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
 
-            page.render(pdfBitmap, new Rect(0, 0, page.getWidth(), page.getHeight()), new Matrix(), PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            pdfBitmap.setHasAlpha(false);
+            // convert alpha channel to white
+            Canvas canvas = new Canvas(pdfBitmap);
+            canvas.drawColor(Color.WHITE);
+            canvas.drawBitmap(pdfBitmap, 0, 0, null);
 
+            page.render(pdfBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
             originalEmptyPdfBitmap = pdfBitmap.copy(pdfBitmap.getConfig(), true);
 
             markerPaint = new MarkerPaint(getResources(), getApplicationContext(), pdfView);
+
+            // set the image to view
             drawPoints();
 
-            // Wenn man setScaleType(..) auskommentiert, kann man zoomen (mit Doppelklick)
-            pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
-
-            //pdfView.setScaleEnabled(true);
-            pdfView.setDoubleTapEnabled(true);
-
-            pdfView.invalidate();
-            Log.v("YANAT", "PDF: showPDfAsImage");
-            //    renderer.close();
+            // pdfView.invalidate();
+            Log.v("YANAT", "PDF: showPdfAsImage");
+            // renderer.close();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -412,8 +404,6 @@ public class DetailActivity extends AppCompatActivity {
         newPoint.setTitle("[neuer Punkt]");
         newPoint.setPosX(x);
         newPoint.setPosY(y);
-        // long id = pointRepository.add(newPoint);
-        // newPoint = pointRepository.findById((int) id);
 
         return newPoint;
     }
@@ -428,6 +418,25 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         return points;
+    }
+
+    protected float[] calcAbsoluteCoord(float posX, float posY) {
+        Matrix m = pdfView.getImageMatrix();
+        float []mf = new float[9];
+        m.getValues(mf);
+
+        float transX = mf[Matrix.MTRANS_X] * -1;
+        float transY = mf[Matrix.MTRANS_Y] * -1;
+        float scaleX = mf[Matrix.MSCALE_X];
+        float scaleY = mf[Matrix.MSCALE_Y];
+        int lastTouchX = (int) ((posX + transX) / scaleX);
+        // add + 60 for pin offset
+        int lastTouchY = (int) ((posY + transY + 90) / scaleY);
+
+        Log.i("YANAT", "event.getX(): " + posX + ", event.getY(): " + posY + ", transX: " + transX + ", transY: " + transY + ", scaleX: " + scaleX + ", scaleY: " + scaleY + " lastTouchX:" + lastTouchX + " lastTouchY:" + lastTouchY);
+
+        float[] returnValues = {lastTouchX, lastTouchY, scaleX, scaleY};
+        return returnValues;
     }
 
 }

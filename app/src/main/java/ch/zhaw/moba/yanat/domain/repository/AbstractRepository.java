@@ -68,6 +68,7 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
                 null,
                 values);
         entity.setId((int) newRowId);
+        this.dbWrite.close();
 
         return newRowId;
     }
@@ -86,6 +87,7 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
                     Contract.COLUMN_NAME_ID + " LIKE ?",
                     new String[]{String.valueOf(entity.getId())}
             );
+            this.dbWrite.close();
             return true;
         }
     }
@@ -103,6 +105,7 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
                 Contract.COLUMN_NAME_ID + " LIKE ?",
                 new String[]{String.valueOf(entity.getId())}
         );
+        this.dbWrite.close();
         return true;
     }
 

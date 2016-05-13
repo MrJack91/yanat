@@ -82,6 +82,7 @@ public class ProjectRepository extends AbstractRepository<Project, ProjectContra
 
             cursor.moveToNext();
         }
+        dbRead.close();
 
         return projects;
     }
