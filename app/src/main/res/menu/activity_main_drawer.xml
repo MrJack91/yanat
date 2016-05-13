@@ -5,20 +5,11 @@
         <item
             android:id="@+id/nav_camera"
             android:icon="@drawable/ic_help_grey_50_18dp"
-            android:title="FaQ" />
+            android:title="FaQ - comming soon" />
         <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_info_grey_50_18dp"
             android:title="About" />
     </group>
-
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_share_grey_50_18dp"
-                android:title="Share" />
-        </menu>
-    </item>
 
 </menu>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/sort_description"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="37dp"
+        android:layout_marginLeft="10dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Wie sollte die Projekte sortiert werden?\n\nNach:" />
+
+    <RadioGroup
+        android:id="@+id/sort_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/sort_description"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_marginTop="25dp">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:id="@+id/sort_radio_button_name"
+            android:checked="true"
+            android:layout_below="@+id/sort_description"
+            android:layout_marginTop="25dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_alignStart="@+id/info" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bearbeitungsdatum"
+            android:id="@+id/sort_radio_button_bearbeitungsdatum"
+            android:checked="false"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_below="@+id/sort_radio_button_name" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Erstelldatum"
+            android:id="@+id/sort_radio_button_erstelldatum"
+            android:checked="false"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_below="@+id/sort_radio_button_bearbeitungsdatum" />
+
+    </RadioGroup>
+</RelativeLayout>
