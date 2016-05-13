@@ -92,7 +92,8 @@ public class MarkerPaint {
 
         // 3 Variante: Bild hinzufügen
         Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.marker_small);
-        canvas.drawBitmap(bitmap, curX, curY, null);
+        // todo: why is this misty offset??
+        canvas.drawBitmap(bitmap, curX-10, curY-35, null);
 
         paintLetter(curX, curY, name, canvas);
         pdfView.setImageBitmap(pdfBitmap);

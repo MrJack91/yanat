@@ -37,11 +37,10 @@ public class PdfGeneratorUtility {
     }
 
     public String buildPdf(String filename, Project project, Context context) throws DocumentException, IOException {
+        this.project = project;
 
         PointRepository pointRepository = project.getPointRepository(context);
         List<Point> points = pointRepository.findAll();
-
-        Log.v("YANAT", String.valueOf(points.size()));
 
         // group points by coordinates
         List<List> groupedPoints = pointRepository.groupPointsByCoordinates(points);
@@ -54,7 +53,6 @@ public class PdfGeneratorUtility {
 
         // step 2
         PdfWriter newPdf = PdfWriter.getInstance(document, new FileOutputStream(filename));
-        // PdfCopy newPdf = new PdfCopy(document, new FileOutputStream(filename));
 
         // step 3
         document.open();
@@ -67,12 +65,6 @@ public class PdfGeneratorUtility {
         cb.addTemplate(page, 0, 0);
 
         for (List<Point> groupOfPoints : groupedPoints) {
-            /*
-            Log.v("YANAT", "new group:");
-            for (Point point : groupOfPoints) {
-                Log.v("YANAT", point.toString());
-            }
-            */
             this.addMarker(newPdf, groupOfPoints);
         }
 
@@ -93,7 +85,9 @@ public class PdfGeneratorUtility {
         Point pointCommon = points.get(0);
         // cast to mm from bottom left corner
         double x = pointCommon.getPosX() / POINT_TO_MM;
-        double y = pointCommon.getPosY() / POINT_TO_MM;
+        double y = (project.getPdfHeight() - pointCommon.getPosY()) / POINT_TO_MM;
+
+        Log.v("YANAT pdf marker", "(x,y)pt => (x,y)mm" + pointCommon.getPosX() + ", " + pointCommon.getPosY() + " -> " + x + ", " + y);
 
         PdfContentByte canvas = newPdf.getDirectContent();
         PdfGState gState = new PdfGState();

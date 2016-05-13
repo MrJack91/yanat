@@ -135,45 +135,8 @@ public class DetailActivity extends AppCompatActivity {
         pdfView.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
-
-                // Log.i("YANAT SCALE: ", "x: " + scaleX + ", y: " + scaleY);
-
                 switch (event.getAction()) {
-                    case DragEvent.ACTION_DRAG_STARTED:
-                        // layoutParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
-                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_STARTED");
-
-                        // Do nothing
-                        break;
-
-                    case DragEvent.ACTION_DRAG_ENTERED:
-                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_ENTERED");
-                        // int x_cord = (int) event.getX();
-                        // int y_cord = (int) event.getY();
-                        break;
-
-                    case DragEvent.ACTION_DRAG_EXITED:
-                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_EXITED");
-                        // x_cord = (int) event.getX();
-                        // y_cord = (int) event.getY();
-                        // layoutParams.leftMargin = x_cord;
-                        // layoutParams.topMargin = y_cord;
-                        // v.setLayoutParams(layoutParams);
-                        break;
-
-                    case DragEvent.ACTION_DRAG_LOCATION:
-                        Log.i("YANAT", "Action is DragEvent.ACTION_DRAG_LOCATION");
-                        // x_cord = (int) event.getX();
-                        // y_cord = (int) event.getY();
-                        break;
-
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        Log.d("YANAT", "Action is DragEvent.ACTION_DRAG_ENDED");
-                        // Do nothing
-                        break;
-
                     case DragEvent.ACTION_DROP:
-                        Log.i("YANAT", "ACTION_DROP event");
                         float[] pos = calcAbsoluteCoord(event.getX(), event.getY());
 
                         int posX = (int)pos[0];
@@ -182,11 +145,6 @@ public class DetailActivity extends AppCompatActivity {
                         if (Math.min(posX, posY) > 0) {
                             openPointDialog((int)pos[0], (int)pos[1], pos[2], pos[3]);
                         }
-
-                        break;
-                    default:
-
-                        Log.i("YANAT", "Unknown action type received by OnDragListener.");
 
                         break;
                 }
@@ -208,7 +166,6 @@ public class DetailActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // generate pdf & open
                 File pdfFile = project.buildPdf(DetailActivity.this);
-                Log.v("YANAT", "Build PDF: " + pdfFile.getAbsolutePath());
 
                 Uri fileUri = null;
                 // answer with the create file provider
@@ -218,8 +175,7 @@ public class DetailActivity extends AppCompatActivity {
                             "ch.zhaw.moba.yanat.fileprovider",
                             pdfFile);
                 } catch (IllegalArgumentException e) {
-                    Log.e("File Selector",
-                            "The selected file can't be shared: ");
+                    Log.e("File Selector", "The selected file can't be shared: ");
                 }
 
                 // open generated pdf
@@ -370,7 +326,6 @@ public class DetailActivity extends AppCompatActivity {
             PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
 
             PdfRenderer.Page page = renderer.openPage(0);
-            Log.v("YANAT", "PDF: " + project.getPdf() + "-" + page.getWidth() + "-" + page.getHeight());
 
             pdfBitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
 
@@ -389,7 +344,6 @@ public class DetailActivity extends AppCompatActivity {
             drawPoints();
 
             // pdfView.invalidate();
-            Log.v("YANAT", "PDF: showPdfAsImage");
             // renderer.close();
 
         } catch (Exception e) {

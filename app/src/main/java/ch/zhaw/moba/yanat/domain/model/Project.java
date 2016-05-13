@@ -82,9 +82,6 @@ public class Project extends AbstractModel {
     public File buildPdf(Context context) {
         PdfGeneratorUtility pdfGeneratorUtility = new PdfGeneratorUtility();
 
-        // Log.v("YANAT", Environment.getDataDirectory().getAbsolutePath());
-
-
         String fileTitle = this.getTitle() + "_yanat";
         fileTitle = fileTitle.replaceAll("[^a-zA-Z0-9.-]", "_");
         String pdfName = "/data/data/ch.zhaw.moba.yanat/files/" + this.getId() + "/" + fileTitle + ".pdf";

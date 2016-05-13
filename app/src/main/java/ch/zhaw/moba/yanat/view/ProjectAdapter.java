@@ -49,8 +49,6 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Integer element = getAdapterPosition();
-                    // Log.v("YANAT", "clicked on " + currentProject.getTitle() + " ID: " + String.valueOf(currentProject.getId()) + " (getAdapterPosition: " + element.toString() + ")");
                     // open project
                     Intent i = new Intent(getMainActivity(), DetailActivity.class);
                     i.putExtra("projectId", currentProject.getId());

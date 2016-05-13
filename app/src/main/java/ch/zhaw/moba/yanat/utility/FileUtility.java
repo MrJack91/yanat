@@ -94,17 +94,4 @@ public class FileUtility {
         return dir;
     }
 
-    /*
-    private static void directoryExist(File destination) {
-        if (!destination.isDirectory()) {
-            if (destination.mkdirs()) {
-                Log.d("Carpeta creada", "....");
-            } else {
-                Log.d("Carpeta no creada", "....");
-            }
-        }
-    }
-    */
-
-
 }
