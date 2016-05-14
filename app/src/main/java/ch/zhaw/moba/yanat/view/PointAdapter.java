@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -54,6 +55,7 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
 
         public TextView title;
         public TextView height;
+        public CheckBox groundFloor;
         public TextView comment;
         public Spinner spinner;
         // public TextView create_date;
@@ -67,6 +69,7 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
 
             title = (TextView) itemView.findViewById(R.id.mesure_point_name_show);
             height = (TextView) itemView.findViewById(R.id.input_measure_point_height);
+            groundFloor = (CheckBox) itemView.findViewById(R.id.ground_floor);
             comment = (TextView) itemView.findViewById(R.id.input_measure_point_comment);
             spinner = (Spinner) itemView.findViewById(R.id.spinner_measure_point_reference_point);
             spinner.setOnItemSelectedListener(
@@ -99,7 +102,8 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
                         @Override
                         public void onClick(View v) {
                             pointRepository.delete(currentPoint);
-                            getDetailActivity().updatePointList(null);
+                            getDetailActivity().closeDialog();
+                            // getDetailActivity().listPointsInAdapter(null, null);
                         }
                     }
             );
@@ -111,9 +115,13 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
                         public void onClick(View v) {
                             String height = ((TextView) itemView.findViewById(R.id.input_measure_point_height)).getText().toString();
                             String comment = ((TextView) itemView.findViewById(R.id.input_measure_point_comment)).getText().toString();
+                            boolean groundFloor = ((CheckBox) itemView.findViewById(R.id.ground_floor)).isChecked();
 
                             currentPoint.setHeight(Float.parseFloat(height));
                             currentPoint.setComment(comment);
+                            currentPoint.setIsGroundFloor(groundFloor);
+
+                            // todo: if groundfloor set all other to not groundfloor
 
                             pointRepository.update(currentPoint);
                             getDetailActivity().closeDialog();
@@ -145,6 +153,7 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
         pointViewHolder.title.setText(pointCurrent.getTitle());
         pointViewHolder.comment.setText(pointCurrent.getComment());
         pointViewHolder.height.setText("" + pointCurrent.getHeight());
+        pointViewHolder.groundFloor.setChecked(pointCurrent.isGroundFloor());
 
         spinnerRefData = new LinkedHashMap<>();
 
@@ -153,7 +162,8 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
 
         int indexOfRef = 0;
         for (Point point : this.allPoints) {
-            if (this.allPoints.get(i).getId() != point.getId()) {
+            // if (this.allPoints.get(i).getId() != point.getId()) {
+            if (pointCurrent.getId() != point.getId()) {
                 spinnerRefData.put(point.getId(), point.getTitle());
                 // search index of current selected item
                 if (point.getId() == pointCurrent.getReferenceId()) {

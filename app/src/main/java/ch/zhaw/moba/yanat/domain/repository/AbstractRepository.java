@@ -42,14 +42,16 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
     }
 
     public List<Model> findAll() {
-        return this.find("", null);
+        return this.find("", null, null, null);
     }
 
     public Model findById(int id) {
         Model entity = null;
         List<Model> entities = this.find(
                 Contract.COLUMN_NAME_ID + " LIKE ?",
-                new String[]{String.valueOf(id)}
+                new String[]{String.valueOf(id)},
+                null,
+                null
         );
         if (entities.size() > 0) {
             entity = entities.get(0);
@@ -109,6 +111,6 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
         return true;
     }
 
-    abstract public List<Model> find(String whereFilter, String[] whereValues);
+    abstract public List<Model> find(String whereFilter, String[] whereValues, String sortOrder, String[] select);
 
 }

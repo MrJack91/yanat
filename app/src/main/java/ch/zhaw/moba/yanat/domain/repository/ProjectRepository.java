@@ -36,7 +36,7 @@ public class ProjectRepository extends AbstractRepository<Project, ProjectContra
      *
      * @return
      */
-    public List<Project> find(String whereFilter, String[] whereValues) {
+    public List<Project> find(String whereFilter, String[] whereValues, String sortOrder, String[] select) {
         // read db
         SQLiteDatabase dbRead = this.mDbHelper.getReadableDatabase();
         List<Project> projects = new ArrayList();
@@ -46,10 +46,12 @@ public class ProjectRepository extends AbstractRepository<Project, ProjectContra
         }
         whereFilter = ProjectContract.ProjectEntry.COLUMN_NAME_DELETED + " = 0" + whereFilter;
 
-        String sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP + " DESC";
+        if (sortOrder == null) {
+            sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP + " DESC";
+        }
         Cursor cursor = dbRead.query(
                 ProjectContract.ProjectEntry.TABLE_NAME,  // The table to query
-                null,                                     // The columns to return
+                select,                                     // The columns to return
                 whereFilter,                              // The columns for the WHERE clause
                 whereValues,                              // The values for the WHERE clause
                 null,                                     // don't group the rows

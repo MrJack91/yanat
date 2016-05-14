@@ -54,7 +54,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
      *
      * @return
      */
-    public List<Point> find(String whereFilter, String[] whereValues) {
+    public List<Point> find(String whereFilter, String[] whereValues, String sortOrder, String[] select) {
         // read db
         SQLiteDatabase dbRead = this.mDbHelper.getReadableDatabase();
         List<Point> points = new ArrayList();
@@ -64,10 +64,12 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         }
         whereFilter = PointContract.PointEntry.COLUMN_NAME_DELETED + " = 0 AND " + PointContract.PointEntry.COLUMN_NAME_PROJECT_ID + " LIKE " + projectId + whereFilter;
 
-        String sortOrder = PointContract.PointEntry.COLUMN_NAME_CREATE_DATE + " ASC";
+        if (sortOrder == null) {
+            sortOrder = PointContract.PointEntry.COLUMN_NAME_CREATE_DATE + " ASC";
+        }
         Cursor cursor = dbRead.query(
                 PointContract.PointEntry.TABLE_NAME,      // The table to query
-                null,                                     // The columns to return
+                select,                                     // The columns to return
                 whereFilter,                              // The columns for the WHERE clause
                 whereValues,                              // The values for the WHERE clause
                 null,                                     // don't group the rows
@@ -88,6 +90,17 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
             int posY = cursor.getInt(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_POS_Y));
             Float height = cursor.getFloat(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_HEIGHT));
             String comment = cursor.getString(cursor.getColumnIndexOrThrow(PointContract.PointEntry.COLUMN_NAME_COMMENT));
+
+            /*
+            try {
+                int manhattenDistance = cursor.getInt(cursor.getColumnIndexOrThrow("manhatten"));
+                int manhattenDistance_x = cursor.getInt(cursor.getColumnIndexOrThrow("manhatten_x"));
+                int manhattenDistance_y = cursor.getInt(cursor.getColumnIndexOrThrow("manhatten_y"));
+                Log.v("YANAT manhatten", manhattenDistance + " (" + manhattenDistance_x + " + " + manhattenDistance_y +") to id: " + String.valueOf(id));
+            } catch (Exception e) {
+
+            }
+            */
 
             Point point = new Point();
             point.setId(id);
@@ -117,8 +130,8 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
 
     protected String makeTitle(int offset) {
         String title;
-        // todo: add more chars than 26 (aa,ab,ac,...)
 
+        // todo: add more chars than 26 (aa,ab,ac,...)
         if (offset > 26) {
             offset = 26;
         }
@@ -136,7 +149,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         points.addAll(this.findChildren(null, null, 0));
 
         // search groundfloor to calc relative groundfloor height
-        List<Point> floorGroundPoints = this.find("is_ground_floor = 1", null);
+        List<Point> floorGroundPoints = this.find("is_ground_floor = 1", null, null, null);
         if (floorGroundPoints.size() == 1) {
             Point groundFloorPoint = this.findLoadedById(floorGroundPoints.get(0).getId(), points);
             for (Point point : points) {
@@ -158,7 +171,7 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
             parentId = parentPoint.getId();
         }
 
-        List<Point> points = this.find("reference_id = " + parentId, null);
+        List<Point> points = this.find("reference_id = ?", new String[]{String.valueOf(parentId)}, null, null);
         List<Point> childPoints = new ArrayList();
         for (Point point : points) {
             // calc heights of this point
@@ -241,6 +254,33 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         */
 
         return groupedPoints;
+    }
+
+    /**
+     * Find nearest points by coords
+     * @param posX
+     * @param posY
+     * @return
+     */
+    public Point findNearestPoint(int posX, int posY) {
+        List<Point> points = this.find(
+                "",
+                null,
+                "(abs(" + Integer.toString(posX) + " - " + PointContract.PointEntry.COLUMN_NAME_POS_X + ") + " +
+                    "abs(" + Integer.toString(posY) + " - " + PointContract.PointEntry.COLUMN_NAME_POS_Y + ")) ASC LIMIT 1",
+                new String[] {
+                        "*",
+                        "(abs(" + Integer.toString(posX) + " - " + PointContract.PointEntry.COLUMN_NAME_POS_X + ") + " +
+                            "abs(" + Integer.toString(posY) + " - " + PointContract.PointEntry.COLUMN_NAME_POS_Y + ")) as manhatten",
+                        "abs(" + Integer.toString(posX) + " - " + PointContract.PointEntry.COLUMN_NAME_POS_X + ") as manhatten_x",
+                        "abs(" + Integer.toString(posY) + " - " + PointContract.PointEntry.COLUMN_NAME_POS_Y + ") as manhatten_y",
+                }
+        );
+        // todo: improve nearest by load n nearest points (by manhatten), and calc euclid distance of these, choose nearest!
+        if (points.size() > 0) {
+            return points.get(0);
+        }
+        return null;
     }
 
 }

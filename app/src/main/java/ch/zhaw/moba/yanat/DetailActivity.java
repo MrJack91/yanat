@@ -3,7 +3,6 @@ package ch.zhaw.moba.yanat;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,12 +25,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.zhaw.moba.yanat.domain.model.Point;
@@ -41,6 +39,7 @@ import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.paint.MarkerPaint;
 import ch.zhaw.moba.yanat.view.PointAdapter;
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
+import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -51,7 +50,6 @@ public class DetailActivity extends AppCompatActivity {
 
     protected Project project = null;
     protected View viewList;
-    private List<Point> points;
     private ImageViewTouch pdfView;
 
     private AlertDialog dialog = null;
@@ -63,6 +61,9 @@ public class DetailActivity extends AppCompatActivity {
     private MarkerPaint markerPaint;
 
     public static final float POINT_TO_MM = (float) 0.352778;
+
+    protected float lastPosX = 0f;
+    protected float lastPosY = 0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,7 @@ public class DetailActivity extends AppCompatActivity {
 
         final ImageView marker = (ImageView) findViewById(R.id.image_view_pin);
 
+        /*
         marker.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -97,6 +99,7 @@ public class DetailActivity extends AppCompatActivity {
                 return true;
             }
         });
+        */
 
         marker.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -115,21 +118,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
-        /*
-        // Calc coordinates of touch events
-        pdfView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    calcAbsoluteCoord(event.getX(), event.getY());
-
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
-        */
+        pdfView.setDisplayType(ImageViewTouchBase.DisplayType.FIT_TO_SCREEN);
 
         // set on drag event actions
         pdfView.setOnDragListener(new View.OnDragListener() {
@@ -137,20 +126,41 @@ public class DetailActivity extends AppCompatActivity {
             public boolean onDrag(View v, DragEvent event) {
                 switch (event.getAction()) {
                     case DragEvent.ACTION_DROP:
-                        float[] pos = calcAbsoluteCoord(event.getX(), event.getY());
-
-                        int posX = (int)pos[0];
-                        int posY = (int)pos[1];
-                        // only positive values are alowed
-                        if (Math.min(posX, posY) > 0) {
-                            openPointDialog((int)pos[0], (int)pos[1], pos[2], pos[3]);
-                        }
+                        float[] pos = calcAbsoluteCoord(event.getX(), event.getY(), 90);
+                        openPointDialog(pos, true);
 
                         break;
                 }
                 return true;
             }
         });
+
+
+        // Save event details for later
+        pdfView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    // motionEvent = event;
+                    lastPosX = event.getX();
+                    lastPosY = event.getY();
+                }
+                return false;
+            }
+        });
+
+        // Calc coordinates of touch events
+        pdfView.setSingleTapListener(
+                new ImageViewTouch.OnImageViewTouchSingleTapListener() {
+                    @Override
+                    public void onSingleTapConfirmed() {
+                        float[] pos = calcAbsoluteCoord(lastPosX, lastPosY, 90);
+                        openPointDialog(pos, false);
+
+                    }
+                }
+        );
+
 
         ImageButton backButton = (ImageButton) findViewById(R.id.back);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -179,8 +189,6 @@ public class DetailActivity extends AppCompatActivity {
                 }
 
                 // open generated pdf
-                // File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/"+ filename);
-                // File file = new File(pdfPath);
                 Intent target = new Intent(Intent.ACTION_VIEW);
                 // target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
@@ -210,9 +218,7 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-    public void listPoints(Point topPoint) {
-        points = getPoints();
-
+    public List<Point> listPointsInAdapter(List<Point> points, Point topPoint) {
         recyclerView = (RecyclerView) viewList.findViewById(R.id.point_list);
         recyclerView.setHasFixedSize(true);
 
@@ -238,6 +244,8 @@ public class DetailActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         adapter.notifyDataSetChanged();
+
+        return points;
     }
 
     private void drawPoints() {
@@ -251,44 +259,90 @@ public class DetailActivity extends AppCompatActivity {
         pdfView.setImageBitmap(pdfBitmap);
     }
 
-    public void updatePointList(Point topPoint) {
-        //recyclerView.getAdapter().notifyDataSetChanged();
-        listPoints(topPoint);
-    }
+    private void openPointDialog(float[] pos, boolean isNew) {
+        final int posX = (int)pos[0];
+        final int posY = (int)pos[1];
+        float scaleX = (float)pos[2];
+        float scaleY = (float)pos[3];
+        // only positive values are allowed
+        if (Math.min(posX, posY) < 0) {
+            return;
+        }
+        Log.v("YANAT Coords", "x,y = " + Integer.toString(posX) + ", " + Integer.toString(posY) + "; mm: " + Float.toString(posX * POINT_TO_MM) + ", " + Float.toString(posY * POINT_TO_MM));
 
-    private void fillFieldsWithPoint(View view, Point point) {
-        ((TextView) view.findViewById(R.id.input_measure_point_comment)).setText(point.getComment());
-        ((TextView) view.findViewById(R.id.input_measure_point_height)).setText("" + point.getHeight());
-        ((CheckBox) view.findViewById(R.id.ground_floor)).setChecked(point.isGroundFloor());
-    }
+        // init emtpy point list
+        List<Point> points = new ArrayList();
+        if (!isNew) {
+            // load nearest points by coordinates
+            int posXmm = (int)(posX * POINT_TO_MM);
+            int posYmm = (int)(posY * POINT_TO_MM);
+            Point nearestPoint = pointRepository.findNearestPoint(posXmm, posYmm);
+            // check if this point is close enough
+            Log.v("YANAT nearestPoint", nearestPoint.toString());
+            // nearest point must be maximum x mm away (take account of scale factor)
+            Log.v("YANAT", "nearest point: distance (x,y): (" + Math.abs(nearestPoint.getPosX() - posXmm) + ", " + Math.abs(nearestPoint.getPosY() - posYmm) + "); in near: (" + String.valueOf(30f) + " / " + String.valueOf((float)scaleX) + ") = " +  String.valueOf((int)(30f / scaleX)));
+            if (nearestPoint != null && Math.max(Math.abs(nearestPoint.getPosX() - posXmm), Math.abs(nearestPoint.getPosY() - posYmm)) < (int)(30f / scaleX)) {
+                // search group of nearest point, and add this all
+                List<Point> allPoints = getPoints();
+                List<List> groupedPoints = pointRepository.groupPointsByCoordinates(allPoints);
+                for (List<Point> group : groupedPoints) {
+                    for (Point point : group) {
+                        if (point.getPosX() == nearestPoint.getPosX() && point.getPosY() == nearestPoint.getPosY()) {
+                            points.add(point);
+                        }
+                    }
+                    // break if group was found
+                    if (points.size() > 0) {
+                        break;
+                    }
+                }
+            } else {
+                Log.v("YANAT", "nearest point is not close enough. distance (x,y): (" + Math.abs(nearestPoint.getPosX() - posXmm) + ", " + Math.abs(nearestPoint.getPosY() - posYmm) + ")");
+                return;
+            }
 
-    private void openPointDialog(final int x, final int y, final float scaleX, final float scaleY) {
+
+        }
+
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DetailActivity.this);
         LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
         viewList = inflater.inflate(R.layout.dialog_point_list, null);
 
-        Log.v("YANAT MH", "x,y = " + Integer.toString(x) + ", " + Integer.toString(y) + "; mm: " + Float.toString(x * POINT_TO_MM) + ", " + Float.toString(y * POINT_TO_MM));
-        Point newPoint = createNewPoint((int) (x * POINT_TO_MM), (int) (y * POINT_TO_MM));
-
-        // todo: load only points of this coordinates
-        updatePointList(newPoint);
-        // listPoints(newPoint);
-
         FloatingActionButton fab = (FloatingActionButton) viewList.findViewById(R.id.fb_add_measure_point);
+
+        Point newPoint = null;
+        if (isNew) {
+            newPoint = createNewPoint((int) (posX * POINT_TO_MM), (int) (posY * POINT_TO_MM));
+            fab.hide();
+        }
+        listPointsInAdapter(points, newPoint);
+
+        // additional new point
         fab.setOnClickListener(new View.OnClickListener() {
+            protected List<Point> points;
+
             @Override
             public void onClick(View v) {
-                Point newPoint = createNewPoint(x, y);
-                updatePointList(newPoint);
-                // listPoints(newPoint);
+                Point newPoint = createNewPoint(points.get(0).getPosX(), points.get(0).getPosY());
+                listPointsInAdapter(points, newPoint);
+                FloatingActionButton fab = (FloatingActionButton) viewList.findViewById(R.id.fb_add_measure_point);
+                fab.hide();
             }
-        });
+
+            // example to bind vars to function
+            public View.OnClickListener init(List<Point> points) {
+                this.points = points;
+                return this;
+            }
+
+        }.init(points));
+
+
+        // });
 
         dialogBuilder.setView(viewList);
         dialogBuilder.setTitle("Messpunkt");
         Log.v("YANAT", "Points size: " + points.size());
-
-        // markerPaint.drawMarker(newPoint.getPosX(), newPoint.getPosY(), newPoint.getTitle(), pdfBitmap);
 
         this.dialog = dialogBuilder.create();
         this.dialog.show();
@@ -297,20 +351,19 @@ public class DetailActivity extends AppCompatActivity {
         this.dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         this.dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
+        // maybe there was a delete -> draw all current points again
+        // called by back button (cancel action)
         this.dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                /*
-                pdfView.setScaleX(scaleX);
-                pdfView.setScaleY(scaleY);
-                */
                 drawPoints();
-                Log.v("YANAT", "setOnCancelListener");
             }
         });
     }
 
     public void closeDialog() {
+        // after save, draw all points new
+        // called manually after save (no cancel)
         drawPoints();
         if (this.dialog != null) {
             this.dialog.dismiss();
@@ -321,16 +374,12 @@ public class DetailActivity extends AppCompatActivity {
     public void showPdfAsImage() {
         pdfView.clear();
         try {
-
             File file = new File(project.getPdf());
-
             PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
-
             PdfRenderer.Page page = renderer.openPage(0);
-
             pdfBitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
-
             pdfBitmap.setHasAlpha(false);
+
             // convert alpha channel to white
             Canvas canvas = new Canvas(pdfBitmap);
             canvas.drawColor(Color.WHITE);
@@ -346,14 +395,12 @@ public class DetailActivity extends AppCompatActivity {
 
             // pdfView.invalidate();
             // renderer.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
-    private Point createNewPoint(final int x, final int y) {
+    private Point createNewPoint(int x, int y) {
         Point newPoint = new Point();
 
         newPoint.setTitle("[neuer Punkt]");
@@ -364,7 +411,6 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private List<Point> getPoints() {
-
         final List<Point> points = pointRepository.findAll();
 
         Log.v("YANAT", "Points size: " + points.size());
@@ -375,7 +421,7 @@ public class DetailActivity extends AppCompatActivity {
         return points;
     }
 
-    protected float[] calcAbsoluteCoord(float posX, float posY) {
+    protected float[] calcAbsoluteCoord(float posX, float posY, float pinOffsetY) {
         Matrix m = pdfView.getImageMatrix();
         float []mf = new float[9];
         m.getValues(mf);
@@ -386,7 +432,7 @@ public class DetailActivity extends AppCompatActivity {
         float scaleY = mf[Matrix.MSCALE_Y];
         int lastTouchX = (int) ((posX + transX) / scaleX);
         // add + 60 for pin offset
-        int lastTouchY = (int) ((posY + transY + 90) / scaleY);
+        int lastTouchY = (int) ((posY + transY + pinOffsetY) / scaleY);
 
         Log.i("YANAT", "event.getX(): " + posX + ", event.getY(): " + posY + ", transX: " + transX + ", transY: " + transY + ", scaleX: " + scaleX + ", scaleY: " + scaleY + " lastTouchX:" + lastTouchX + " lastTouchY:" + lastTouchY);
 

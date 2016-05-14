@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
-import android.support.design.internal.NavigationMenu;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -21,15 +20,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-
-import android.util.Log;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfReader;
@@ -140,42 +137,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                         return false;
                     }
-                    }
-
-                    );
-
-
-                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-                    drawer.addDrawerListener(toggle);
-                    toggle.syncState();
-
-                    NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-                    navigationView.setNavigationItemSelectedListener(this);
-
-                    FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-                    fab.setOnClickListener(new View.OnClickListener()
-
-                    {
-                        @Override
-                        public void onClick (View v){
-                        // open file dialog
-                        mRequestFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                        mRequestFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                        // mRequestFileIntent.setType(Intent.normalizeMimeType("application/pdf")); // application/pdf | */*
-                        mRequestFileIntent.setType(Intent.normalizeMimeType("*/*")); // application/pdf | */*
-                        startActivityForResult(mRequestFileIntent, PICK_FILE_RESULT_CODE);
-                    }
-                    }
-
-                    );
-
-                    this.
-
-                    listProjects();
-
                 }
+
+        );
+
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener()
+
+                               {
+                                   @Override
+                                   public void onClick (View v){
+                                       // open file dialog
+                                       mRequestFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                                       mRequestFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                                       // mRequestFileIntent.setType(Intent.normalizeMimeType("application/pdf")); // application/pdf | */*
+                                       mRequestFileIntent.setType(Intent.normalizeMimeType("*/*")); // application/pdf | */*
+                                       startActivityForResult(mRequestFileIntent, PICK_FILE_RESULT_CODE);
+                                   }
+                               }
+
+        );
+
+        this.
+
+                listProjects();
+
+    }
 
 
     public void listProjects() {
