@@ -2,7 +2,6 @@ package ch.zhaw.moba.yanat;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -10,8 +9,6 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -76,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // uncomment if brakes on pre marshmallows devices
         // if (this.canMakeSmores()) {
         // request all permissions on start -> for android 6
-        checkPermissions();
+        // checkPermissions();
         // }
 
         setContentView(R.layout.activity_main);
@@ -296,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /*
     protected void checkPermissions() {
         // asking for multiple permissions:
         // src: http://inthecheesefactory.com/blog/things-you-need-to-know-about-android-m-permission-developer-edition/en
@@ -337,6 +335,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // permissions this app might request
         }
     }
+    */
 
     // menu&settings handling
     @Override
