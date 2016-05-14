@@ -121,9 +121,12 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
                             currentPoint.setComment(comment);
                             currentPoint.setIsGroundFloor(groundFloor);
 
-                            // todo: if groundfloor set all other to not groundfloor
-
+                            // if groundfloor set all other to not groundfloor
+                            if (groundFloor) {
+                                pointRepository.removeAllGroundFloors();
+                            }
                             pointRepository.update(currentPoint);
+
                             getDetailActivity().closeDialog();
                         }
                     }

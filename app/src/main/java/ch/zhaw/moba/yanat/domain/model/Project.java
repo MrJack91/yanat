@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
+import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.utility.PdfGeneratorUtility;
 
 /**
@@ -17,6 +18,7 @@ import ch.zhaw.moba.yanat.utility.PdfGeneratorUtility;
  */
 public class Project extends AbstractModel {
 
+    protected final ProjectRepository projectRepository;
     protected PointRepository pointRepository = null;
 
     protected String title = "";
@@ -26,8 +28,9 @@ public class Project extends AbstractModel {
 
     // protected List<Point> points = null;
 
-    public Project() {
+    public Project(ProjectRepository projectRepository) {
         super();
+        this.projectRepository = projectRepository;
     }
 
     public String getTitle() {
@@ -74,7 +77,7 @@ public class Project extends AbstractModel {
             return null;
         }
         if (pointRepository == null) {
-            pointRepository = new PointRepository(context, this.id);
+            pointRepository = new PointRepository(context, this.id, this.projectRepository, this);
         }
         return pointRepository;
     }

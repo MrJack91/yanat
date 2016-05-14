@@ -69,7 +69,7 @@ public class ProjectRepository extends AbstractRepository<Project, ProjectContra
             int pdfWidth = cursor.getInt(cursor.getColumnIndexOrThrow(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_WIDTH));
             int pdfHeight = cursor.getInt(cursor.getColumnIndexOrThrow(ProjectContract.ProjectEntry.COLUMN_NAME_PDF_HEIGHT));
 
-            Project project = new Project();
+            Project project = new Project(this);
             project.setId(id);
             project.setCreateDate(createDate);
             project.setTstamp(tstamp);

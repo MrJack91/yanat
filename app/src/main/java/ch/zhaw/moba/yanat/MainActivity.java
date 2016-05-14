@@ -20,7 +20,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import ch.zhaw.moba.yanat.db.ProjectContract;
 import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.utility.FileUtility;
@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
     private static final int MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 3;
+
+    public String sortOrder = null;
 
     // String[] perms = {"android.permission.WRITE_EXTERNAL_STORAGE"};
     String[] perms = {};
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        NavigationView  navMenu = (NavigationView) findViewById(R.id.nav_gallery);
+        NavigationView navMenu = (NavigationView) findViewById(R.id.nav_gallery);
 
         toolbar.setOnMenuItemClickListener(
                 new Toolbar.OnMenuItemClickListener() {
@@ -97,27 +99,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             builder.setPositiveButton("Sortieren", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
 
-                                            RadioGroup radioGroup =(RadioGroup) view.findViewById(R.id.sort_radio_group);
+                                            RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.sort_radio_group);
 
-                                            int checkedId= radioGroup.getCheckedRadioButtonId();
+                                            int checkedId = radioGroup.getCheckedRadioButtonId();
                                             View radioButton = radioGroup.findViewById(checkedId);
                                             int idRadioButton = radioGroup.indexOfChild(radioButton);
 
                                             switch (idRadioButton) {
                                                 case 0:
                                                     // TODO Sortierung nach Namen
-                                                    Log.i("YANAT", "Sortierung nach Namen" );
+                                                    sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TITLE + " ASC";
                                                     break;
                                                 case 1:
                                                     // TODO Sortierung nach Bearbeitungsdatum
-                                                    Log.i("YANAT", "Sortierung nach Bearbeitungsdatum");
+                                                    sortOrder = null;
                                                     break;
                                                 case 2:
                                                     // TODO Sortierung nach Erstelldatum
-                                                    Log.i("YANAT", "Sortierung nach Erstelldatum");
+                                                    sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE + " ASC";
                                                     break;
                                             }
-
+                                            listProjects();
                                         }
                                     }
                             );
@@ -156,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                {
                                    @Override
-                                   public void onClick (View v){
+                                   public void onClick(View v) {
                                        // open file dialog
                                        mRequestFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
                                        mRequestFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -168,16 +170,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         );
 
-        this.
-
-                listProjects();
+        this.listProjects();
 
     }
 
 
     public void listProjects() {
         // print all current projects
-        List<Project> projects = projectRepository.findAll();
+        List<Project> projects = projectRepository.find("", null, sortOrder, null);
 
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.project_list);
         mRecyclerView.setHasFixedSize(true);
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         String projectTitle = mProjectName.getText().toString();
 
                         // build project object
-                        Project project = new Project();
+                        Project project = new Project(projectRepository);
                         project.setTitle(projectTitle);
                         projectRepository.add(project);
 
@@ -263,10 +263,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             e.printStackTrace();
                         }
 
-                        projectRepository.update(project);
+                        int projectId = (int)projectRepository.update(project);
 
-                        // reload project list
+                        // reload project list, if user comes back from detail
                         listProjects();
+
+                        // switch to detail view
+                        Intent i = new Intent(MainActivity.this, DetailActivity.class);
+                        i.putExtra("projectId", projectId);
+                        MainActivity.this.startActivity(i);
                     }
 
                     // example to bind vars to function

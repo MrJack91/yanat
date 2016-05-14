@@ -12,6 +12,7 @@ import java.util.List;
 import ch.zhaw.moba.yanat.db.PointContract;
 import ch.zhaw.moba.yanat.db.PointDbHelper;
 import ch.zhaw.moba.yanat.domain.model.Point;
+import ch.zhaw.moba.yanat.domain.model.Project;
 
 /**
  * Created by michael on 05.03.16.
@@ -28,10 +29,16 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
      */
     protected int titleOffset = 0;
 
-    public PointRepository(Context context, int projectId) {
+    protected final ProjectRepository projectRepository;
+
+    protected Project project = null;
+
+    public PointRepository(Context context, int projectId, ProjectRepository projectRepository, Project project) {
         super(context, PointContract.PointEntry.TABLE_NAME);
         this.mDbHelper = new PointDbHelper(this.context);
         this.projectId = projectId;
+        this.projectRepository = projectRepository;
+        this.project = project;
     }
 
     protected ContentValues buildContentValues(Point point) {
@@ -141,6 +148,11 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
         return title;
     }
 
+    protected void preDatabaseChangeHook(Point point) {
+        // update project with current tstamp
+        this.projectRepository.update(this.project);
+
+    }
 
     public List<Point> findAll() {
         // load all fix points (root points without references)
@@ -281,6 +293,21 @@ public class PointRepository extends AbstractRepository<Point, PointContract.Poi
             return points.get(0);
         }
         return null;
+    }
+
+    public void removeAllGroundFloors() {
+        this.dbWrite = this.mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(PointContract.PointEntry.COLUMN_NAME_IS_GROUND_FLOOR, false);
+
+        this.dbWrite.update(
+                this.tableName,
+                values,
+                PointContract.PointEntry.COLUMN_NAME_PROJECT_ID + " = ? AND " + PointContract.PointEntry.COLUMN_NAME_IS_GROUND_FLOOR + " = 1",
+                new String[]{String.valueOf(projectId)}
+        );
+        this.dbWrite.close();
     }
 
 }

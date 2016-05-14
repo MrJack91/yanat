@@ -60,6 +60,7 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
     }
 
     public long add(Model entity) {
+        preDatabaseChangeHook(entity);
         this.dbWrite = this.mDbHelper.getWritableDatabase();
         ContentValues values = this.buildContentValues(entity);
 
@@ -75,10 +76,10 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
         return newRowId;
     }
 
-    public boolean update(Model entity) {
+    public long update(Model entity) {
+        preDatabaseChangeHook(entity);
         if (entity.getId() == 0) {
             this.add(entity);
-            return true;
         } else {
             this.dbWrite = this.mDbHelper.getWritableDatabase();
             ContentValues values = this.buildContentValues(entity);
@@ -90,11 +91,12 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
                     new String[]{String.valueOf(entity.getId())}
             );
             this.dbWrite.close();
-            return true;
         }
+        return entity.getId();
     }
 
     public boolean delete(Model entity) {
+        preDatabaseChangeHook(entity);
         this.dbWrite = this.mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(Contract.COLUMN_NAME_DELETED, 1);
@@ -109,6 +111,10 @@ abstract public class AbstractRepository<Model extends AbstractModel, Contract e
         );
         this.dbWrite.close();
         return true;
+    }
+
+    protected void preDatabaseChangeHook(Model entity) {
+
     }
 
     abstract public List<Model> find(String whereFilter, String[] whereValues, String sortOrder, String[] select);
