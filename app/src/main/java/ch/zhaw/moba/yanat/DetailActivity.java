@@ -288,7 +288,7 @@ public class DetailActivity extends AppCompatActivity {
         dialogBuilder.setTitle("Messpunkt");
         Log.v("YANAT", "Points size: " + points.size());
 
-        markerPaint.drawMarker(newPoint.getPosX(), newPoint.getPosY(), newPoint.getTitle(), pdfBitmap);
+        // markerPaint.drawMarker(newPoint.getPosX(), newPoint.getPosY(), newPoint.getTitle(), pdfBitmap);
 
         this.dialog = dialogBuilder.create();
         this.dialog.show();
@@ -311,6 +311,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     public void closeDialog() {
+        drawPoints();
         if (this.dialog != null) {
             this.dialog.dismiss();
             this.dialog = null;
