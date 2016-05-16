@@ -11,15 +11,16 @@
         android:layout_marginTop="37dp"
         android:layout_marginLeft="10dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Wie sollte die Projekte sortiert werden?\n\nNach:" />
+        android:text="Wie sollten die Projekte sortiert werden?\n\nNach:"
+        android:textSize="16dp" />
 
     <RadioGroup
         android:id="@+id/sort_radio_group"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/sort_description"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_marginTop="25dp">
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="10dp" >
 
         <RadioButton
             android:layout_width="wrap_content"
@@ -28,9 +29,8 @@
             android:id="@+id/sort_radio_button_name"
             android:checked="true"
             android:layout_below="@+id/sort_description"
-            android:layout_marginTop="25dp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_alignStart="@+id/info" />
+            android:layout_alignStart="@+id/info"
+            android:textSize="16dp" />
 
         <RadioButton
             android:layout_width="wrap_content"
@@ -38,8 +38,8 @@
             android:text="Bearbeitungsdatum"
             android:id="@+id/sort_radio_button_bearbeitungsdatum"
             android:checked="false"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_below="@+id/sort_radio_button_name" />
+            android:layout_below="@+id/sort_radio_button_name"
+            android:textSize="16dp"/>
 
         <RadioButton
             android:layout_width="wrap_content"
@@ -47,8 +47,9 @@
             android:text="Erstelldatum"
             android:id="@+id/sort_radio_button_erstelldatum"
             android:checked="false"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_below="@+id/sort_radio_button_bearbeitungsdatum" />
+            android:layout_below="@+id/sort_radio_button_bearbeitungsdatum"
+            android:layout_marginBottom="60dp"
+            android:textSize="16dp" />
 
     </RadioGroup>
 </RelativeLayout>

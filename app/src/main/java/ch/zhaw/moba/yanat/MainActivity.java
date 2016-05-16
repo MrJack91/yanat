@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -76,11 +77,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // checkPermissions();
         // }
 
+
+        // Show About Dialog
+      /*  NavigationView navMenu = (NavigationView) findViewById(R.id.nav_view);
+        Log.v("YANAT", "navMenu: "+navMenu);
+
+        Menu navMenu =  (Menu )getMenuInflater().fR.menu.activity_main_drawer);
+
+
+        Log.v("YANAT", " navMenu.getMenu(): "+ navMenu.getMenu());
+        MenuItem logoutItem = (MenuItem) navMenu.getMenu().findItem(R.id.nav_gallery);
+
+        logoutItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+                final View view = inflater.inflate(R.layout.dialog_about, null);
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                            }
+                        }
+                );
+
+                builder.setView(view);
+                builder.setTitle("Sortieren");
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+                return true;
+            }
+
+        });*/
+
+
+
+        // Show Sort Dialog
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        NavigationView navMenu = (NavigationView) findViewById(R.id.nav_gallery);
 
         toolbar.setOnMenuItemClickListener(
                 new Toolbar.OnMenuItemClickListener() {
@@ -104,15 +142,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                             switch (idRadioButton) {
                                                 case 0:
-                                                    // TODO Sortierung nach Namen
                                                     sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TITLE + " ASC";
                                                     break;
                                                 case 1:
-                                                    // TODO Sortierung nach Bearbeitungsdatum
                                                     sortOrder = null;
                                                     break;
                                                 case 2:
-                                                    // TODO Sortierung nach Erstelldatum
                                                     sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE + " ASC";
                                                     break;
                                             }

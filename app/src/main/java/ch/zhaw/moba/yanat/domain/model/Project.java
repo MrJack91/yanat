@@ -82,7 +82,7 @@ public class Project extends AbstractModel {
         return pointRepository;
     }
 
-    public File buildPdf(Context context) {
+    public File buildPdf(Context context, int textsize) {
         PdfGeneratorUtility pdfGeneratorUtility = new PdfGeneratorUtility();
 
         String fileTitle = this.getTitle() + "_yanat";
@@ -90,8 +90,9 @@ public class Project extends AbstractModel {
         String pdfName = "/data/data/ch.zhaw.moba.yanat/files/" + this.getId() + "/" + fileTitle + ".pdf";
 
         String path = null;
+
         try {
-            path = pdfGeneratorUtility.buildPdf(pdfName, this, context);
+            path = pdfGeneratorUtility.buildPdf(pdfName, this, context, textsize);
         } catch (DocumentException e) {
             e.printStackTrace();
         } catch (IOException e) {

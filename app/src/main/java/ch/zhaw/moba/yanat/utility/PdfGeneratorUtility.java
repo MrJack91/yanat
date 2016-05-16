@@ -1,11 +1,13 @@
 package ch.zhaw.moba.yanat.utility;
 
 import android.content.Context;
+import android.text.style.ParagraphStyle;
 import android.util.Log;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.ColumnText;
@@ -31,13 +33,15 @@ public class PdfGeneratorUtility {
     protected Project project;
 
     public static final float POINT_TO_MM = (float) 0.352778;
+    private int textsize;
 
     public PdfGeneratorUtility() {
 
     }
 
-    public String buildPdf(String filename, Project project, Context context) throws DocumentException, IOException {
+    public String buildPdf(String filename, Project project, Context context, int textsize) throws DocumentException, IOException {
         this.project = project;
+        this.textsize = textsize;
 
         PointRepository pointRepository = project.getPointRepository(context);
         List<Point> points = pointRepository.findAll();
@@ -154,13 +158,16 @@ public class PdfGeneratorUtility {
         gState.setFillOpacity(1f);
         gState.setStrokeOpacity(1);
         canvas.setGState(gState);
-
-        Rectangle rect = new Rectangle((float) (x + llx + 8), (float) (y + lly + 3 + lineCorrection), (float) (x + llx + width - 3), (float) (y + lly + height));
+                                        //final float llx, final float lly, final float urx, final float ury
+        Rectangle rect = new Rectangle((float) (x + llx + 8), (float) (y + lly + 3 + lineCorrection), (float) ((x + llx + width - 3)*textsize), (float) (y + lly + height));
         rect.setBackgroundColor(BaseColor.LIGHT_GRAY);
 
         ColumnText ct = new ColumnText(canvas);
         ct.setSimpleColumn(rect);
-        ct.addElement(new Paragraph(text));
+        Font font = new Font();
+        font.setSize(textsize);
+        ct.addElement(new Paragraph(text, font));
+
         try {
             ct.go();
         } catch (DocumentException e) {

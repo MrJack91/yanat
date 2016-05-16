@@ -5,6 +5,8 @@ import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -27,6 +29,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,6 +51,9 @@ public class DetailActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
 
+    public static final String PDF_EXPORT = "PDF_EXPORT";
+
+
     protected Project project = null;
     protected View viewList;
     private ImageViewTouch pdfView;
@@ -65,12 +71,16 @@ public class DetailActivity extends AppCompatActivity {
     protected float lastPosX = 0f;
     protected float lastPosY = 0f;
 
+    private SharedPreferences settings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
         int projectId = getIntent().getIntExtra("projectId", 0);
+        settings = getSharedPreferences(PDF_EXPORT, 0);
+
         pdfView = (ImageViewTouch) findViewById(R.id.pdf_view);
 
         project = projectRepository.findById(projectId);
@@ -174,48 +184,101 @@ public class DetailActivity extends AppCompatActivity {
         exportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // generate pdf & open
-                File pdfFile = project.buildPdf(DetailActivity.this);
 
-                Uri fileUri = null;
-                // answer with the create file provider
-                try {
-                    fileUri = FileProvider.getUriForFile(
-                            DetailActivity.this,
-                            "ch.zhaw.moba.yanat.fileprovider",
-                            pdfFile);
-                } catch (IllegalArgumentException e) {
-                    Log.e("File Selector", "The selected file can't be shared: ");
-                }
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-                // open generated pdf
-                Intent target = new Intent(Intent.ACTION_VIEW);
-                // target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                //show dialog for choosing textsize
+                final AlertDialog.Builder builder = new AlertDialog.Builder(DetailActivity.this);
+                LayoutInflater inflater = DetailActivity.this.getLayoutInflater();
 
-                // Grant temporary read permission to the content URI
-                target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                final View view = inflater.inflate(R.layout.dialog_pdfexport_textsize, null);
 
-                if (fileUri != null) {
-                    // Put the Uri and MIME type in the result Intent
-                    // target.setDataAndType(fileUri, "application/pdf");
-                    target.setDataAndType(fileUri, getContentResolver().getType(fileUri));
+                final NumberPicker np = (NumberPicker) view.findViewById(R.id.textsize_input);
+                np.setMinValue(10);
+                np.setMaxValue(100);
 
-                    // Set the result
-                    DetailActivity.this.setResult(Activity.RESULT_OK, target);
-                } else {
-                    target.setDataAndType(null, "");
-                    DetailActivity.this.setResult(RESULT_CANCELED, target);
-                }
+                // get last used text size
+                final int textsize = settings.getInt("textsize", 15);
+                np.setValue(textsize);
 
-                // for explicit request which app should open it
-                // Intent intent = Intent.createChooser(target, "Open File");
-                try {
-                    startActivity(target);
-                } catch (ActivityNotFoundException e) {
-                    // Instruct the user to install a PDF reader here, or something
-                }
-            }
-        });
+                np.setWrapSelectorWheel(true);
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                pdf(np.getValue());
+                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+                            }
+                        }
+                );
+
+                builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putInt("textsize", textsize);
+                                // Commit the edits
+                                editor.commit();
+                            }
+                        }
+                );
+
+                builder.setView(view);
+                builder.setTitle("Schriftgröse auswählen");
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+            }});
+    }
+
+    private void pdf(int textsize){
+
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("textsize", textsize);
+        // Commit the edits
+        editor.commit();
+
+        // generate pdf & open
+        File pdfFile = project.buildPdf(DetailActivity.this, textsize);
+
+        Uri fileUri = null;
+        // answer with the create file provider
+        try {
+            fileUri = FileProvider.getUriForFile(
+                    DetailActivity.this,
+                    "ch.zhaw.moba.yanat.fileprovider",
+                    pdfFile);
+        } catch (IllegalArgumentException e) {
+            Log.e("File Selector", "The selected file can't be shared: ");
+        }
+
+        // open generated pdf
+        Intent target = new Intent(Intent.ACTION_VIEW);
+        // target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+
+        // Grant temporary read permission to the content URI
+        target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        if (fileUri != null) {
+            // Put the Uri and MIME type in the result Intent
+            // target.setDataAndType(fileUri, "application/pdf");
+            target.setDataAndType(fileUri, getContentResolver().getType(fileUri));
+
+            // Set the result
+            DetailActivity.this.setResult(Activity.RESULT_OK, target);
+        } else {
+            target.setDataAndType(null, "");
+            DetailActivity.this.setResult(RESULT_CANCELED, target);
+        }
+
+        // for explicit request which app should open it
+        // Intent intent = Intent.createChooser(target, "Open File");
+        try {
+            startActivity(target);
+        } catch (ActivityNotFoundException e) {
+            // Instruct the user to install a PDF reader here, or something
+        }
     }
 
     public List<Point> listPointsInAdapter(List<Point> points, Point topPoint) {
