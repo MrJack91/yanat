@@ -82,12 +82,15 @@ public class Project extends AbstractModel {
         return pointRepository;
     }
 
+
+    public String getFileTitle(){
+        String fileTitle = this.getTitle() + "_yanat";
+        return fileTitle.replaceAll("[^a-zA-Z0-9.-]", "_");
+    }
     public File buildPdf(Context context, int textsize) {
         PdfGeneratorUtility pdfGeneratorUtility = new PdfGeneratorUtility();
 
-        String fileTitle = this.getTitle() + "_yanat";
-        fileTitle = fileTitle.replaceAll("[^a-zA-Z0-9.-]", "_");
-        String pdfName = "/data/data/ch.zhaw.moba.yanat/files/" + this.getId() + "/" + fileTitle + ".pdf";
+        String pdfName = "/data/data/ch.zhaw.moba.yanat/files/" + this.getId() + "/" + getFileTitle() + ".pdf";
 
         String path = null;
 

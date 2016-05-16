@@ -1,6 +1,7 @@
 package ch.zhaw.moba.yanat.utility;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 
@@ -92,6 +93,56 @@ public class FileUtility {
             }
         }
         return dir;
+    }
+
+    public static void saveBitmapToFile(Bitmap bmp, String filename){
+
+        FileOutputStream out = null;
+        try {
+
+
+            File imgFile = new File(filename);
+
+            if (!imgFile.getParentFile().exists()) {
+                imgFile.getParentFile().mkdirs();
+            }
+
+            Log.v("YANAT", "imgFile.getParentFile().exists(): " +imgFile.getParentFile().exists());
+            Log.v("YANAT", "filename getPath " +imgFile.getPath());
+            Log.v("YANAT", "filename: exists " +imgFile.exists());
+
+
+            if (!imgFile.exists()) {
+                imgFile.createNewFile();
+            }
+
+            out = new FileOutputStream(filename);
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+            // PNG is a lossless format, the compression factor (100) is ignored
+
+
+            if(imgFile.exists()){
+                Log.v("YANAT", "saveBitmapToFile: true" );
+            }else{
+
+                Log.v("YANAT", "saveBitmapToFile: false");
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.flush();
+                    out.close();
+                }
+            } catch (IOException e) {
+                //TODO
+                e.printStackTrace();
+            }
+        }
+
     }
 
 }

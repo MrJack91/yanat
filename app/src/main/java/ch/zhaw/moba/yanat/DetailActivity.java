@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -40,6 +41,7 @@ import ch.zhaw.moba.yanat.domain.model.Project;
 import ch.zhaw.moba.yanat.domain.repository.PointRepository;
 import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.paint.MarkerPaint;
+import ch.zhaw.moba.yanat.utility.FileUtility;
 import ch.zhaw.moba.yanat.view.PointAdapter;
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
@@ -52,7 +54,7 @@ public class DetailActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
 
     public static final String PDF_EXPORT = "PDF_EXPORT";
-
+    private final static String CACHE_PATH = "/data/data/ch.zhaw.moba.yanat/cache/files/";
 
     protected Project project = null;
     protected View viewList;
@@ -86,6 +88,11 @@ public class DetailActivity extends AppCompatActivity {
         project = projectRepository.findById(projectId);
         Log.v("YANAT", project.toString());
         pointRepository = project.getPointRepository(this);
+        File file = new File(CACHE_PATH);
+
+        if(!file.exists()){
+            file.mkdirs();
+        }
 
         showPdfAsImage();
         initListener();
@@ -205,7 +212,7 @@ public class DetailActivity extends AppCompatActivity {
 
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                pdf(np.getValue());
+                                createPdf(np.getValue());
                                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                             }
                         }
@@ -232,7 +239,7 @@ public class DetailActivity extends AppCompatActivity {
             }});
     }
 
-    private void pdf(int textsize){
+    private void createPdf(int textsize){
 
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("textsize", textsize);
@@ -314,6 +321,7 @@ public class DetailActivity extends AppCompatActivity {
     private void drawPoints() {
 
         pdfBitmap = originalEmptyPdfBitmap.copy(originalEmptyPdfBitmap.getConfig(), true);
+        Log.v("YANAT", "originalEmptyPdfBitmap " +pdfBitmap);
 
         for (Point point : getPoints()) {
             markerPaint.drawMarker(point.getPosX() / POINT_TO_MM, point.getPosY() / POINT_TO_MM, point.getTitle(), pdfBitmap);
@@ -434,8 +442,23 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
+    private String getCacheImagePath(){
+        return  CACHE_PATH+"/" + project.getId() + "/" + project.getFileTitle() + ".png";
+    }
+
+
     public void showPdfAsImage() {
         pdfView.clear();
+
+        if(new File (getCacheImagePath()).exists()){
+            originalEmptyPdfBitmap = BitmapFactory.decodeFile(getCacheImagePath());
+            Log.v("YANAT", "originalEmptyPdfBitmap " +originalEmptyPdfBitmap);
+            markerPaint = new MarkerPaint(getResources(), getApplicationContext(), pdfView);
+            drawPoints();
+            return;
+        }
+
+
         try {
             File file = new File(project.getPdf());
             PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
@@ -450,6 +473,7 @@ public class DetailActivity extends AppCompatActivity {
 
             page.render(pdfBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
             originalEmptyPdfBitmap = pdfBitmap.copy(pdfBitmap.getConfig(), true);
+            FileUtility.saveBitmapToFile(originalEmptyPdfBitmap, getCacheImagePath());
 
             markerPaint = new MarkerPaint(getResources(), getApplicationContext(), pdfView);
 

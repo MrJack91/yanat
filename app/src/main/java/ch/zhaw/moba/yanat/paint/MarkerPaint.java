@@ -51,46 +51,6 @@ public class MarkerPaint {
 
     public void drawMarker(float curX, float curY, String name, Bitmap pdfBitmap) {
         Canvas canvas = new Canvas(pdfBitmap);
-
-        // 1. Variante: gefüllter Halbkreis mit Dreieck
-        // pin Halbkreis
-
-                       /* canvas.drawArc(curX - 10, curY - 30, curX + 10, curY, 0, (float) -180, true, paint);
-                        canvas.drawLine(curX, curY, curX - 10, curY - 20, paint);
-                        canvas.drawLine(curX, curY, curX+10, curY-20, paint);
-                        canvas.drawPicture(new Picture());
-                        pdfView.setImageBitmap(pdfBitmap);*/
-
-        // ----------------------------------------------------------------------------------------
-
-        // 2. Variante: gefüllter Halbkreis mit gefüllter Dreieck
-        // ACHTUNG: Dreieck wird nicht ausgefüllt, Lösung nicht gefunden
-        // pin Halbkreis
-        // canvas.drawArc(curX - 10, curY - 30, curX + 10, curY, 0, (float) -180, true, paint);
-
-        // pin Dreieck, Funktioniert nicht
-                       /* Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
-                        canvas.drawPaint(paint2);
-
-                        paint2.setStrokeWidth(1);
-                        paint2.setStyle(Paint.Style.STROKE);
-                        paint2.setAntiAlias(true);
-
-                        Path path = new Path();
-                        //path.setFillType(Path.FillType.EVEN_ODD);
-                        path.moveTo(curX, curY);
-                        path.lineTo(curX - 10, curY - 20);
-                        path.lineTo(curX+10, curY- 20);
-                        path.lineTo(curX, curY);
-                        path.close();
-
-                        canvas.drawPath(path, paint2);
-                        pdfView.setImageBitmap(pdfBitmap);*/
-
-
-        // ----------------------------------------------------------------------------------------
-
-        // 3 Variante: Bild hinzufügen
         Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.marker_small);
         canvas.drawBitmap(bitmap, curX-10, curY-35, null);
 
