@@ -28,7 +28,6 @@
             android:text="Name"
             android:id="@+id/sort_radio_button_name"
             android:checked="true"
-            android:layout_below="@+id/sort_description"
             android:layout_alignStart="@+id/info"
             android:textSize="16dp" />
 

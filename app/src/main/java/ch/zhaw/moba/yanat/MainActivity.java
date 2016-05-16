@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         // create mock object for testing purposes
 
@@ -79,18 +80,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         // Show About Dialog
-      /*  NavigationView navMenu = (NavigationView) findViewById(R.id.nav_view);
-        Log.v("YANAT", "navMenu: "+navMenu);
+        final NavigationView navMenu = (NavigationView) findViewById(R.id.nav_view);
+        MenuItem aboutItem = (MenuItem) navMenu.getMenu().findItem(R.id.nav_about);
+        final   DrawerLayout dl = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        Menu navMenu =  (Menu )getMenuInflater().fR.menu.activity_main_drawer);
-
-
-        Log.v("YANAT", " navMenu.getMenu(): "+ navMenu.getMenu());
-        MenuItem logoutItem = (MenuItem) navMenu.getMenu().findItem(R.id.nav_gallery);
-
-        logoutItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+        aboutItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
+            public boolean onMenuItemClick(final MenuItem item) {
 
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 LayoutInflater inflater = MainActivity.this.getLayoutInflater();
@@ -98,25 +94,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                item.setChecked(false);
+                                dl.closeDrawers();
                             }
                         }
                 );
 
                 builder.setView(view);
-                builder.setTitle("Sortieren");
+                builder.setTitle("About");
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
-
                 return true;
             }
 
-        });*/
-
+        });
 
 
         // Show Sort Dialog
-        setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -125,8 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
 
-                        //TODO Titel mit String vergleichen nicht schön-> andere Lösung finden
-                        if (item.getTitle().equals("Sortierung")) {
+                        if (item.getItemId() == R.id.action_sort_order) {
                             final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                             LayoutInflater inflater = MainActivity.this.getLayoutInflater();
                             final View view = inflater.inflate(R.layout.dialog_sort_projects, null);
@@ -137,17 +131,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                             RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.sort_radio_group);
 
                                             int checkedId = radioGroup.getCheckedRadioButtonId();
-                                            View radioButton = radioGroup.findViewById(checkedId);
-                                            int idRadioButton = radioGroup.indexOfChild(radioButton);
 
-                                            switch (idRadioButton) {
-                                                case 0:
+                                            switch (checkedId) {
+                                                case R.id.sort_radio_button_name:
                                                     sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TITLE + " ASC";
                                                     break;
-                                                case 1:
+                                                case R.id.sort_radio_button_bearbeitungsdatum:
                                                     sortOrder = null;
                                                     break;
-                                                case 2:
+                                                case R.id.sort_radio_button_erstelldatum:
                                                     sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE + " ASC";
                                                     break;
                                             }

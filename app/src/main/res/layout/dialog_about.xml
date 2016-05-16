@@ -4,12 +4,33 @@
     android:layout_height="match_parent">
 
 
-    <EditText
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/dialog_about"
-        android:layout_alignParentTop="true"
+        android:id="@+id/about"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="127dp"
-        android:text="Von: \nMilijana Tomic \nMichael Hadorn " />
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_alignParentTop="true"
+        android:text="@string/about" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/logo"
+        android:src="@mipmap/ic_launcher"
+        android:layout_below="@+id/about"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/about2"
+        android:layout_below="@+id/logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="40dp"
+        android:gravity="center"
+        android:text="YANAT\nYet Another Nivellier Assistance Tool" />
+
 </RelativeLayout>

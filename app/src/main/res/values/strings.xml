@@ -5,4 +5,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <string name="about">Name: YANAT (Yet Another Nivellier Assistance Tool)\n\nAuthor:\n\t\t- Michael Hadorn\n\t\t- Milijana Tomic\n\nProjekt: Seminararbeit Mobile Application 2\n\nSchule: ZHAW\n\nJahr: 2016\n\nVersion: 1.0\n\n</string>
+
 </resources>
