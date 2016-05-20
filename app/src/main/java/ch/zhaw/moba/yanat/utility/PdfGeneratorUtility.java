@@ -1,7 +1,6 @@
 package ch.zhaw.moba.yanat.utility;
 
 import android.content.Context;
-import android.text.style.ParagraphStyle;
 import android.util.Log;
 
 import com.itextpdf.text.BaseColor;
@@ -142,13 +141,16 @@ public class PdfGeneratorUtility {
         float llx = 35;  // low left x
         float lly = 0;
         float width = 115;
-        float height = 80;
-        float lineCorrection = (4 - textLines) * 20;
+        float height = 82;
+        float fontSizeFactor = (float)(textsize / (float)12);
+        float lineCorrection = (4 - textLines) * 20 * fontSizeFactor;
+
+        // add background of text box
         gState = new PdfGState();
         gState.setFillOpacity(0.8f);
         gState.setStrokeOpacity(0.8f);
         canvas.setGState(gState);
-        canvas.roundRectangle(x + llx, y + lly + lineCorrection, width, height - lineCorrection, 2);
+        canvas.roundRectangle(x + llx, y + lly + lineCorrection, width * fontSizeFactor, ((height * fontSizeFactor) - lineCorrection), 2);
         canvas.setColorFill(BaseColor.WHITE);
         canvas.fillStroke();
 
@@ -158,15 +160,22 @@ public class PdfGeneratorUtility {
         gState.setFillOpacity(1f);
         gState.setStrokeOpacity(1);
         canvas.setGState(gState);
-                                        //final float llx, final float lly, final float urx, final float ury
-        Rectangle rect = new Rectangle((float) (x + llx + 8), (float) (y + lly + 3 + lineCorrection), (float) ((x + llx + width - 3)*textsize), (float) (y + lly + height));
+
+        // build text rectangle
+        Rectangle rect = new Rectangle(
+                (float) (x + llx + 8),                                  // lower left x
+                (float) (y + lly + 3 + lineCorrection),                 // lower left y
+                (float) (x + llx + (width*fontSizeFactor) - 3),         // upper right x
+                (float) (y + lly + (height*fontSizeFactor))             // upper right y
+        );
         rect.setBackgroundColor(BaseColor.LIGHT_GRAY);
 
         ColumnText ct = new ColumnText(canvas);
         ct.setSimpleColumn(rect);
         Font font = new Font();
         font.setSize(textsize);
-        ct.addElement(new Paragraph(text, font));
+        Paragraph p = new Paragraph(text, font);
+        ct.addElement(p);
 
         try {
             ct.go();
