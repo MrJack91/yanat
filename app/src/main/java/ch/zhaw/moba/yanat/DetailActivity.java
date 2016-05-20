@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -43,6 +44,7 @@ import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.paint.MarkerPaint;
 import ch.zhaw.moba.yanat.utility.FileUtility;
 import ch.zhaw.moba.yanat.view.PointAdapter;
+//import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
 
@@ -135,7 +137,6 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
-        pdfView.setDisplayType(ImageViewTouchBase.DisplayType.FIT_TO_SCREEN);
 
         // set on drag event actions
         pdfView.setOnDragListener(new View.OnDragListener() {
@@ -205,8 +206,9 @@ public class DetailActivity extends AppCompatActivity {
                 np.setMaxValue(100);
 
                 // get last used text size
-                final int textsize = settings.getInt("textsize", 15);
+                final int textsize = settings.getInt("textsize", 12);
                 np.setValue(textsize);
+
 
                 np.setWrapSelectorWheel(true);
 
@@ -328,6 +330,9 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         pdfView.setImageBitmap(pdfBitmap);
+
+        //pdfView.setScaleType(ImageView.ScaleType.MATRIX);
+        pdfView.setDisplayType(ImageViewTouchBase.DisplayType.FIT_IF_BIGGER);
     }
 
     private void openPointDialog(float[] pos, boolean isNew) {
@@ -453,7 +458,7 @@ public class DetailActivity extends AppCompatActivity {
         if(new File (getCacheImagePath()).exists()){
             originalEmptyPdfBitmap = BitmapFactory.decodeFile(getCacheImagePath());
             Log.v("YANAT", "originalEmptyPdfBitmap " +originalEmptyPdfBitmap);
-            markerPaint = new MarkerPaint(getResources(), getApplicationContext(), pdfView);
+            markerPaint = new MarkerPaint(getResources(), getApplicationContext(), pdfView, DetailActivity.this);
             drawPoints();
             return;
         }
@@ -461,21 +466,22 @@ public class DetailActivity extends AppCompatActivity {
 
         try {
             File file = new File(project.getPdf());
+
+
             PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
             PdfRenderer.Page page = renderer.openPage(0);
+
             pdfBitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
             pdfBitmap.setHasAlpha(false);
 
-            // convert alpha channel to white
-            Canvas canvas = new Canvas(pdfBitmap);
-            canvas.drawColor(Color.WHITE);
-            canvas.drawBitmap(pdfBitmap, 0, 0, null);
+            Matrix m = pdfView.getImageMatrix();
+            Rect rect = new Rect(0, 0, pdfView.getWidth(), pdfView.getHeight());
 
-            page.render(pdfBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            page.render(pdfBitmap, rect, m, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
             originalEmptyPdfBitmap = pdfBitmap.copy(pdfBitmap.getConfig(), true);
             FileUtility.saveBitmapToFile(originalEmptyPdfBitmap, getCacheImagePath());
 
-            markerPaint = new MarkerPaint(getResources(), getApplicationContext(), pdfView);
+            markerPaint = new MarkerPaint(getResources(), getApplicationContext(), pdfView, DetailActivity.this);
 
             // set the image to view
             drawPoints();

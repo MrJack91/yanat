@@ -29,13 +29,18 @@
            android:background="@drawable/ic_launch_white_18dp" />
 
 
-          <it.sephiroth.android.library.imagezoom.ImageViewTouch
+         <it.sephiroth.android.library.imagezoom.ImageViewTouch
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
               android:id="@+id/pdf_view"
-              android:background="@android:color/white"
-              android:layout_below="@+id/image_view_pin" />
+              android:layout_below="@+id/image_view_pin"/>
 
+
+    <!--<android.support.v7.widget.AppCompatImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/pdf_view"
+        android:layout_below="@+id/image_view_pin" />-->
 
            <android.support.v7.widget.AppCompatImageView
                android:layout_width="wrap_content"

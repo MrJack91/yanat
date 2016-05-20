@@ -6,12 +6,23 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.pdf.PdfRenderer;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
+import java.util.NoSuchElementException;
+
+import ch.zhaw.moba.yanat.DetailActivity;
 import ch.zhaw.moba.yanat.R;
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
+import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
 
 /**
  * Created by Milijana on 24.04.2016.
@@ -21,11 +32,16 @@ public class MarkerPaint {
     private Resources res;
     private Context context;
     private ImageViewTouch pdfView;
+    private PdfRenderer renderer;
+    private int x;
+    private int y;
+    private DetailActivity detailActivity;
 
-    public MarkerPaint(Resources res, Context context, ImageViewTouch pdfView) {
+    public MarkerPaint( Resources res, Context context, ImageViewTouch pdfView, DetailActivity detailActivity) {
         this.res = res;
         this.context = context;
         this.pdfView = pdfView;
+        this.detailActivity = detailActivity;
     }
 
     private void paintLetter(float curX, float curY, String name, Canvas canvas) {
@@ -50,11 +66,89 @@ public class MarkerPaint {
 
 
     public void drawMarker(float curX, float curY, String name, Bitmap pdfBitmap) {
-        Canvas canvas = new Canvas(pdfBitmap);
+        Paint paint = new Paint();
         Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.marker_small);
-        canvas.drawBitmap(bitmap, curX-10, curY-35, null);
+        Canvas canvas = new Canvas(pdfBitmap);
+        canvas.drawBitmap(bitmap, curX - 10, curY - 35, paint);
 
         paintLetter(curX, curY, name, canvas);
-        pdfView.setImageBitmap(pdfBitmap);
+        //pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
+        //scaleImage(pdfBitmap);
+        //pdfView.setImageBitmap(pdfBitmap);
+        //pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
+        //pdfView.setMaxWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+        //pdfView.setMaxHeight(ViewGroup.LayoutParams.MATCH_PARENT);
+
+
+        //pdfView.setScaleType(ImageView.ScaleType.MATRIX);
+        // pdfView.setImageMatrix(Matrix).
+       //scaleImage(pdfBitmap);
+        //pdfView.invalidate();
+    }
+
+
+
+
+
+
+
+
+
+
+    private void scaleImage(Bitmap bitmap) throws NoSuchElementException {
+
+
+        // Get current dimensions AND the desired bounding box
+        int width = 0;
+
+        try {
+            width = bitmap.getWidth();
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Can't find bitmap on given view/drawable");
+        }
+
+        int height = bitmap.getHeight();
+        int bounding = dpToPx(250);
+        Log.i("YANAT", "original width = " + Integer.toString(width));
+        Log.i("YANAT", "original height = " + Integer.toString(height));
+        Log.i("YANAT", "bounding = " + Integer.toString(bounding));
+
+        // Determine how much to scale: the dimension requiring less scaling is
+        // closer to the its side. This way the image always stays inside your
+        // bounding box AND either x/y axis touches it.
+        float xScale = ((float) bounding) / width;
+        float yScale = ((float) bounding) / height;
+        float scale = (xScale <= yScale) ? xScale : yScale;
+        Log.i("YANAT", "xScale = " + Float.toString(xScale));
+        Log.i("YANAT", "yScale = " + Float.toString(yScale));
+        Log.i("YANAT", "scale = " + Float.toString(scale));
+
+        // Create a matrix for the scaling and add the scaling data
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+
+        // Create a new bitmap and convert it to a format understood by the ImageView
+        Bitmap scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+        width = scaledBitmap.getWidth(); // re-use
+        height = scaledBitmap.getHeight(); // re-use
+        BitmapDrawable result = new BitmapDrawable(scaledBitmap);
+        Log.i("YANAT", "scaled width = " + Integer.toString(width));
+        Log.i("YANAT", "scaled height = " + Integer.toString(height));
+
+        // Apply the scaled bitmap
+        pdfView.setImageDrawable(result);
+
+        // Now change ImageView's dimensions to match the scaled image
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) pdfView.getLayoutParams();
+        params.width = width;
+        params.height = height;
+        pdfView.setLayoutParams(params);
+
+        Log.i("Test", "done");
+    }
+
+    private int dpToPx(int dp) {
+        float density = detailActivity.getApplicationContext().getResources().getDisplayMetrics().density;
+        return Math.round((float)dp * density);
     }
 }
