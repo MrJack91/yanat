@@ -202,8 +202,8 @@ public class DetailActivity extends AppCompatActivity {
                 final View view = inflater.inflate(R.layout.dialog_pdfexport_textsize, null);
 
                 final NumberPicker np = (NumberPicker) view.findViewById(R.id.textsize_input);
-                np.setMinValue(10);
-                np.setMaxValue(100);
+                np.setMinValue(8);
+                np.setMaxValue(30);
 
                 // get last used text size
                 final int textsize = settings.getInt("textsize", 12);
@@ -215,15 +215,12 @@ public class DetailActivity extends AppCompatActivity {
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 createPdf(np.getValue());
-                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                             }
                         }
                 );
 
                 builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-
                                 SharedPreferences.Editor editor = settings.edit();
                                 editor.putInt("textsize", textsize);
                                 // Commit the edits
@@ -391,6 +388,7 @@ public class DetailActivity extends AppCompatActivity {
             newPoint = createNewPoint((int) (posX * POINT_TO_MM), (int) (posY * POINT_TO_MM));
             fab.hide();
         }
+
         listPointsInAdapter(points, newPoint);
 
         // additional new point
@@ -426,6 +424,7 @@ public class DetailActivity extends AppCompatActivity {
         // fix to show keyboard on input fields on dialogs
         this.dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         this.dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
 
         // maybe there was a delete -> draw all current points again
         // called by back button (cancel action)

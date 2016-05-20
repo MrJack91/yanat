@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -54,9 +55,9 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
         protected PointRepository pointRepository;
 
         public TextView title;
-        public TextView height;
+        public EditText height;
         public CheckBox groundFloor;
-        public TextView comment;
+        public EditText comment;
         public Spinner spinner;
         // public TextView create_date;
         // public TextView tstamp;
@@ -68,10 +69,11 @@ public class PointAdapter extends RecyclerView.Adapter<PointAdapter.PointViewHol
             final PointRepository pointRepository = pointRepository1;
 
             title = (TextView) itemView.findViewById(R.id.mesure_point_name_show);
-            height = (TextView) itemView.findViewById(R.id.input_measure_point_height);
+            height = (EditText) itemView.findViewById(R.id.input_measure_point_height);
             groundFloor = (CheckBox) itemView.findViewById(R.id.ground_floor);
-            comment = (TextView) itemView.findViewById(R.id.input_measure_point_comment);
+            comment = (EditText) itemView.findViewById(R.id.input_measure_point_comment);
             spinner = (Spinner) itemView.findViewById(R.id.spinner_measure_point_reference_point);
+
             spinner.setOnItemSelectedListener(
                     new AdapterView.OnItemSelectedListener() {
 

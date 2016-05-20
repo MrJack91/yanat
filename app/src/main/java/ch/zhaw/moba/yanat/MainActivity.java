@@ -2,6 +2,7 @@ package ch.zhaw.moba.yanat;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -23,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.itextpdf.text.Rectangle;
@@ -49,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
     private static final int MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 3;
+    public static final String PDF_SORT_ORDER = "PDF_SORT_ORDER";
+
+    private SharedPreferences settings;
 
     public String sortOrder = null;
 
@@ -61,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        settings = getSharedPreferences(PDF_SORT_ORDER, 0);
 
         // create mock object for testing purposes
 
@@ -125,6 +132,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             LayoutInflater inflater = MainActivity.this.getLayoutInflater();
                             final View view = inflater.inflate(R.layout.dialog_sort_projects, null);
 
+                            // Radiobutton vorselektieren
+                            sortOrder = settings.getString("sortOrder", ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP);
+                            Log.v("YANAT", " get sortOrder: " +sortOrder);
+
+                            switch (sortOrder) {
+                                case ProjectContract.ProjectEntry.COLUMN_NAME_TITLE+ " ASC":
+                                    ((RadioButton) view.findViewById(R.id.sort_radio_button_name)).setChecked(true);
+                                    break;
+                                case ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP+ " DESC":
+                                    ((RadioButton) view.findViewById(R.id.sort_radio_button_bearbeitungsdatum)).setChecked(true);
+                                    break;
+                                case ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE+ " ASC":
+                                    ((RadioButton) view.findViewById(R.id.sort_radio_button_erstelldatum)).setChecked(true);
+                                    break;
+                            }
+
                             builder.setPositiveButton("Sortieren", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
 
@@ -137,12 +160,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                     sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TITLE + " ASC";
                                                     break;
                                                 case R.id.sort_radio_button_bearbeitungsdatum:
-                                                    sortOrder = null;
+                                                    sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP+ " DESC";
                                                     break;
                                                 case R.id.sort_radio_button_erstelldatum:
                                                     sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_CREATE_DATE + " ASC";
                                                     break;
                                             }
+
+                                            Log.v("YANAT", "save sortOrder: " +sortOrder);
+
+                                            SharedPreferences.Editor editor = settings.edit();
+                                            editor.putString("sortOrder", sortOrder);
+                                            // Commit the edits
+                                            editor.commit();
+
+
                                             listProjects();
                                         }
                                     }
