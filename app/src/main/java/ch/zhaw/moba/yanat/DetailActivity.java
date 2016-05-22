@@ -67,7 +67,6 @@ public class DetailActivity extends AppCompatActivity {
     private Bitmap pdfBitmap;
     private Bitmap originalEmptyPdfBitmap; // original pdf Bitmap without markers. To use after deleting markers
 
-    private android.widget.RelativeLayout.LayoutParams layoutParams;
     private MarkerPaint markerPaint;
 
     public static final float POINT_TO_MM = (float) 0.352778;
@@ -318,18 +317,13 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void drawPoints() {
-
         pdfBitmap = originalEmptyPdfBitmap.copy(originalEmptyPdfBitmap.getConfig(), true);
-        Log.v("YANAT", "originalEmptyPdfBitmap " +pdfBitmap);
 
         for (Point point : getPoints()) {
             markerPaint.drawMarker(point.getPosX() / POINT_TO_MM, point.getPosY() / POINT_TO_MM, point.getTitle(), pdfBitmap);
         }
 
         pdfView.setImageBitmap(pdfBitmap);
-
-        //pdfView.setScaleType(ImageView.ScaleType.MATRIX);
-        pdfView.setDisplayType(ImageViewTouchBase.DisplayType.FIT_IF_BIGGER);
     }
 
     private void openPointDialog(float[] pos, boolean isNew) {
@@ -450,33 +444,25 @@ public class DetailActivity extends AppCompatActivity {
         return  CACHE_PATH+"/" + project.getId() + "/" + project.getFileTitle() + ".png";
     }
 
-
     public void showPdfAsImage() {
         pdfView.clear();
 
         if(new File (getCacheImagePath()).exists()){
             originalEmptyPdfBitmap = BitmapFactory.decodeFile(getCacheImagePath());
-            Log.v("YANAT", "originalEmptyPdfBitmap " +originalEmptyPdfBitmap);
             markerPaint = new MarkerPaint(getResources(), getApplicationContext(), pdfView, DetailActivity.this);
             drawPoints();
             return;
         }
 
-
         try {
             File file = new File(project.getPdf());
-
 
             PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
             PdfRenderer.Page page = renderer.openPage(0);
 
             pdfBitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
-            pdfBitmap.setHasAlpha(false);
 
-            Matrix m = pdfView.getImageMatrix();
-            Rect rect = new Rect(0, 0, pdfView.getWidth(), pdfView.getHeight());
-
-            page.render(pdfBitmap, rect, m, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            page.render(pdfBitmap, null, null , PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
             originalEmptyPdfBitmap = pdfBitmap.copy(pdfBitmap.getConfig(), true);
             FileUtility.saveBitmapToFile(originalEmptyPdfBitmap, getCacheImagePath());
 
@@ -485,8 +471,7 @@ public class DetailActivity extends AppCompatActivity {
             // set the image to view
             drawPoints();
 
-            // pdfView.invalidate();
-            // renderer.close();
+             renderer.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

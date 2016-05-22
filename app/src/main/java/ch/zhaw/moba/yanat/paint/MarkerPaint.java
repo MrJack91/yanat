@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import java.util.NoSuchElementException;
 
@@ -60,42 +61,18 @@ public class MarkerPaint {
         circlePaint.setAntiAlias(true);
 
         canvas.drawCircle(curX + 40, curY - 10 - (bounds.height() / 2), bounds.width() + 5, circlePaint);
-
         canvas.drawText(name, curX + 40, curY - 10, letterPaint);
     }
 
-
     public void drawMarker(float curX, float curY, String name, Bitmap pdfBitmap) {
-        Paint paint = new Paint();
         Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.marker_small);
         Canvas canvas = new Canvas(pdfBitmap);
-        canvas.drawBitmap(bitmap, curX - 10, curY - 35, paint);
+        canvas.drawBitmap(bitmap, curX - 10, curY - 35, new Paint());
 
         paintLetter(curX, curY, name, canvas);
-        //pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
-        //scaleImage(pdfBitmap);
-        //pdfView.setImageBitmap(pdfBitmap);
-        //pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
-        //pdfView.setMaxWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
-        //pdfView.setMaxHeight(ViewGroup.LayoutParams.MATCH_PARENT);
-
-
-        //pdfView.setScaleType(ImageView.ScaleType.MATRIX);
-        // pdfView.setImageMatrix(Matrix).
-       //scaleImage(pdfBitmap);
-        //pdfView.invalidate();
     }
 
-
-
-
-
-
-
-
-
-
-    private void scaleImage(Bitmap bitmap) throws NoSuchElementException {
+    public void scaleImage(Bitmap bitmap) throws NoSuchElementException {
 
 
         // Get current dimensions AND the desired bounding box
@@ -136,10 +113,11 @@ public class MarkerPaint {
         Log.i("YANAT", "scaled height = " + Integer.toString(height));
 
         // Apply the scaled bitmap
-        pdfView.setImageDrawable(result);
+        //pdfView.setImageDrawable(result);
+        pdfView.setImageBitmap(scaledBitmap);
 
         // Now change ImageView's dimensions to match the scaled image
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) pdfView.getLayoutParams();
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) pdfView.getLayoutParams();
         params.width = width;
         params.height = height;
         pdfView.setLayoutParams(params);

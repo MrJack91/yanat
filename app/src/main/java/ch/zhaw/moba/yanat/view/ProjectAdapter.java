@@ -85,7 +85,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
                         .setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {}
                         })
-                        .setNeutralButton("Projekt Löschen", new DialogInterface.OnClickListener() {
+                        .setNeutralButton("Löschen", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 projectRepository.delete(currentProject);
                                 getMainActivity().listProjects();
