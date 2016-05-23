@@ -46,6 +46,9 @@ public class ProjectRepository extends AbstractRepository<Project, ProjectContra
         }
         whereFilter = ProjectContract.ProjectEntry.COLUMN_NAME_DELETED + " = 0" + whereFilter;
 
+	    if (sortOrder == null) {
+            sortOrder = ProjectContract.ProjectEntry.COLUMN_NAME_TSTAMP + " DESC";
+        }
         Cursor cursor = dbRead.query(
                 ProjectContract.ProjectEntry.TABLE_NAME,  // The table to query
                 select,                                     // The columns to return

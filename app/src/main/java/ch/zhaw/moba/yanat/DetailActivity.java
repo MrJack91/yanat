@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,9 +43,10 @@ import ch.zhaw.moba.yanat.domain.repository.ProjectRepository;
 import ch.zhaw.moba.yanat.paint.MarkerPaint;
 import ch.zhaw.moba.yanat.utility.FileUtility;
 import ch.zhaw.moba.yanat.view.PointAdapter;
-//import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
+
+//import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -136,6 +136,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
+        pdfView.setDisplayType(ImageViewTouchBase.DisplayType.FIT_TO_SCREEN);
 
         // set on drag event actions
         pdfView.setOnDragListener(new View.OnDragListener() {
@@ -461,8 +462,15 @@ public class DetailActivity extends AppCompatActivity {
             PdfRenderer.Page page = renderer.openPage(0);
 
             pdfBitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+            pdfBitmap.setHasAlpha(false);
 
-            page.render(pdfBitmap, null, null , PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            // convert alpha channel to white
+            Canvas canvas = new Canvas(pdfBitmap);
+            canvas.drawColor(Color.WHITE);
+            canvas.drawBitmap(pdfBitmap, 0, 0, null);
+
+            page.render(pdfBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+
             originalEmptyPdfBitmap = pdfBitmap.copy(pdfBitmap.getConfig(), true);
             FileUtility.saveBitmapToFile(originalEmptyPdfBitmap, getCacheImagePath());
 

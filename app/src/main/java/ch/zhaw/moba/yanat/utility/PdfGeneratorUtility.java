@@ -126,10 +126,10 @@ public class PdfGeneratorUtility {
                             GeneralUtility.formatHeight(point.getHeightRelative()) + "m (rel.)\n";
             if (point.getHeightToGroundFloor() != null && !point.isGroundFloor()) {
                 textLines++;
-                text += GeneralUtility.formatHeight(point.getHeightToGroundFloor()) + "m (GF)\n";
+                text += GeneralUtility.formatHeight(point.getHeightToGroundFloor()) + "m (EG)\n";
             } else if (point.isGroundFloor()) {
                 textLines++;
-                text += "is GF\n";
+                text += "ist EG\n";
             }
             if (point.getComment().length() > 0) {
                 textLines++;
